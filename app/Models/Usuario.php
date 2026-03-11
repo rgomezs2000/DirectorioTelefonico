@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @property int         $id_usuario
@@ -148,6 +149,61 @@ class Usuario extends BaseModel implements AuthenticatableContract
     public function auditoriaLog(): HasMany
     {
         return $this->hasMany(AuditoriaLog::class, 'id_usuario', 'id_usuario');
+    }
+
+    /**
+     * Método de prueba para validar login + password.
+     *
+     * Retorna un arreglo con:
+     * - codigo: 200/202/203
+     * - mensaje: resultado legible
+     * - data: datos del usuario y relaciones cuando es exitoso
+     */
+    public static function validarLoginTest(string $login, string $password): array
+    {
+        $usuario = self::query()
+            ->where('username', $login)
+            ->orWhere('email', $login)
+            ->first();
+
+        if (! $usuario) {
+            return [
+                'codigo'  => 202,
+                'mensaje' => 'El usuario no existe',
+                'data'    => null,
+            ];
+        }
+
+        $credencial = Credencial::query()
+            ->where('id_usuario', $usuario->id_usuario)
+            ->first();
+
+        if (! $credencial || ! Hash::check($password, $credencial->password_hash)) {
+            return [
+                'codigo'  => 203,
+                'mensaje' => 'Clave inválida',
+                'data'    => null,
+            ];
+        }
+
+        $usuario->load(['tipoUsuario', 'credencial', 'sesiones', 'permisosIndividuales']);
+
+        $permisosTipo = Permiso::query()
+            ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
+            ->get();
+
+        return [
+            'codigo'  => 200,
+            'mensaje' => 'Login válido',
+            'data'    => [
+                'usuario'          => $usuario,
+                'credencial'       => $usuario->credencial,
+                'sesiones'         => $usuario->sesiones,
+                'tipo_usuario'     => $usuario->tipoUsuario,
+                'permisos'         => $permisosTipo,
+                'permisos_usuario' => $usuario->permisosIndividuales,
+            ],
+        ];
     }
 
     // ── Scopes propios ────────────────────────────────────────────
