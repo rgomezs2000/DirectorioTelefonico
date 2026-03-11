@@ -1,74 +1,110 @@
 {{-- =============================================================
-     resources/views/auth/login.blade.php
-     Extiende: layouts/app.blade.php
+     resources/views/login.blade.php
+     Extiende: layouts/login.blade.php
      Vista: Login — Directorio Telefónico
+     Librerías: Tailwind v4 · Alpine.js · Axios
 ============================================================= --}}
 
-@extends('layouts.app')
+@extends('layouts.login')
 
 {{-- ── SEO ─────────────────────────────────────────────────── --}}
 @section('title', 'Iniciar sesión — Directorio Telefónico')
 @section('meta_description', 'Accede al Directorio Telefónico con tus credenciales.')
 
-{{-- ── ANIMACIÓN DE ENTRADA (puro CSS, sin JS) ────────────── --}}
+{{-- ── ESTILOS: animaciones de entrada (CSS puro) ─────────── --}}
 @push('css')
 <style>
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0);    }
     }
-    .anim-title  { animation: fadeSlideUp .45s ease both; }
-    .anim-card   { animation: fadeSlideUp .45s .1s ease both; }
-    .anim-row-1  { animation: fadeSlideUp .4s .15s ease both; }
-    .anim-row-2  { animation: fadeSlideUp .4s .22s ease both; }
-    .anim-row-3  { animation: fadeSlideUp .4s .29s ease both; }
-    .anim-row-4  { animation: fadeSlideUp .4s .36s ease both; }
+    .au-0 { animation: fadeUp .5s ease both; }
+    .au-1 { animation: fadeUp .5s .10s ease both; }
+    .au-2 { animation: fadeUp .4s .18s ease both; }
+    .au-3 { animation: fadeUp .4s .26s ease both; }
+    .au-4 { animation: fadeUp .4s .34s ease both; }
+    .au-5 { animation: fadeUp .4s .42s ease both; }
 </style>
 @endpush
 
-{{-- ── CONTENIDO PRINCIPAL ─────────────────────────────────── --}}
+{{-- ════════════════════════════════════════════════════════════
+     CONTENT
+═══════════════════════════════════════════════════════════════ --}}
 @section('content')
 
 <div class="min-h-screen bg-neutral-100 flex flex-col">
 
     {{-- ══════════════════════════════════════════════════════
-         TÍTULO
+         TÍTULO SUPERIOR
     ══════════════════════════════════════════════════════════ --}}
-    <header class="anim-title w-full pt-12 pb-8 text-center">
-        <h1 class="text-3xl sm:text-4xl font-light tracking-[.25em] text-neutral-800 uppercase">
+    <header class="au-0 w-full pt-12 pb-8 text-center select-none">
+        <h1 class="text-3xl sm:text-4xl font-light tracking-[.3em] uppercase text-neutral-800">
             Directorio Telefónico
         </h1>
-        <div class="mx-auto mt-4 w-14 h-px bg-neutral-400"></div>
+        <div class="mx-auto mt-4 h-px w-16 bg-neutral-400"></div>
     </header>
 
     {{-- ══════════════════════════════════════════════════════
-         CARD LOGIN
+         CARD  —  Alpine.js controla el estado del formulario
     ══════════════════════════════════════════════════════════ --}}
     <main class="flex-1 flex items-start justify-center px-4 pb-20">
 
-        <div class="anim-card w-full max-w-2xl bg-white border border-neutral-300 shadow-lg
-                    flex flex-col sm:flex-row overflow-hidden">
+        {{-- ─────────────────────────────────────────────────
+             x-data: estado local del componente login
+             · loading  → muestra spinner mientras Axios trabaja
+             · error    → mensaje de error genérico de red
+             · form     → campos del formulario
+        ────────────────────────────────────────────────────── --}}
+        <div class="au-1 w-full max-w-2xl bg-white border border-neutral-300 shadow-lg
+                    flex flex-col sm:flex-row overflow-hidden"
+             x-data="{
+                 loading : false,
+                 netError: '',
+                 form    : { email: '', password: '' },
 
-            {{-- ────────────────────────────────────────────
+                 async submitLogin() {
+                     this.loading  = true;
+                     this.netError = '';
+                     try {
+                         const res = await axios.post('{{ route('login') }}', {
+                             email   : this.form.email,
+                             password: this.form.password,
+                             _token  : '{{ csrf_token() }}'
+                         });
+                         {{-- Redirección tras login exitoso --}}
+                         window.location.href = res.data?.redirect ?? '{{ route('dashboard') }}';
+                     } catch (err) {
+                         this.netError = err.response?.data?.message
+                                      ?? 'Error de conexión. Intenta de nuevo.';
+                     } finally {
+                         this.loading = false;
+                     }
+                 }
+             }">
+
+            {{-- ════════════════════════════════════════════
                  PANEL IZQUIERDO  —  logo / imagen
-            ──────────────────────────────────────────────── --}}
+            ═══════════════════════════════════════════════ --}}
             <aside class="sm:w-5/12 min-h-52 sm:min-h-0
                           bg-neutral-200 border-b sm:border-b-0 sm:border-r border-neutral-300
                           flex flex-col items-center justify-center gap-5 p-8">
 
-                {{-- Ícono teléfono (Heroicons outline) --}}
-                {{-- Reemplaza por: <img src="{{ asset('img/logo.svg') }}" alt="Logo" class="w-24"> --}}
+                {{-- Logo — reemplaza el SVG por:
+                     <img src="{{ asset('img/logo.svg') }}" alt="Logo" class="w-24"> --}}
                 <div class="w-20 h-20 rounded-full bg-white border border-neutral-300 shadow-sm
                             flex items-center justify-center">
+                    {{-- Heroicon: phone --}}
                     <svg class="w-9 h-9 text-neutral-600"
                          fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor" stroke-width="1.5">
+                         stroke="currentColor" stroke-width="1.5"
+                         aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372
-                                 c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417
-                                 l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143
-                                 c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173
-                                 L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/>
+                              d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0
+                                 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106
+                                 c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542
+                                 -1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928
+                                 .38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102
+                                 a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/>
                     </svg>
                 </div>
 
@@ -78,19 +114,20 @@
 
             </aside>
 
-            {{-- ────────────────────────────────────────────
+            {{-- ════════════════════════════════════════════
                  PANEL DERECHO  —  formulario
-            ──────────────────────────────────────────────── --}}
+            ═══════════════════════════════════════════════ --}}
             <section class="flex-1 flex flex-col">
 
-                {{-- Errores de validación Laravel --}}
+                {{-- ── Error de validación Laravel (server-side) ── --}}
                 @if ($errors->any())
-                    <div class="px-6 pt-5">
-                        <div class="alert alert-danger text-sm">
-                            <svg class="w-4 h-4 shrink-0 mt-0.5"
-                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="px-5 pt-5">
+                        <div class="flex items-start gap-2 rounded-lg border border-red-200
+                                    bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {{-- Heroicon: exclamation-triangle --}}
+                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 9v3.75m0 3.75h.008v.008H12v-.008Zm9.303-9.376
+                                      d="M12 9v3.75m0 3.75h.008v-.008H12v.008Zm9.303-9.376
                                          c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126
                                          c-.866 1.5.217 3.374 1.948 3.374h14.71
                                          c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378Z"/>
@@ -104,25 +141,50 @@
                     </div>
                 @endif
 
-                {{-- Status de sesión (logout, etc.) --}}
+                {{-- ── Error de red Axios (client-side Alpine) ──── --}}
+                <div x-show="netError"
+                     x-transition
+                     class="px-5 pt-5"
+                     x-cloak>
+                    <div class="flex items-start gap-2 rounded-lg border border-red-200
+                                bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 9v3.75m0 3.75h.008v-.008H12v.008Zm9.303-9.376
+                                     c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126
+                                     c-.866 1.5.217 3.374 1.948 3.374h14.71
+                                     c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378Z"/>
+                        </svg>
+                        <span x-text="netError"></span>
+                    </div>
+                </div>
+
+                {{-- ── Status de sesión (logout exitoso, etc.) ──── --}}
                 @if (session('status'))
-                    <div class="px-6 pt-5">
-                        <div class="alert alert-success text-sm">
+                    <div class="px-5 pt-5">
+                        <div class="flex items-center gap-2 rounded-lg border border-green-200
+                                    bg-green-50 px-4 py-3 text-sm text-green-700">
                             {{ session('status') }}
                         </div>
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('login') }}" novalidate
+                {{-- ────────────────────────────────────────────
+                     FORMULARIO — submit interceptado por Alpine
+                     @submit.prevent evita recarga de página
+                ──────────────────────────────────────────────── --}}
+                <form @submit.prevent="submitLogin"
+                      novalidate
                       class="flex-1 flex flex-col divide-y divide-neutral-200">
+
                     @csrf
 
-                    {{-- ── FILA 1: LOGIN ──────────────────────────── --}}
-                    <div class="anim-row-1 grid grid-cols-2 divide-x divide-neutral-200">
+                    {{-- ── FILA 1: LOGIN / EMAIL ──────────────── --}}
+                    <div class="au-2 grid grid-cols-2 divide-x divide-neutral-200">
 
                         <div class="flex items-center px-6 py-5 bg-neutral-50">
                             <label for="email"
-                                   class="text-sm font-bold tracking-wider text-neutral-700 uppercase">
+                                   class="text-sm font-bold tracking-wider uppercase text-neutral-700">
                                 Login
                             </label>
                         </div>
@@ -132,24 +194,29 @@
                                 id="email"
                                 type="email"
                                 name="email"
+                                x-model="form.email"
                                 value="{{ old('email') }}"
                                 required
                                 autofocus
                                 autocomplete="username"
                                 placeholder="correo@ejemplo.com"
-                                class="form-input text-sm
-                                       @error('email') border-red-400 focus:border-red-500 @enderror"
+                                :disabled="loading"
+                                class="w-full rounded border border-neutral-300 px-3 py-2 text-sm
+                                       text-neutral-800 placeholder-neutral-400
+                                       focus:outline-none focus:border-neutral-500 focus:ring-2
+                                       focus:ring-neutral-200 transition disabled:opacity-50
+                                       @error('email') border-red-400 @enderror"
                             >
                         </div>
 
                     </div>{{-- /FILA 1 --}}
 
-                    {{-- ── FILA 2: PASSWORD ───────────────────────── --}}
-                    <div class="anim-row-2 grid grid-cols-2 divide-x divide-neutral-200">
+                    {{-- ── FILA 2: PASSWORD ───────────────────── --}}
+                    <div class="au-3 grid grid-cols-2 divide-x divide-neutral-200">
 
                         <div class="flex items-center px-6 py-5 bg-neutral-50">
                             <label for="password"
-                                   class="text-sm font-bold tracking-wider text-neutral-700 uppercase">
+                                   class="text-sm font-bold tracking-wider uppercase text-neutral-700">
                                 Password
                             </label>
                         </div>
@@ -159,42 +226,71 @@
                                 id="password"
                                 type="password"
                                 name="password"
+                                x-model="form.password"
                                 required
                                 autocomplete="current-password"
                                 placeholder="••••••••"
-                                class="form-input text-sm
-                                       @error('password') border-red-400 focus:border-red-500 @enderror"
+                                :disabled="loading"
+                                class="w-full rounded border border-neutral-300 px-3 py-2 text-sm
+                                       text-neutral-800 placeholder-neutral-400
+                                       focus:outline-none focus:border-neutral-500 focus:ring-2
+                                       focus:ring-neutral-200 transition disabled:opacity-50
+                                       @error('password') border-red-400 @enderror"
                             >
                         </div>
 
                     </div>{{-- /FILA 2 --}}
 
-                    {{-- ── FILA 3: BOTONES INGRESAR / SALIR ──────── --}}
-                    <div class="anim-row-3 grid grid-cols-2 divide-x divide-neutral-200">
+                    {{-- ── FILA 3: INGRESAR / SALIR ───────────── --}}
+                    <div class="au-4 grid grid-cols-2 divide-x divide-neutral-200">
 
+                        {{-- Botón INGRESAR — muestra spinner mientras carga --}}
                         <div class="flex items-center justify-center px-6 py-5">
                             <button type="submit"
-                                    class="btn btn-primary w-full text-sm">
-                                Ingresar
+                                    :disabled="loading"
+                                    class="w-full flex items-center justify-center gap-2
+                                           rounded border border-neutral-800 bg-neutral-800
+                                           px-4 py-2 text-sm font-semibold text-white
+                                           hover:bg-neutral-700 transition disabled:opacity-60
+                                           disabled:cursor-not-allowed">
+
+                                {{-- Spinner Alpine (visible solo cuando loading = true) --}}
+                                <svg x-show="loading"
+                                     x-cloak
+                                     class="w-4 h-4 animate-spin text-white"
+                                     fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                            stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor"
+                                          d="M4 12a8 8 0 018-8v8H4Z"/>
+                                </svg>
+
+                                <span x-text="loading ? 'Ingresando…' : 'Ingresar'">Ingresar</span>
                             </button>
                         </div>
 
+                        {{-- Botón SALIR / Cancelar --}}
                         <div class="flex items-center justify-center px-5 py-5">
                             <a href="{{ url('/') }}"
-                               class="btn btn-outline w-full text-center text-sm">
+                               class="w-full flex items-center justify-center
+                                      rounded border border-neutral-400 bg-white
+                                      px-4 py-2 text-sm font-semibold text-neutral-700
+                                      hover:bg-neutral-100 transition text-center">
                                 Salir
                             </a>
                         </div>
 
                     </div>{{-- /FILA 3 --}}
 
-                    {{-- ── FILA 4: GOOGLE ─────────────────────────── --}}
-                    <div class="anim-row-4 px-8 py-5 flex justify-center">
+                    {{-- ── FILA 4: GOOGLE ──────────────────────── --}}
+                    <div class="au-5 px-8 py-5 flex justify-center">
                         <a href="{{ route('auth.google') ?? '#' }}"
-                           class="btn btn-ghost w-full max-w-xs border border-neutral-300
-                                  gap-3 justify-center hover:bg-neutral-50 text-sm">
+                           class="flex w-full max-w-xs items-center justify-center gap-3
+                                  rounded border border-neutral-300 bg-white px-4 py-2.5
+                                  text-sm font-medium text-neutral-700
+                                  hover:bg-neutral-50 transition">
 
-                            {{-- Logo Google (colores oficiales, SVG inline) --}}
+                            {{-- Logo Google (SVG colores oficiales) --}}
                             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                                 <path fill="#4285F4"
                                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92
@@ -202,11 +298,11 @@
                                          c2.08-1.92 3.28-4.74 3.28-8.09Z"/>
                                 <path fill="#34A853"
                                       d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77
-                                         c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84
-                                         C3.99 20.53 7.7 23 12 23Z"/>
+                                         c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53
+                                         H2.18v2.84C3.99 20.53 7.7 23 12 23Z"/>
                                 <path fill="#FBBC05"
-                                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18
-                                         C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84Z"/>
+                                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09
+                                         V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84Z"/>
                                 <path fill="#EA4335"
                                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15
                                          C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84
@@ -217,7 +313,7 @@
                         </a>
                     </div>{{-- /FILA 4 --}}
 
-                    {{-- ── ¿Olvidaste tu contraseña? ──────────────── --}}
+                    {{-- ── ¿Olvidaste tu contraseña? ──────────── --}}
                     @if (Route::has('password.request'))
                         <div class="px-6 pb-5 pt-1 text-center">
                             <a href="{{ route('password.request') }}"
@@ -228,13 +324,13 @@
                         </div>
                     @endif
 
-                </form>
+                </form>{{-- /form --}}
 
             </section>
             {{-- /PANEL DERECHO --}}
 
         </div>
-        {{-- /CARD --}}
+        {{-- /CARD Alpine --}}
 
     </main>
 
