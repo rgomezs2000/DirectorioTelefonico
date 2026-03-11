@@ -2,22 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// ══════════════════════════════════════════════════════════════════
-//  TIPO DIRECCION  |  Tabla: tipos_direccion
-// ══════════════════════════════════════════════════════════════════
+// ------------------------------------------------------------
+// 4.2  TIPOS DE DIRECCIÓN
+// ------------------------------------------------------------
+/**
+ * @property int         $id_tipo_direccion
+ * @property string      $nombre
+ * @property string|null $descripcion
+ */
 class TipoDireccion extends BaseModel
 {
     protected $table      = 'tipos_direccion';
     protected $primaryKey = 'id_tipo_direccion';
-    const CREATED_AT      = null;
-    const UPDATED_AT      = null;
+
+    /** tabla sin timestamps */
+    public $timestamps = false;
+    const  CREATED_AT  = null;
+    const  UPDATED_AT  = null;
 
     protected $fillable = ['nombre', 'descripcion'];
 
-    // ── Relaciones ────────────────────────────────────────────────
-    public function direcciones()
+    public function direcciones(): HasMany
     {
         return $this->hasMany(DireccionContacto::class, 'id_tipo_direccion', 'id_tipo_direccion');
     }

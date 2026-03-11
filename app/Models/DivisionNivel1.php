@@ -2,54 +2,81 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
-// ══════════════════════════════════════════════════════════════════
-//  DIVISION NIVEL 1  |  Tabla: divisiones_nivel1
-//  (Departamento / Estado / Provincia)
-// ══════════════════════════════════════════════════════════════════
+/**
+ * @property int         $id_nivel1
+ * @property int         $id_pais
+ * @property string      $nombre
+ * @property string|null $codigo
+ * @property string|null $tipo      Estado, Departamento, Provincia…
+ * @property string|null $capital
+ * @property bool        $activo
+ * @property string      $creado_en
+ */
 class DivisionNivel1 extends BaseModel
 {
     protected $table      = 'divisiones_nivel1';
     protected $primaryKey = 'id_nivel1';
-    const UPDATED_AT      = null;
 
-    protected $fillable = ['id_pais', 'nombre', 'codigo', 'tipo', 'capital', 'activo'];
+    /** sin actualizado_en en esta tabla */
+    public $timestamps = false;
+    const  CREATED_AT  = 'creado_en';
+    const  UPDATED_AT  = null;
+
+    protected $fillable = [
+        'id_pais',
+        'nombre',
+        'codigo',
+        'tipo',
+        'capital',
+        'activo',
+    ];
 
     protected $casts = [
-        'activo'    => 'boolean',
-        'creado_en' => 'datetime',
+        'activo' => 'boolean',
     ];
 
     // ── Relaciones ────────────────────────────────────────────────
-    public function pais()
+
+    public function pais(): BelongsTo
     {
         return $this->belongsTo(Pais::class, 'id_pais', 'id_pais');
     }
 
-    public function divisiones2()
+    public function divisionesNivel2(): HasMany
     {
         return $this->hasMany(DivisionNivel2::class, 'id_nivel1', 'id_nivel1');
     }
 
-    public function usuarios()
+    public function usuarios(): HasMany
     {
         return $this->hasMany(Usuario::class, 'id_nivel1', 'id_nivel1');
     }
 
-    public function contactos()
+    public function contactos(): HasMany
     {
         return $this->hasMany(Contacto::class, 'id_nivel1', 'id_nivel1');
     }
 
-    // ── Scopes ────────────────────────────────────────────────────
-    public function scopePorPais(mixed $query, int $idPais): mixed
+    public function direccionesContacto(): HasMany
+    {
+        return $this->hasMany(DireccionContacto::class, 'id_nivel1', 'id_nivel1');
+    }
+
+    // ── Scopes propios ────────────────────────────────────────────
+
+    /** Filtra por país */
+    public function scopeDePais(Builder $query, int $idPais): Builder
     {
         return $query->where('id_pais', $idPais);
     }
 
-    public function scopePorTipo(mixed $query, string $tipo): mixed
+    /** Ordena alfabéticamente */
+    public function scopeAlfabetico(Builder $query): Builder
     {
-        return $query->where('tipo', $tipo);
+        return $query->orderBy('nombre');
     }
 }

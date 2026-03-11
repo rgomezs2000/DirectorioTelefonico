@@ -2,38 +2,46 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// ══════════════════════════════════════════════════════════════════
-//  SEXO  |  Tabla: sexos
-// ══════════════════════════════════════════════════════════════════
+/**
+ * @property int         $id_sexo
+ * @property string      $nombre
+ * @property string      $abreviatura
+ * @property string|null $descripcion
+ * @property bool        $activo
+ * @property string      $creado_en
+ */
 class Sexo extends BaseModel
 {
     protected $table      = 'sexos';
     protected $primaryKey = 'id_sexo';
-    const UPDATED_AT      = null;
 
-    protected $fillable = ['nombre', 'abreviatura', 'descripcion', 'activo'];
+    /** sin actualizado_en en esta tabla */
+    public $timestamps  = false;
+    const  CREATED_AT   = 'creado_en';
+    const  UPDATED_AT   = null;
+
+    protected $fillable = [
+        'nombre',
+        'abreviatura',
+        'descripcion',
+        'activo',
+    ];
 
     protected $casts = [
-        'activo'    => 'boolean',
-        'creado_en' => 'datetime',
+        'activo' => 'boolean',
     ];
 
     // ── Relaciones ────────────────────────────────────────────────
-    public function usuarios()
+
+    public function usuarios(): HasMany
     {
         return $this->hasMany(Usuario::class, 'id_sexo', 'id_sexo');
     }
 
-    public function contactos()
+    public function contactos(): HasMany
     {
         return $this->hasMany(Contacto::class, 'id_sexo', 'id_sexo');
-    }
-
-    // ── Scopes ────────────────────────────────────────────────────
-    public function scopePorAbreviatura(mixed $query, string $abr): mixed
-    {
-        return $query->where('abreviatura', strtoupper($abr));
     }
 }

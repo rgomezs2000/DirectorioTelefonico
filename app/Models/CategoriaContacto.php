@@ -2,24 +2,42 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// ══════════════════════════════════════════════════════════════════
-//  CATEGORIA CONTACTO  |  Tabla: categorias_contacto
-// ══════════════════════════════════════════════════════════════════
+// ------------------------------------------------------------
+// 4.4  CATEGORÍAS DE CONTACTO
+// ------------------------------------------------------------
+/**
+ * @property int         $id_categoria
+ * @property string      $nombre
+ * @property string|null $descripcion
+ * @property string|null $color_hex
+ * @property string|null $icono
+ * @property bool        $activo
+ */
 class CategoriaContacto extends BaseModel
 {
     protected $table      = 'categorias_contacto';
     protected $primaryKey = 'id_categoria';
-    const UPDATED_AT      = null;
-    const CREATED_AT      = null;
 
-    protected $fillable = ['nombre', 'descripcion', 'color_hex', 'icono', 'activo'];
+    /** tabla sin timestamps */
+    public $timestamps = false;
+    const  CREATED_AT  = null;
+    const  UPDATED_AT  = null;
 
-    protected $casts = ['activo' => 'boolean'];
+    protected $fillable = [
+        'nombre',
+        'descripcion',
+        'color_hex',
+        'icono',
+        'activo',
+    ];
 
-    // ── Relaciones ────────────────────────────────────────────────
-    public function contactos()
+    protected $casts = [
+        'activo' => 'boolean',
+    ];
+
+    public function contactos(): HasMany
     {
         return $this->hasMany(Contacto::class, 'id_categoria', 'id_categoria');
     }

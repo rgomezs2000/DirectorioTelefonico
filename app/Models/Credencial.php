@@ -2,15 +2,51 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
-// ══════════════════════════════════════════════════════════════════
-//  CREDENCIAL  |  Tabla: credenciales
-// ══════════════════════════════════════════════════════════════════
+/**
+ * @property int         $id_credencial
+ * @property int         $id_usuario
+ * @property string      $password_hash
+ * @property string      $algoritmo
+ * @property string|null $token_activacion
+ * @property string|null $token_activacion_exp
+ * @property bool        $token_activacion_usado
+ * @property string|null $token_recuperacion
+ * @property string|null $token_recuperacion_exp
+ * @property bool        $token_recuperacion_uso
+ * @property string|null $token_refresh
+ * @property string|null $token_refresh_exp
+ * @property bool        $debe_cambiar_pass
+ * @property int         $intentos_fallidos
+ * @property string|null $bloqueado_hasta
+ * @property string|null $ultimo_cambio_pass
+ * @property string      $creado_en
+ * @property string      $actualizado_en
+ */
 class Credencial extends BaseModel
 {
     protected $table      = 'credenciales';
     protected $primaryKey = 'id_credencial';
+
+    protected $fillable = [
+        'id_usuario',
+        'password_hash',
+        'algoritmo',
+        'token_activacion',
+        'token_activacion_exp',
+        'token_activacion_usado',
+        'token_recuperacion',
+        'token_recuperacion_exp',
+        'token_recuperacion_uso',
+        'token_refresh',
+        'token_refresh_exp',
+        'debe_cambiar_pass',
+        'intentos_fallidos',
+        'bloqueado_hasta',
+        'ultimo_cambio_pass',
+    ];
 
     protected $hidden = [
         'password_hash',
@@ -19,106 +55,66 @@ class Credencial extends BaseModel
         'token_refresh',
     ];
 
-    protected $fillable = [
-        'id_usuario', 'password_hash', 'algoritmo',
-        'token_activacion', 'token_activacion_exp', 'token_activacion_usado',
-        'token_recuperacion', 'token_recuperacion_exp', 'token_recuperacion_uso',
-        'token_refresh', 'token_refresh_exp',
-        'debe_cambiar_pass', 'intentos_fallidos', 'bloqueado_hasta',
-        'ultimo_cambio_pass',
-    ];
-
     protected $casts = [
+        'token_activacion_usado' => 'boolean',
+        'token_recuperacion_uso' => 'boolean',
+        'debe_cambiar_pass'      => 'boolean',
+        'intentos_fallidos'      => 'integer',
         'token_activacion_exp'   => 'datetime',
         'token_recuperacion_exp' => 'datetime',
         'token_refresh_exp'      => 'datetime',
         'bloqueado_hasta'        => 'datetime',
         'ultimo_cambio_pass'     => 'datetime',
-        'creado_en'              => 'datetime',
-        'actualizado_en'         => 'datetime',
-        'token_activacion_usado' => 'boolean',
-        'token_recuperacion_uso' => 'boolean',
-        'debe_cambiar_pass'      => 'boolean',
-        'intentos_fallidos'      => 'integer',
     ];
 
     // ── Relaciones ────────────────────────────────────────────────
-    public function usuario()
+
+    public function usuario(): BelongsTo
     {
         return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
     }
 
-    // ── Helpers de tokens ─────────────────────────────────────────
+    // ── Scopes propios ────────────────────────────────────────────
 
-    /** Genera y guarda un nuevo token de activación. Retorna el token en claro. */
-    public function generarTokenActivacion(int $horasExpira = 24): string
+    /** Cuentas que están actualmente bloqueadas por intentos fallidos */
+    public function scopeBloqueadas(Builder $query): Builder
     {
-        $tokenClaro = Str::random(64);
-        $this->update([
-            'token_activacion'       => hash('sha256', $tokenClaro),
-            'token_activacion_exp'   => now()->addHours($horasExpira),
-            'token_activacion_usado' => false,
-        ]);
-        return $tokenClaro;
+        return $query->whereNotNull('bloqueado_hasta')
+                     ->where('bloqueado_hasta', '>', now());
     }
 
-    /** Genera y guarda un nuevo token de recuperación. Retorna el token en claro. */
-    public function generarTokenRecuperacion(int $minutosExpira = 60): string
+    /** Cuentas que deben cambiar contraseña en el próximo acceso */
+    public function scopeDebenCambiarPass(Builder $query): Builder
     {
-        $tokenClaro = Str::random(64);
-        $this->update([
-            'token_recuperacion'     => hash('sha256', $tokenClaro),
-            'token_recuperacion_exp' => now()->addMinutes($minutosExpira),
-            'token_recuperacion_uso' => false,
-        ]);
-        return $tokenClaro;
+        return $query->where('debe_cambiar_pass', true);
     }
 
-    /** Verifica si el token de activación en claro es válido. */
-    public function tokenActivacionValido(string $tokenClaro): bool
-    {
-        return ! $this->token_activacion_usado
-            && $this->token_activacion_exp?->isFuture()
-            && hash_equals($this->token_activacion, hash('sha256', $tokenClaro));
-    }
+    // ── Helpers ──────────────────────────────────────────────────
 
-    /** Verifica si el token de recuperación en claro es válido. */
-    public function tokenRecuperacionValido(string $tokenClaro): bool
-    {
-        return ! $this->token_recuperacion_uso
-            && $this->token_recuperacion_exp?->isFuture()
-            && hash_equals($this->token_recuperacion, hash('sha256', $tokenClaro));
-    }
-
-    /** Cambia la contraseña y limpia tokens de recuperación. */
-    public function cambiarPassword(string $nuevaClave): void
-    {
-        $this->update([
-            'password_hash'          => Hash::make($nuevaClave),
-            'token_recuperacion_uso' => true,
-            'ultimo_cambio_pass'     => now(),
-            'intentos_fallidos'      => 0,
-            'bloqueado_hasta'        => null,
-            'debe_cambiar_pass'      => false,
-        ]);
-    }
-
-    /** Registra un intento fallido y bloquea si supera el límite. */
-    public function registrarIntentoFallido(int $maxIntentos = 5, int $minutosBloq = 30): void
-    {
-        $intentos = $this->intentos_fallidos + 1;
-        $datos    = ['intentos_fallidos' => $intentos];
-
-        if ($intentos >= $maxIntentos) {
-            $datos['bloqueado_hasta'] = now()->addMinutes($minutosBloq);
-        }
-
-        $this->update($datos);
-    }
-
-    /** Retorna true si la cuenta está bloqueada por intentos fallidos. */
+    /** Retorna true si la cuenta está actualmente bloqueada */
     public function estaBloqueada(): bool
     {
         return $this->bloqueado_hasta && $this->bloqueado_hasta->isFuture();
+    }
+
+    /** Incrementa los intentos fallidos y bloquea si supera el límite */
+    public function registrarIntentoFallido(int $maxIntentos = 5, int $minutosBloqueado = 30): void
+    {
+        $this->increment('intentos_fallidos');
+
+        if ($this->intentos_fallidos >= $maxIntentos) {
+            $this->update([
+                'bloqueado_hasta' => now()->addMinutes($minutosBloqueado),
+            ]);
+        }
+    }
+
+    /** Limpia los intentos fallidos tras un login exitoso */
+    public function limpiarIntentosFallidos(): void
+    {
+        $this->update([
+            'intentos_fallidos' => 0,
+            'bloqueado_hasta'   => null,
+        ]);
     }
 }

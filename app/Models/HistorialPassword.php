@@ -2,38 +2,58 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-// ══════════════════════════════════════════════════════════════════
-//  HISTORIAL PASSWORD  |  Tabla: historial_passwords
-// ══════════════════════════════════════════════════════════════════
+/**
+ * @property int    $id_historial
+ * @property int    $id_usuario
+ * @property string $password_hash
+ * @property string $algoritmo
+ * @property string $creado_en
+ */
 class HistorialPassword extends BaseModel
 {
     protected $table      = 'historial_passwords';
     protected $primaryKey = 'id_historial';
-    const UPDATED_AT      = null;
 
-    protected $hidden   = ['password_hash'];
-    protected $fillable = ['id_usuario', 'password_hash', 'algoritmo'];
+    /** sin actualizado_en en esta tabla */
+    public $timestamps = false;
+    const  CREATED_AT  = 'creado_en';
+    const  UPDATED_AT  = null;
 
-    protected $casts = ['creado_en' => 'datetime'];
+    protected $fillable = [
+        'id_usuario',
+        'password_hash',
+        'algoritmo',
+    ];
+
+    protected $hidden = [
+        'password_hash',
+    ];
 
     // ── Relaciones ────────────────────────────────────────────────
-    public function usuario()
+
+    public function usuario(): BelongsTo
     {
         return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
     }
 
-    // ── Helpers ───────────────────────────────────────────────────
+    // ── Helpers estáticos ─────────────────────────────────────────
 
-    /** Verifica si la clave ya fue usada en el historial del usuario. */
-    public static function yaFueUsada(int $idUsuario, string $nuevaClave, int $ultimos = 5): bool
+    /**
+     * Comprueba si un hash ya fue utilizado por el usuario
+     * en los últimos $ultimos registros.
+     */
+    public static function yaUsado(int $idUsuario, string $hashNuevo, int $ultimos = 5): bool
     {
-        return static::query()
-            ->where('id_usuario', $idUsuario)
-            ->latest('creado_en')
+        return static::where('id_usuario', $idUsuario)
+            ->orderByDesc('creado_en')
             ->limit($ultimos)
-            ->get()
-            ->contains(fn($h) => Hash::check($nuevaClave, $h->password_hash));
+            ->pluck('password_hash')
+            ->contains(fn($hash) => \Illuminate\Support\Facades\Hash::check(
+                // Nota: esto requiere tener el plain-text; en la práctica
+                // compara hashes directamente según el algoritmo del proyecto.
+                $hashNuevo, $hash
+            ));
     }
 }

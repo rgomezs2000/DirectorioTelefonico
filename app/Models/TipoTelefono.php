@@ -2,22 +2,36 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// ══════════════════════════════════════════════════════════════════
-//  TIPO TELEFONO  |  Tabla: tipos_telefono
-// ══════════════════════════════════════════════════════════════════
+// ============================================================
+//  CATÁLOGOS SIMPLES DE LA SECCIÓN 4
+//  Cinco modelos livianos en un solo archivo para mantener
+//  el proyecto organizado.
+// ============================================================
+
+
+// ------------------------------------------------------------
+// 4.1  TIPOS DE TELÉFONO
+// ------------------------------------------------------------
+/**
+ * @property int         $id_tipo_telefono
+ * @property string      $nombre
+ * @property string|null $descripcion
+ */
 class TipoTelefono extends BaseModel
 {
     protected $table      = 'tipos_telefono';
     protected $primaryKey = 'id_tipo_telefono';
-    const CREATED_AT      = null;
-    const UPDATED_AT      = null;
+
+    /** tabla sin timestamps */
+    public $timestamps = false;
+    const  CREATED_AT  = null;
+    const  UPDATED_AT  = null;
 
     protected $fillable = ['nombre', 'descripcion'];
 
-    // ── Relaciones ────────────────────────────────────────────────
-    public function telefonos()
+    public function telefonos(): HasMany
     {
         return $this->hasMany(TelefonoContacto::class, 'id_tipo_telefono', 'id_tipo_telefono');
     }
