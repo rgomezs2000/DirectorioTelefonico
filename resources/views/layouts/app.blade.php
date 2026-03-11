@@ -44,6 +44,35 @@
         <link rel="apple-touch-icon"                     href="@yield('apple_icon', asset('apple-touch-icon.png'))">
 
         {{-- =============================================
+            TAILWIND CSS v4  —  Play CDN
+            ⚠️  Solo para desarrollo/prototipo.
+            En producción usa Vite (@vite).
+        ============================================== --}}
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+        {{-- Estilos globales / tokens personalizados --}}
+        <style type="text/tailwindcss">
+            @theme {
+                /* --color-primary: #1e40af; */
+                /* --font-sans: 'Inter', sans-serif; */
+            }
+        </style>
+
+        {{-- =============================================
+            AXIOS v1.13.4
+            Debe cargarse ANTES de Alpine.js
+        ============================================== --}}
+        <script src="https://cdn.jsdelivr.net/npm/axios@1.13.4/dist/axios.min.js"></script>
+
+        {{-- =============================================
+            ALPINE.JS v3.15.8
+            Siempre al final del <head> con defer
+        ============================================== --}}
+        <script defer
+                src="https://cdn.jsdelivr.net/npm/[email protected]/dist/cdn.min.js">
+        </script>
+
+        {{-- =============================================
              CSS GLOBAL (compilado de la app)
         ============================================== --}}
         {{-- @vite(['resources/css/app.css']) --}}
