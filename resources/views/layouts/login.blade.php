@@ -75,16 +75,7 @@
              - En local usa HMR si corre `npm run dev`
              - En producción usa `public/build/manifest.json`
         ============================================== --}}
-        @php
-            $hasViteAssets = file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json'));
-        @endphp
-        @if ($hasViteAssets)
-            @vite(['resources/js/app.js'])
-        @else
-            <script>
-                console.warn('Vite no está activo. Ejecuta `npm run dev` o `npm run build` para cargar resources/js/app.js.');
-            </script>
-        @endif
+        @vite(['resources/js/app.js'])
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')
