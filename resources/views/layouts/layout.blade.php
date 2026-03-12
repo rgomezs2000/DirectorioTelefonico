@@ -135,7 +135,16 @@
         {{-- =============================================
              JS GLOBAL (compilado de la app)
         ============================================== --}}
-        @vite(['resources/js/app.js'])
+        @php
+            $hasViteAssets = file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json'));
+        @endphp
+        @if ($hasViteAssets)
+            @vite(['resources/js/app.js'])
+        @else
+            <script>
+                console.warn('Vite no está activo. Ejecuta `npm run dev` o `npm run build` para cargar resources/js/app.js.');
+            </script>
+        @endif
         {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
 
         {{-- JS extra inyectado desde la vista hija --}}
