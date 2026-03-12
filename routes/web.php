@@ -10,6 +10,8 @@ Route::get('/', function () {
 });
 
 Route::get('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/ingresar', [LoginController::class, 'ingresar'])->name('ingresar');
+Route::get('/auth_google', [LoginController::class, 'authGoogle'])->name('auth.google');
 Route::get('/home', [HomeController::class, 'home'])->name('home');
 
 Route::get('/api', [SwaggerController::class, 'ui'])->name('swagger.ui');

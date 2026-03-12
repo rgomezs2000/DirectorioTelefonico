@@ -66,7 +66,7 @@
                      this.loading  = true;
                      this.netError = '';
                      try {
-                         const res = await axios.post('{{ route('login') }}', {
+                         const res = await axios.post('{{ route('ingresar') }}', {
                              email   : this.form.email,
                              password: this.form.password,
                              _token  : '{{ csrf_token() }}'
@@ -284,11 +284,12 @@
 
                     {{-- ── FILA 4: GOOGLE ──────────────────────── --}}
                     <div class="au-5 px-8 py-5 flex justify-center">
-                        <a href="{{ route('auth.google') ?? '#' }}"
-                           class="flex w-full max-w-xs items-center justify-center gap-3
-                                  rounded border border-neutral-300 bg-white px-4 py-2.5
-                                  text-sm font-medium text-neutral-700
-                                  hover:bg-neutral-50 transition">
+                        <button type="button"
+                                disabled
+                                aria-disabled="true"
+                                class="flex w-full max-w-xs items-center justify-center gap-3
+                                       rounded border border-neutral-300 bg-neutral-100 px-4 py-2.5
+                                       text-sm font-medium text-neutral-400 cursor-not-allowed">
 
                             {{-- Logo Google (SVG colores oficiales) --}}
                             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -310,7 +311,7 @@
                             </svg>
 
                             <span>Google</span>
-                        </a>
+                        </button>
                     </div>{{-- /FILA 4 --}}
 
                     {{-- ── ¿Olvidaste tu contraseña? ──────────── --}}
