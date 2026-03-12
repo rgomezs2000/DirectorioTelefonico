@@ -72,8 +72,11 @@
 
         {{-- =============================================
              JS COMPILADO (Vite) — descomenta si usas build
+             Evita error si aún no existe public/build/manifest.json
         ============================================== --}}
-        @vite(['resources/js/app.js'])
+        @if (file_exists(public_path('build/manifest.json')))
+            @vite(['resources/js/app.js'])
+        @endif
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')
