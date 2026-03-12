@@ -130,12 +130,12 @@
         {{-- =============================================
              MODALES GLOBALES (portales)
         ============================================== --}}
-        @yield('modals')
+        @include('modals')
 
         {{-- =============================================
              JS GLOBAL (compilado de la app)
         ============================================== --}}
-        {{-- @vite(['resources/js/app.js']) --}}
+        @vite(['resources/js/app.js'])
         {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
 
         {{-- JS extra inyectado desde la vista hija --}}
