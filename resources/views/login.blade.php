@@ -89,23 +89,12 @@
                           bg-neutral-200 border-b sm:border-b-0 sm:border-r border-neutral-300
                           flex flex-col items-center justify-center gap-5 p-8">
 
-                {{-- Logo — reemplaza el SVG por:
-                     <img src="{{ asset('img/logo.svg') }}" alt="Logo" class="w-24"> --}}
+                {{-- Logo / imagen ubicada en /public/img/logo-login.png --}}
                 <div class="w-20 h-20 rounded-full bg-white border border-neutral-300 shadow-sm
                             flex items-center justify-center">
-                    {{-- Heroicon: phone --}}
-                    <svg class="w-9 h-9 text-neutral-600"
-                         fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor" stroke-width="1.5"
-                         aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0
-                                 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106
-                                 c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542
-                                 -1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928
-                                 .38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102
-                                 a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/>
-                    </svg>
+                    <img src="{{ asset('img/logo-login.png') }}"
+                         alt="Logo"
+                         class="w-14 h-14 object-contain">
                 </div>
 
                 <span class="text-xs font-medium tracking-widest text-neutral-500 uppercase text-center">
