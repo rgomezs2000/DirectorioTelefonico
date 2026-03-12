@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -10,5 +11,13 @@ class LoginController extends Controller
     public function login(): View
     {
         return view('login');
+    }
+
+    public function ingresar(Request $request)
+    {
+    }
+
+    public function authGoogle()
+    {
     }
 }
