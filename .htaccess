@@ -1,11 +1,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Si alguien intenta entrar por /public, devolverlo a la raíz.
-    RewriteCond %{THE_REQUEST} \s/+public(?:/|\s|\?) [NC]
+    # Si entran por /public, redirigir a la raíz del proyecto (manteniendo subcarpetas).
+    RewriteCond %{THE_REQUEST} \s/+(.*/)?public(?:/|\s|\?) [NC]
     RewriteRule ^public/?(.*)$ $1 [R=301,L]
 
-    # Enrutar todo internamente hacia /public para no exponer la carpeta en la URL.
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    # Enrutar todo internamente hacia /public sin duplicar prefijo (public/public/...).
+    RewriteRule ^(?!public/)(.*)$ public/$1 [L]
 </IfModule>
