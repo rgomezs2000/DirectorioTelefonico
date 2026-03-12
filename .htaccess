@@ -1,18 +1,19 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Si entran por /public, redirigir a la raíz del proyecto actual
-    # sin importar si está en dominio raíz, subdominio o subcarpeta.
+    # Si entran por /public, redirigir a la raíz del proyecto actual.
+    # Funciona igual para dominio raíz, subdominio o subcarpeta.
     RewriteCond %{THE_REQUEST} \s/+(.*/)?public(?:/|\s|\?) [NC]
     RewriteRule ^public/?(.*)$ $1 [R=302,L]
 
-    # 1) Entra por /api, /login, etc. -> se envía a /public/... (sin duplicar public/public).
-    RewriteRule ^(?!public/)(.*)$ public/$1 [L,QSA]
+    # Si existe un archivo/carpeta física en /public para esa URL, servirlo sin exponer /public.
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
+    RewriteRule ^(.*)$ public/$1 [L]
 
-    # 2) Fallback para XAMPP/Apache cuando NO se procesa public/.htaccess:
-    #    si la URL ya quedó en /public/... y no existe archivo/carpeta física,
-    #    enviamos directamente a public/index.php para que Laravel resuelva rutas.
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^public/ public/index.php [L,QSA]
+    # Para cualquier otra ruta (ej: /login, /api), enviar directo al front controller.
+    # Así no dependemos de que Apache procese public/.htaccess.
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^ public/index.php [L,QSA]
 </IfModule>
