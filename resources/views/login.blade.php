@@ -72,7 +72,7 @@
                              _token  : '{{ csrf_token() }}'
                          });
                          {{-- Redirección tras login exitoso --}}
-                         window.location.href = res.data?.redirect ?? '{{ route('dashboard') }}';
+                         window.location.href = res.data?.redirect ?? '{{ route('home') }}';
                      } catch (err) {
                          this.netError = err.response?.data?.message
                                       ?? 'Error de conexión. Intenta de nuevo.';
