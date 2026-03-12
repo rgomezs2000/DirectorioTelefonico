@@ -17,19 +17,22 @@ document.addEventListener('alpine:init', () => {
             this.open = true;
         },
 
-        close() {
+        async close() {
+            if (typeof this.data.onClose === 'function') {
+                await this.data.onClose();
+            }
             this.open = false;
         },
 
-        cancel() {
-            this.close();
+        async cancel() {
+            await this.close();
         },
 
         async accept() {
             if (typeof this.data.onAccept === 'function') {
                 await this.data.onAccept();
             }
-            this.close();
+            await this.close();
         },
     });
 });

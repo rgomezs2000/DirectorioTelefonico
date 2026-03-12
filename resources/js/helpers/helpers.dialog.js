@@ -28,7 +28,8 @@ const ICONS_BY_TYPE = {
  *  icon: string,
  *  confirmText: string,
  *  cancelText: string|null,
- *  onAccept: null
+ *  onAccept: null,
+ *  onClose: null
  * }}
  */
 export function dialog(type = 'info', title = '', message = '') {
@@ -43,6 +44,7 @@ export function dialog(type = 'info', title = '', message = '') {
         confirmText: 'Aceptar',
         cancelText: null,
         onAccept: null,
+        onClose: null,
     };
 }
 
@@ -60,7 +62,8 @@ export function dialog(type = 'info', title = '', message = '') {
  *  icon: 'confirm',
  *  confirmText: string,
  *  cancelText: string,
- *  onAccept: Function
+ *  onAccept: Function,
+ *  onClose: null
  * }}
  */
 export function question(title = '', message = '') {
@@ -72,6 +75,7 @@ export function question(title = '', message = '') {
         icon: 'confirm',
         confirmText: 'Aceptar',
         cancelText: 'Cancelar',
+        onClose: null,
         onAccept: async () => {
             // TODO: implementar lógica AJAX según el flujo requerido.
         },
