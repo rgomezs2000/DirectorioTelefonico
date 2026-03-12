@@ -68,10 +68,12 @@
             @yield('content')
         </main>
 
+        @include('layouts.modal')
+
         {{-- =============================================
              JS COMPILADO (Vite) — descomenta si usas build
         ============================================== --}}
-        {{-- @vite(['resources/js/app.js']) --}}
+        @vite(['resources/js/app.js'])
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')

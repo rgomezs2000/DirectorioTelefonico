@@ -92,7 +92,7 @@
                 {{-- Logo / imagen ubicada en /public/img/logo-login.png --}}
                 <div class="w-20 h-20 rounded-full bg-white border border-neutral-300 shadow-sm
                             flex items-center justify-center">
-                    <img src="{{ asset('img/logo-login.png') }}"
+                    <img src="{{ asset('img/directorio.png') }}"
                          alt="Logo"
                          class="w-14 h-14 object-contain">
                 </div>
@@ -325,11 +325,5 @@
     </main>
 
 </div>
-
-@include('modals')
-
-@push('js')
-    @vite(['resources/js/app.js'])
-@endpush
 
 @endsection

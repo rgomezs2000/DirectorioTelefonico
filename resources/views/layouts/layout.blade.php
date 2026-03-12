@@ -130,7 +130,7 @@
         {{-- =============================================
              MODALES GLOBALES (portales)
         ============================================== --}}
-        @include('modals')
+        @include('layouts.modal')
 
         {{-- =============================================
              JS GLOBAL (compilado de la app)
