@@ -326,4 +326,10 @@
 
 </div>
 
+@include('modals')
+
+@push('js')
+    @vite(['resources/js/app.js'])
+@endpush
+
 @endsection
