@@ -71,12 +71,11 @@
         @include('layouts.modal')
 
         {{-- =============================================
-             JS COMPILADO (Vite) — descomenta si usas build
-             Evita error si aún no existe public/build/manifest.json
+             JS GLOBAL (Vite)
+             - En local usa HMR si corre `npm run dev`
+             - En producción usa `public/build/manifest.json`
         ============================================== --}}
-        @if (file_exists(public_path('build/manifest.json')))
-            @vite(['resources/js/app.js'])
-        @endif
+        @vite(['resources/js/app.js'])
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')
