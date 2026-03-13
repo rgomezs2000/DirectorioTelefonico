@@ -5,6 +5,7 @@
         error: 'error',
         warning: 'warning',
         info: 'info',
+        success: 'success',
     };
 
     window.dialog = function (type = 'info', title = '', message = '') {
