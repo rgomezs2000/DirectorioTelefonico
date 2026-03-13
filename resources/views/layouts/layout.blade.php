@@ -133,19 +133,10 @@
         @include('layouts.modal')
 
         {{-- =============================================
-             JS GLOBAL (compilado de la app)
+             JS GLOBAL (sin Vite)
+             Lógica de modal y helpers globales vía Blade.
         ============================================== --}}
-        @php
-            $hasViteAssets = file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json'));
-        @endphp
-        @if ($hasViteAssets)
-            @vite(['resources/js/app.js'])
-        @else
-            <script>
-                console.warn('Vite no está activo. Ejecuta `npm run dev` o `npm run build` para cargar resources/js/app.js.');
-            </script>
-        @endif
-        {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
+        @include('layouts.app-inline-js')
 
         {{-- JS extra inyectado desde la vista hija --}}
         @yield('scripts')

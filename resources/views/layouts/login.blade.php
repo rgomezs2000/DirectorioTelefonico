@@ -71,20 +71,10 @@
         @include('layouts.modal')
 
         {{-- =============================================
-             JS GLOBAL (Vite)
-             - En local usa HMR si corre `npm run dev`
-             - En producción usa `public/build/manifest.json`
+             JS GLOBAL (sin Vite)
+             Lógica de modal y helpers globales vía Blade.
         ============================================== --}}
-        @php
-            $hasViteAssets = file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json'));
-        @endphp
-        @if ($hasViteAssets)
-            @vite(['resources/js/app.js'])
-        @else
-            <script>
-                console.warn('Vite no está activo. Ejecuta `npm run dev` o `npm run build` para cargar resources/js/app.js.');
-            </script>
-        @endif
+        @include('layouts.app-inline-js')
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')
