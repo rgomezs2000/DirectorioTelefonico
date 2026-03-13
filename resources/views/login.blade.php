@@ -80,9 +80,7 @@
 
                          await window.initGoogleAuth(payload);
                      } catch (err) {
-                         const errorMessage = err.response?.data?.message
-                                           ?? 'No fue posible iniciar autenticación de Google.';
-                         this.showModal('error', 'Error de autenticación', errorMessage);
+                         // El manejo visual de éxito/error se centraliza en window.initGoogleAuth.
                      } finally {
                          this.googleLoading = false;
                      }
