@@ -65,12 +65,17 @@
         <script src="https://cdn.jsdelivr.net/npm/axios@1.13.4/dist/axios.min.js"></script>
 
         {{-- =============================================
-            ALPINE.JS v3.15.8
-            Siempre al final del <head> con defer
+             ALPINE.JS — defer obligatorio, al final del head
+             Alpine Plugins + Alpine Core por CDN
         ============================================== --}}
-        <script defer
-                src="https://cdn.jsdelivr.net/npm/[email protected]/dist/cdn.min.js">
-        </script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"
+        ></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
 
         {{-- =============================================
              CSS GLOBAL (compilado de la app)
@@ -133,10 +138,10 @@
         @include('layouts.modal')
 
         {{-- =============================================
-             JS GLOBAL (compilado de la app)
+             JS GLOBAL (sin Vite)
+             Lógica de modal y helpers globales vía Blade.
         ============================================== --}}
-        @vite(['resources/js/app.js'])
-        {{-- <script src="{{ asset('js/app.js') }}"></script> --}}
+        @include('layouts.app-inline-js')
 
         {{-- JS extra inyectado desde la vista hija --}}
         @yield('scripts')

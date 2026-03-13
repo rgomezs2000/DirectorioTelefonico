@@ -51,12 +51,20 @@
 
         {{-- =============================================
              ALPINE.JS — defer obligatorio, al final del head
+             Alpine Plugins + Alpine Core por CDN
         ============================================== --}}
-        <script defer src="https://cdn.jsdelivr.net/npm/[email protected]/dist/cdn.min.js"></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"
+        ></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
 
-    </head>
+        </head>
 
-    {{-- x-data en body para que Alpine esté disponible globalmente --}}
+        {{-- x-data en body para que Alpine esté disponible globalmente --}}
     <body class="antialiased bg-neutral-100 min-h-screen" x-data>
 
         {{-- =============================================
@@ -71,12 +79,10 @@
         @include('layouts.modal')
 
         {{-- =============================================
-             JS COMPILADO (Vite) — descomenta si usas build
-             Evita error si aún no existe public/build/manifest.json
+             JS GLOBAL (sin Vite)
+             Lógica de modal y helpers globales vía Blade.
         ============================================== --}}
-        @if (file_exists(public_path('build/manifest.json')))
-            @vite(['resources/js/app.js'])
-        @endif
+        @include('layouts.app-inline-js')
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')
