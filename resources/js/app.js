@@ -6,6 +6,7 @@ import { dialog, question }                         from './dialog.js';
 
 window.dialog = dialog;
 window.question = question;
+window.showAjaxSystemDialog = showAjaxSystemDialog;
 
 function registerDialogStore() {
     if (!window.Alpine || window.__dialogStoreRegistered) {
@@ -110,16 +111,32 @@ window.initGoogleAuth = async function initGoogleAuth(payload = {}) {
         scope: payload.scope ?? null,
     };
 
-    const response = await axios.post('/auth_google', googlePayload);
-    const result = response.data;
-    const resultMessage = typeof result === 'string'
-        ? result
-        : JSON.stringify(result, null, 2);
+    try {
+        const response = await axios.post('/auth_google', googlePayload);
+        const result = response.data;
+        const resultMessage = typeof result === 'string'
+            ? result
+            : JSON.stringify(result, null, 2);
 
-    const payloadDialog = dialog('info', 'Prueba Google OAuth', resultMessage);
+        showAjaxSystemDialog({
+            ok: true,
+            title: 'Acceso al Sistema',
+            message: resultMessage,
+        });
 
-    if (window.Alpine?.store('dialog')) {
-        window.Alpine.store('dialog').show(payloadDialog);
+        return result;
+    } catch (error) {
+        const errorMessage = error.response?.data
+            ? JSON.stringify(error.response.data, null, 2)
+            : (error.message ?? 'Error desconocido');
+
+        showAjaxSystemDialog({
+            ok: false,
+            title: 'Acceso al Sistema',
+            message: errorMessage,
+        });
+
+        throw error;
     }
 
     return result;
