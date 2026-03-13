@@ -141,8 +141,7 @@
              JS GLOBAL (sin Vite)
              Lógica de modal y helpers globales vía Blade.
         ============================================== --}}
-        <script src="{{ asset('js/helpers.dialog.js') }}"></script>
-        <script src="{{ asset('js/dialog.store.js') }}"></script>
+        <script src="{{ asset('js/app.js') }}"></script>
 
         {{-- JS extra inyectado desde la vista hija --}}
         @yield('scripts')
