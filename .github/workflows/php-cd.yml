@@ -1,0 +1,20 @@
+name: PHP CD (Plantilla)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy (placeholder)
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # TODO: Agregar pasos de empaquetado/publicación según estrategia de despliegue
+      - name: Placeholder CD
+        run: |
+          echo "Plantilla CD creada."
+          echo "Completar proceso de release/deploy cuando corresponda."
