@@ -1,6 +1,6 @@
 /**
  * =============================================================
- *  helpers.general.js
+ *  functions.js
  *  Funciones utilitarias generales para el proyecto
  *  Stack: Laravel + Blade + Tailwind v4 + Alpine.js + Axios
  * =============================================================

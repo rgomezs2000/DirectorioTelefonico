@@ -1,6 +1,6 @@
 /**
  * =============================================================
- *  helpers.strings.js
+ *  strings.js
  *  Funciones utilitarias para manipulación de cadenas de texto
  *  Stack: Laravel + Blade + Tailwind v4 + Alpine.js + Axios
  * =============================================================
