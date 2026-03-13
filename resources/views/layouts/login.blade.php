@@ -71,12 +71,10 @@
         @include('layouts.modal')
 
         {{-- =============================================
-             JS COMPILADO (Vite) — descomenta si usas build
-             Evita error si aún no existe public/build/manifest.json
+             JS GLOBAL (sin Vite)
+             Lógica de modal y helpers globales vía Blade.
         ============================================== --}}
-        @if (file_exists(public_path('build/manifest.json')))
-            @vite(['resources/js/app.js'])
-        @endif
+        @include('layouts.app-inline-js')
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')
