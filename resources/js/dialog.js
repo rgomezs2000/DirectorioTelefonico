@@ -8,7 +8,6 @@
 'use strict';
 
 const ICONS_BY_TYPE = {
-    success: 'success',
     error: 'error',
     warning: 'warning',
     info: 'info',
@@ -48,27 +47,6 @@ export function dialog(type = 'info', title = '', message = '') {
         onAccept: null,
         onClose: null,
     };
-}
-
-/**
- * Muestra el resultado de una petición AJAX en el modal global.
- *
- * @param {{
- *  ok: boolean,
- *  title?: string,
- *  message?: string
- * }} config
- */
-export function showAjaxSystemDialog({ ok, title = '', message = '' } = {}) {
-    const payload = dialog(ok ? 'success' : 'error', title, message);
-    const store = window.Alpine?.store?.('dialog');
-
-    if (store) {
-        store.show(payload);
-        return;
-    }
-
-    window.alert(`${title}\n\n${message}`);
 }
 
 /**
