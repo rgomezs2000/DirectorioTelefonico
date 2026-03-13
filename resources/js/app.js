@@ -7,8 +7,12 @@ import { dialog, question }                      from './helpers/helpers.dialog.
 window.dialog = dialog;
 window.question = question;
 
-document.addEventListener('alpine:init', () => {
-    Alpine.store('dialog', {
+function registerDialogStore() {
+    if (!window.Alpine || window.__dialogStoreRegistered) {
+        return;
+    }
+
+    window.Alpine.store('dialog', {
         open: false,
         data: dialog('info', '', ''),
 
@@ -35,4 +39,12 @@ document.addEventListener('alpine:init', () => {
             await this.close();
         },
     });
-});
+
+    window.__dialogStoreRegistered = true;
+}
+
+if (window.Alpine) {
+    registerDialogStore();
+}
+
+document.addEventListener('alpine:init', registerDialogStore);
