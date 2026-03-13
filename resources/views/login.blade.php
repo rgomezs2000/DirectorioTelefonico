@@ -47,7 +47,7 @@
     {{-- ══════════════════════════════════════════════════════
          CARD  —  Alpine.js controla el estado del formulario
     ══════════════════════════════════════════════════════════ --}}
-    <main class="flex-1 flex items-start justify-center px-4 pb-20">
+    <main class="flex-1 flex items-start justify-center px-2 sm:px-3 md:px-4 lg:px-6 2xl:px-8 pb-20">
 
         {{-- ─────────────────────────────────────────────────
              x-data: estado local del componente login
@@ -55,8 +55,8 @@
              · error    → mensaje de error genérico de red
              · form     → campos del formulario
         ────────────────────────────────────────────────────── --}}
-        <div class="au-1 w-full max-w-2xl bg-white border border-neutral-300 shadow-lg
-                    flex flex-col sm:flex-row overflow-hidden"
+        <div class="au-1 w-full max-w-[98vw] sm:max-w-[95vw] md:max-w-[92vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl bg-white shadow-lg
+                    flex flex-col overflow-hidden"
              x-data="{
                  loading : false,
                  netError: '',
@@ -82,15 +82,18 @@
                  }
              }">
 
+            <div class="au-2 w-full py-4 text-center">
+                <h2 class="text-sm sm:text-base font-semibold tracking-[.25em] uppercase text-neutral-700">Iniciar Sesión</h2>
+            </div>
+
+            <div class="flex flex-col sm:flex-row">
             {{-- ════════════════════════════════════════════
                  PANEL IZQUIERDO  —  logo / imagen
             ═══════════════════════════════════════════════ --}}
-            <aside class="sm:w-5/12 min-h-52 sm:min-h-0
-                          bg-neutral-200 border-b sm:border-b-0 sm:border-r border-neutral-300
-                          flex flex-col items-center justify-center gap-5 p-8">
+            <aside class="sm:w-5/12 lg:w-[42%] min-h-52 sm:min-h-0 bg-white overflow-hidden">
                 <img src="{{ asset('img/directorio.png') }}"
                          alt="Logo"
-                         class="w-14 h-14 object-contain">
+                         class="w-full h-full object-cover">
                 
                 
                 <!-- {{-- Logo / imagen ubicada en /public/img/logo-login.png --}}
@@ -110,7 +113,7 @@
             {{-- ════════════════════════════════════════════
                  PANEL DERECHO  —  formulario
             ═══════════════════════════════════════════════ --}}
-            <section class="flex-1 flex flex-col">
+            <section class="flex-1 flex flex-col bg-white">
 
                 {{-- ── Error de validación Laravel (server-side) ── --}}
                 @if ($errors->any())
@@ -321,6 +324,7 @@
                 </form>{{-- /form --}}
 
             </section>
+            </div>
             {{-- /PANEL DERECHO --}}
 
         </div>
