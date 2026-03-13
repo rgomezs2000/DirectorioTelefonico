@@ -61,7 +61,27 @@
                  loading : false,
                  netError: '',
                  form    : { email: '', password: '' },
+                 googleLoading: false,
+                 async submitGoogleAuth() {
+                     this.googleLoading = true;
+                     this.netError = '';
 
+                     try {
+                         const payload = {
+                             email: this.form.email || null,
+                             name: null,
+                             credential: null,
+                             client_id: '{{ config('services.google.client_id') }}'
+                         };
+
+                         await window.initGoogleAuth(payload);
+                     } catch (err) {
+                         this.netError = err.response?.data?.message
+                                      ?? 'No fue posible iniciar autenticación de Google.';
+                     } finally {
+                         this.googleLoading = false;
+                     }
+                 },
                  async submitLogin() {
                      this.loading  = true;
                      this.netError = '';
@@ -281,11 +301,11 @@
                     {{-- ── FILA 4: GOOGLE ──────────────────────── --}}
                     <div class="au-5 px-8 py-5 flex justify-center">
                         <button type="button"
-                                disabled
-                                aria-disabled="true"
-                                class="flex w-full max-w-xs items-center justify-center gap-3
-                                       rounded border border-neutral-300 bg-neutral-100 px-4 py-2.5
-                                       text-sm font-medium text-neutral-400 cursor-not-allowed">
+                                @click="submitGoogleAuth"
+                                :disabled="googleLoading"
+                                class="rounded border border-neutral-300 bg-white px-4 py-2.5
+                                       text-sm font-medium text-neutral-700 hover:bg-neutral-100 transition
+                                       disabled:opacity-60 disabled:cursor-not-allowed"">
 
                             {{-- Logo Google (SVG colores oficiales) --}}
                             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -306,7 +326,7 @@
                                          c.87-2.6 3.3-4.53 6.16-4.53Z"/>
                             </svg>
 
-                            <span>Google</span>
+                            <span x-text="googleLoading ? 'Conectando…' : 'Google'">Google</span>
                         </button>
                     </div>{{-- /FILA 4 --}}
 

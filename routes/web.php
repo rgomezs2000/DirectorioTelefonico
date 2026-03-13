@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/ingresar', [LoginController::class, 'ingresar'])->name('ingresar');
-Route::get('/auth_google', [LoginController::class, 'authGoogle'])->name('auth.google');
+Route::post('/auth_google', [LoginController::class, 'authGoogle'])->name('auth.google');
 
 Route::get('/api', [SwaggerController::class, 'ui'])->name('swagger.ui');
 Route::get('/api/openapi.json', [SwaggerController::class, 'spec'])->name('swagger.spec');

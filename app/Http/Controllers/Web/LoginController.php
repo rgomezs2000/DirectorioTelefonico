@@ -17,7 +17,11 @@ class LoginController extends Controller
     {
     }
 
-    public function authGoogle()
+    public function authGoogle(Request $request)
     {
+        return response()->json([
+            'message' => 'Parámetros recibidos de Google OAuth',
+            'data' => $request->all(),
+        ]);
     }
 }
