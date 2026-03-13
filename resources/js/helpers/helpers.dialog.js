@@ -58,7 +58,7 @@ export function dialog(type = 'info', title = '', message = '') {
  *  message?: string
  * }} config
  */
-export function showAjaxSystemDialog({ ok, title = 'Acceso al Sistema', message = '' } = {}) {
+export function showAjaxSystemDialog({ ok, title = '', message = '' } = {}) {
     const payload = dialog(ok ? 'success' : 'error', title, message);
     const store = window.Alpine?.store?.('dialog');
 
