@@ -1,0 +1,33 @@
+name: PHP CI (Plantilla)
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Build y pruebas (placeholder)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # TODO: Definir versión de PHP requerida por el proyecto
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      # TODO: Instalar dependencias y ejecutar pruebas reales
+      - name: Placeholder CI
+        run: |
+          echo "Plantilla CI creada."
+          echo "Completar instalación de dependencias y pruebas."
