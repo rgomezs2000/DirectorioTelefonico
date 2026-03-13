@@ -88,8 +88,12 @@
             <aside class="sm:w-5/12 min-h-52 sm:min-h-0
                           bg-neutral-200 border-b sm:border-b-0 sm:border-r border-neutral-300
                           flex flex-col items-center justify-center gap-5 p-8">
-
-                {{-- Logo / imagen ubicada en /public/img/logo-login.png --}}
+                <img src="{{ asset('img/directorio.png') }}"
+                         alt="Logo"
+                         class="w-14 h-14 object-contain">
+                
+                
+                <!-- {{-- Logo / imagen ubicada en /public/img/logo-login.png --}}
                 <div class="w-20 h-20 rounded-full bg-white border border-neutral-300 shadow-sm
                             flex items-center justify-center">
                     <img src="{{ asset('img/directorio.png') }}"
@@ -99,7 +103,7 @@
 
                 <span class="text-xs font-medium tracking-widest text-neutral-500 uppercase text-center">
                     {{ config('app.name', 'Directorio') }}
-                </span>
+                </span> -->
 
             </aside>
 
