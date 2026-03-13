@@ -59,12 +59,16 @@
                     flex flex-col overflow-hidden"
              x-data="{
                  loading : false,
-                 netError: '',
                  form    : { email: '', password: '' },
                  googleLoading: false,
+                 showModal(type, title, message) {
+                     const store = window.Alpine?.store?.('dialog');
+                     if (store && typeof window.dialog === 'function') {
+                         store.show(window.dialog(type, title, message));
+                     }
+                 },
                  async submitGoogleAuth() {
                      this.googleLoading = true;
-                     this.netError = '';
 
                      try {
                          const payload = {
@@ -76,15 +80,15 @@
 
                          await window.initGoogleAuth(payload);
                      } catch (err) {
-                         this.netError = err.response?.data?.message
-                                      ?? 'No fue posible iniciar autenticación de Google.';
+                         const errorMessage = err.response?.data?.message
+                                           ?? 'No fue posible iniciar autenticación de Google.';
+                         this.showModal('error', 'Error de autenticación', errorMessage);
                      } finally {
                          this.googleLoading = false;
                      }
                  },
                  async submitLogin() {
                      this.loading  = true;
-                     this.netError = '';
                      try {
                          const res = await axios.post('{{ route('ingresar') }}', {
                              email   : this.form.email,
@@ -94,13 +98,25 @@
                          {{-- Redirección tras login exitoso --}}
                          window.location.href = res.data?.redirect ?? '{{ route('home') }}';
                      } catch (err) {
-                         this.netError = err.response?.data?.message
-                                      ?? 'Error de conexión. Intenta de nuevo.';
+                         const errorMessage = err.response?.data?.message
+                                           ?? 'Error de conexión. Intenta de nuevo.';
+                         this.showModal('error', 'No fue posible iniciar sesión', errorMessage);
                      } finally {
                          this.loading = false;
                      }
                  }
-             }">
+             }"
+             x-init="
+                 const validationErrors = @js($errors->all());
+                 if (validationErrors.length) {
+                     showModal('error', 'No fue posible iniciar sesión', validationErrors.join('\n'));
+                 }
+
+                 const sessionStatus = @js(session('status'));
+                 if (sessionStatus) {
+                     showModal('info', 'Información', sessionStatus);
+                 }
+             ">
 
             <div class="au-2 w-full py-4 text-center bg-white">
                 <h2 class="text-base sm:text-lg font-semibold tracking-[.25em] uppercase text-neutral-700">Iniciar Sesión</h2>
@@ -134,56 +150,6 @@
                  PANEL DERECHO  —  formulario
             ═══════════════════════════════════════════════ --}}
             <section class="flex-1 flex flex-col bg-white">
-
-                {{-- ── Error de validación Laravel (server-side) ── --}}
-                @if ($errors->any())
-                    <div class="px-5 pt-5">
-                        <div class="flex items-start gap-2 rounded-lg border border-red-200
-                                    bg-red-50 px-4 py-3 text-sm text-red-700">
-                            {{-- Heroicon: exclamation-triangle --}}
-                            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M12 9v3.75m0 3.75h.008v-.008H12v.008Zm9.303-9.376
-                                         c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126
-                                         c-.866 1.5.217 3.374 1.948 3.374h14.71
-                                         c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378Z"/>
-                            </svg>
-                            <ul class="space-y-0.5">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                @endif
-
-                {{-- ── Error de red Axios (client-side Alpine) ──── --}}
-                <div x-show="netError"
-                     x-transition
-                     class="px-5 pt-5"
-                     x-cloak>
-                    <div class="flex items-start gap-2 rounded-lg border border-red-200
-                                bg-red-50 px-4 py-3 text-sm text-red-700">
-                        <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M12 9v3.75m0 3.75h.008v-.008H12v.008Zm9.303-9.376
-                                     c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126
-                                     c-.866 1.5.217 3.374 1.948 3.374h14.71
-                                     c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378Z"/>
-                        </svg>
-                        <span x-text="netError"></span>
-                    </div>
-                </div>
-
-                {{-- ── Status de sesión (logout exitoso, etc.) ──── --}}
-                @if (session('status'))
-                    <div class="px-5 pt-5">
-                        <div class="flex items-center gap-2 rounded-lg border border-green-200
-                                    bg-green-50 px-4 py-3 text-sm text-green-700">
-                            {{ session('status') }}
-                        </div>
-                    </div>
-                @endif
 
                 {{-- ────────────────────────────────────────────
                      FORMULARIO — submit interceptado por Alpine
