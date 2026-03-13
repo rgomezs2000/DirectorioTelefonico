@@ -51,12 +51,20 @@
 
         {{-- =============================================
              ALPINE.JS — defer obligatorio, al final del head
+             Alpine Plugins + Alpine Core por CDN
         ============================================== --}}
-        <script defer src="https://cdn.jsdelivr.net/npm/[email protected]/dist/cdn.min.js"></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"
+        ></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
 
-    </head>
+        </head>
 
-    {{-- x-data en body para que Alpine esté disponible globalmente --}}
+        {{-- x-data en body para que Alpine esté disponible globalmente --}}
     <body class="antialiased bg-neutral-100 min-h-screen" x-data>
 
         {{-- =============================================
