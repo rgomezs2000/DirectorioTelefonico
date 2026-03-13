@@ -78,11 +78,14 @@
 
         @include('layouts.modal')
 
-        {{-- =============================================
-             JS GLOBAL (sin Vite)
-             Lógica de modal y helpers globales vía Blade.
-        ============================================== --}}
-        <script src="{{ asset('js/app.js') }}"></script>
+       {{-- =============================================
+            JS GLOBAL (sin Vite)
+            Lógica de modal y helpers globales vía Blade.
+       ============================================== --}}
+       <script src="{{ asset('js/app.js') }}"></script>
+       <script src="{{ asset('js/dates.js') }}"></script>
+       <script src="{{ asset('js/functions.js') }}"></script>
+       <script src="{{ asset('js/strings.js') }}"></script>
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')

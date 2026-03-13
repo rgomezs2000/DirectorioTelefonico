@@ -1,8 +1,8 @@
 import './bootstrap';
-import { debounce, getCsrfToken, buildQueryString } from './helpers/helpers.general.js';
-import { slug, truncate, formatCurrency }           from './helpers/helpers.strings.js';
-import { timeAgo, formatDate, countdown }           from './helpers/helpers.dates.js';
-import { dialog, question, showAjaxSystemDialog }  from './helpers/helpers.dialog.js';
+import { debounce, getCsrfToken, buildQueryString } from './functions.js';
+import { slug, truncate, formatCurrency }           from './strings.js';
+import { timeAgo, formatDate, countdown }           from './dates.js';
+import { dialog, question }                         from './dialog.js';
 
 window.dialog = dialog;
 window.question = question;
@@ -138,4 +138,6 @@ window.initGoogleAuth = async function initGoogleAuth(payload = {}) {
 
         throw error;
     }
+
+    return result;
 };

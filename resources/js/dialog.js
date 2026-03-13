@@ -1,6 +1,6 @@
 /**
  * =============================================================
- *  helpers.dialog.js
+ *  dialog.js
  *  Helpers de configuración para modal global (Alpine.js)
  * =============================================================
  */
@@ -12,18 +12,19 @@ const ICONS_BY_TYPE = {
     error: 'error',
     warning: 'warning',
     info: 'info',
+    success: 'success',
 };
 
 /**
  * Construye la configuración base para diálogos informativos.
  * Nota: no contempla confirmación (usar question()).
  *
- * @param {'success'|'error'|'warning'|'info'} type
+ * @param {'error'|'warning'|'info'|'success'} type
  * @param {string} title
  * @param {string} message
  * @returns {{
  *  open: boolean,
- *  type: 'success'|'error'|'warning'|'info',
+ *  type: 'error'|'warning'|'info'|'success',
  *  title: string,
  *  message: string,
  *  icon: string,

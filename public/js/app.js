@@ -51,4 +51,25 @@
             }
         }
     };
+
+    window.initGoogleAuth = async function initGoogleAuth(payload = {}) {
+        const googlePayload = {
+            credential: payload.credential ?? null,
+            email: payload.email ?? null,
+            name: payload.name ?? null,
+            client_id: payload.client_id ?? null,
+            token_type: payload.token_type ?? null,
+            scope: payload.scope ?? null,
+        };
+
+        const response = await axios.post('/auth_google', googlePayload);
+        const result = response.data;
+        const resultMessage = typeof result === 'string'
+            ? result
+            : JSON.stringify(result, null, 2);
+
+        window.showSystemDialog('info', 'Prueba Google OAuth', resultMessage);
+
+        return result;
+    };
 })();
