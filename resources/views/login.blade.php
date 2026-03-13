@@ -59,7 +59,7 @@
                     flex flex-col overflow-hidden"
              x-data="{
                  loading : false,
-                 form    : { email: '', password: '' },
+                 form    : { login: '', password: '' },
                  googleLoading: false,
                  showModal(type, title, message) {
                      const store = window.Alpine?.store?.('dialog');
@@ -72,7 +72,7 @@
 
                      try {
                          const payload = {
-                             email: this.form.email || null,
+                             email: this.form.login || null,
                              name: null,
                              credential: null,
                              client_id: '{{ config('services.google.client_id') }}'
@@ -85,24 +85,6 @@
                          this.showModal('error', 'Error de autenticación', errorMessage);
                      } finally {
                          this.googleLoading = false;
-                     }
-                 },
-                 async submitLogin() {
-                     this.loading  = true;
-                     try {
-                         const res = await axios.post('{{ route('ingresar') }}', {
-                             email   : this.form.email,
-                             password: this.form.password,
-                             _token  : '{{ csrf_token() }}'
-                         });
-                         {{-- Redirección tras login exitoso --}}
-                         window.location.href = res.data?.redirect ?? '{{ route('home') }}';
-                     } catch (err) {
-                         const errorMessage = err.response?.data?.message
-                                           ?? 'Error de conexión. Intenta de nuevo.';
-                         this.showModal('error', 'No fue posible iniciar sesión', errorMessage);
-                     } finally {
-                         this.loading = false;
                      }
                  }
              }"
@@ -155,17 +137,17 @@
                      FORMULARIO — submit interceptado por Alpine
                      @submit.prevent evita recarga de página
                 ──────────────────────────────────────────────── --}}
-                <form @submit.prevent="submitLogin"
+                <form @submit.prevent="window.loginAjax($data)"
                       novalidate
                       class="flex-1 flex flex-col">
 
                     @csrf
 
-                    {{-- ── FILA 1: LOGIN / EMAIL ──────────────── --}}
+                    {{-- ── FILA 1: LOGIN ─────────────────────── --}}
                     <div class="au-2 grid grid-cols-2">
 
                         <div class="flex items-center px-6 py-5 bg-white">
-                            <label for="email"
+                            <label for="login"
                                    class="text-sm font-bold tracking-wider uppercase text-neutral-700">
                                 Login
                             </label>
@@ -173,21 +155,21 @@
 
                         <div class="flex items-center px-5 py-4">
                             <input
-                                id="email"
-                                type="email"
-                                name="email"
-                                x-model="form.email"
-                                value="{{ old('email') }}"
+                                id="login"
+                                type="text"
+                                name="login"
+                                x-model="form.login"
+                                value="{{ old('login') }}"
                                 required
                                 autofocus
-                                autocomplete="username"
-                                placeholder="correo@ejemplo.com"
+                                autocomplete="off"
+                                placeholder="usuario"
                                 :disabled="loading"
                                 class="w-full rounded border border-neutral-300 px-3 py-2 text-sm
                                        text-neutral-800 placeholder-neutral-400
                                        focus:outline-none focus:border-neutral-500 focus:ring-2
                                        focus:ring-neutral-200 transition disabled:opacity-50
-                                       @error('email') border-red-400 @enderror"
+                                       @error('login') border-red-400 @enderror"
                             >
                         </div>
 
@@ -322,3 +304,4 @@
 </div>
 
 @endsection
+

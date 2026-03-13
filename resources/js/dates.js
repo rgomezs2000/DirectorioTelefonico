@@ -1,6 +1,6 @@
 /**
  * =============================================================
- *  helpers.dates.js
+ *  dates.js
  *  Funciones utilitarias para manejo de fechas y horas
  *  Sin librerías externas — usa Intl API nativa del navegador
  *  Stack: Laravel + Blade + Tailwind v4 + Alpine.js + Axios
