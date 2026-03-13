@@ -265,13 +265,14 @@
                     </div>{{-- /FILA 3 --}}
 
                     {{-- ── FILA 4: GOOGLE ──────────────────────── --}}
-                    <div class="au-5 px-8 py-5 flex justify-center">
+                    <div class="au-5 px-5 sm:px-8 py-5 flex justify-center">
                         <button type="button"
                                 @click="submitGoogleAuth"
                                 :disabled="googleLoading"
-                                class="rounded border border-neutral-300 bg-white px-4 py-2.5
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2
+                                       rounded border border-neutral-300 bg-white px-4 py-2.5
                                        text-sm font-medium text-neutral-700 hover:bg-neutral-100 transition
-                                       disabled:opacity-60 disabled:cursor-not-allowed"">
+                                       disabled:opacity-60 disabled:cursor-not-allowed">
 
                             {{-- Logo Google (SVG colores oficiales) --}}
                             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
