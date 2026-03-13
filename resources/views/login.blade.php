@@ -82,11 +82,11 @@
                  }
              }">
 
-            <div class="au-2 w-full py-4 text-center">
-                <h2 class="text-sm sm:text-base font-semibold tracking-[.25em] uppercase text-neutral-700">Iniciar Sesión</h2>
+            <div class="au-2 w-full py-4 text-center bg-white">
+                <h2 class="text-base sm:text-lg font-semibold tracking-[.25em] uppercase text-neutral-700">Iniciar Sesión</h2>
             </div>
 
-            <div class="flex flex-col sm:flex-row">
+            <div class="flex flex-col sm:flex-row bg-white">
             {{-- ════════════════════════════════════════════
                  PANEL IZQUIERDO  —  logo / imagen
             ═══════════════════════════════════════════════ --}}
@@ -171,14 +171,14 @@
                 ──────────────────────────────────────────────── --}}
                 <form @submit.prevent="submitLogin"
                       novalidate
-                      class="flex-1 flex flex-col divide-y divide-neutral-200">
+                      class="flex-1 flex flex-col">
 
                     @csrf
 
                     {{-- ── FILA 1: LOGIN / EMAIL ──────────────── --}}
-                    <div class="au-2 grid grid-cols-2 divide-x divide-neutral-200">
+                    <div class="au-2 grid grid-cols-2">
 
-                        <div class="flex items-center px-6 py-5 bg-neutral-50">
+                        <div class="flex items-center px-6 py-5 bg-white">
                             <label for="email"
                                    class="text-sm font-bold tracking-wider uppercase text-neutral-700">
                                 Login
@@ -208,9 +208,9 @@
                     </div>{{-- /FILA 1 --}}
 
                     {{-- ── FILA 2: PASSWORD ───────────────────── --}}
-                    <div class="au-3 grid grid-cols-2 divide-x divide-neutral-200">
+                    <div class="au-3 grid grid-cols-2">
 
-                        <div class="flex items-center px-6 py-5 bg-neutral-50">
+                        <div class="flex items-center px-6 py-5 bg-white">
                             <label for="password"
                                    class="text-sm font-bold tracking-wider uppercase text-neutral-700">
                                 Password
@@ -238,7 +238,7 @@
                     </div>{{-- /FILA 2 --}}
 
                     {{-- ── FILA 3: INGRESAR / SALIR ───────────── --}}
-                    <div class="au-4 grid grid-cols-2 divide-x divide-neutral-200">
+                    <div class="au-4 grid grid-cols-2">
 
                         {{-- Botón INGRESAR — muestra spinner mientras carga --}}
                         <div class="flex items-center justify-center px-6 py-5">
