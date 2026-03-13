@@ -78,11 +78,12 @@
 
         @include('layouts.modal')
 
-        {{-- =============================================
-             JS GLOBAL (sin Vite)
-             Lógica de modal y helpers globales vía Blade.
-        ============================================== --}}
-        @include('layouts.app-inline-js')
+       {{-- =============================================
+            JS GLOBAL (sin Vite)
+            Lógica de modal y helpers globales vía Blade.
+       ============================================== --}}
+       <script src="{{ asset('js/helpers.dialog.js') }}"></script>
+       <script src="{{ asset('js/dialog.store.js') }}"></script>
 
         {{-- JS extra desde la vista hija --}}
         @yield('scripts')
