@@ -15,6 +15,10 @@ class LoginController extends Controller
 
     public function ingresar(Request $request)
     {
+        return response()->json([
+            'login' => $request->input('login'),
+            'password' => $request->input('password'),
+        ]);
     }
 
     public function authGoogle(Request $request)
