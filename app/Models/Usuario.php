@@ -206,6 +206,57 @@ class Usuario extends BaseModel implements AuthenticatableContract
         ];
     }
 
+    /**
+     * Busca el usuario para autenticación por username o email.
+     *
+     * Retorna un objeto con los datos de:
+     * - Usuario
+     * - Credencial (incluyendo password_hash)
+     * - TipoUsuario
+     * - Sexo
+     * - Permiso (por tipo de usuario)
+     * - PermisoUsuario (permisos individuales)
+     */
+    public static function validarLogin(string $login): ?object
+    {
+        $usuario = self::query()
+            ->with([
+                'tipoUsuario',
+                'sexo',
+                'credencial' => static function ($query) {
+                    $query->select([
+                        'id_credencial',
+                        'id_usuario',
+                        'password_hash',
+                        'algoritmo',
+                        'debe_cambiar_pass',
+                        'intentos_fallidos',
+                        'bloqueado_hasta',
+                        'ultimo_cambio_pass',
+                        'creado_en',
+                        'actualizado_en',
+                    ]);
+                },
+                'permisosIndividuales',
+            ])
+            ->where('username', $login)
+            ->orWhere('email', $login)
+            ->first();
+
+        if (! $usuario) {
+            return null;
+        }
+
+        $usuario->setRelation(
+            'permisosTipo',
+            Permiso::query()
+                ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
+                ->get()
+        );
+
+        return $usuario;
+    }
+
     // ── Scopes propios ────────────────────────────────────────────
 
     /** Solo usuarios no bloqueados */
