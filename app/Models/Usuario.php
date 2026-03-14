@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -219,36 +220,109 @@ class Usuario extends BaseModel implements AuthenticatableContract
      */
     public static function validarLogin(string $login): object
     {
-        $usuario = self::query()
-            ->with([
-                'tipoUsuario',
-                'sexo',
-                'credencial' => static function ($query) {
-                    $query->select([
-                        'id_credencial',
-                        'id_usuario',
-                        'password_hash',
-                        'algoritmo',
-                        'debe_cambiar_pass',
-                        'intentos_fallidos',
-                        'bloqueado_hasta',
-                        'ultimo_cambio_pass',
-                        'creado_en',
-                        'actualizado_en',
-                    ]);
-                },
-                'permisosIndividuales',
-                'sesiones' => static function ($query) {
-                    $query->orderByDesc('creado_en')
-                        ->orderByDesc('id_sesion')
-                        ->limit(1);
-                },
+        $registro = DB::table('usuarios as u')
+            ->leftJoin('credenciales as c', 'c.id_usuario', '=', 'u.id_usuario')
+            ->leftJoin('tipos_usuario as tu', 'tu.id_tipo_usuario', '=', 'u.id_tipo_usuario')
+            ->leftJoin('sexos as sx', 'sx.id_sexo', '=', 'u.id_sexo')
+            ->where(static function ($query) use ($login) {
+                $query->where('u.username', $login)
+                    ->orWhere('u.email', $login);
+            })
+            ->select([
+                'u.id_usuario',
+                'u.id_tipo_usuario',
+                'u.id_sexo',
+                'u.id_profesion',
+                'u.id_nivel3',
+                'u.id_nivel2',
+                'u.id_nivel1',
+                'u.id_pais',
+                'u.username',
+                'u.email',
+                'u.nombres',
+                'u.apellidos',
+                'u.fecha_nacimiento',
+                'u.foto_perfil_url',
+                'u.bio',
+                'u.activo',
+                'u.email_verificado',
+                'u.bloqueado',
+                'u.ultimo_acceso',
+                'u.creado_en as usuario_creado_en',
+                'u.actualizado_en as usuario_actualizado_en',
+                'c.id_credencial',
+                'c.password_hash',
+                'c.algoritmo',
+                'c.debe_cambiar_pass',
+                'c.intentos_fallidos',
+                'c.bloqueado_hasta',
+                'c.ultimo_cambio_pass',
+                'c.creado_en as credencial_creado_en',
+                'c.actualizado_en as credencial_actualizado_en',
+                'tu.nombre as tipo_usuario_nombre',
+                'tu.descripcion as tipo_usuario_descripcion',
+                'tu.nivel_acceso as tipo_usuario_nivel_acceso',
+                'tu.activo as tipo_usuario_activo',
+                'sx.nombre as sexo_nombre',
+                'sx.abreviatura as sexo_abreviatura',
+                'sx.descripcion as sexo_descripcion',
+                'sx.activo as sexo_activo',
             ])
-            ->where('username', $login)
-            ->orWhere('email', $login)
+            ->selectRaw(
+                '(SELECT JSON_OBJECT(' .
+                    '"id_sesion", s.id_sesion,' .
+                    '"id_usuario", s.id_usuario,' .
+                    '"ip_origen", s.ip_origen,' .
+                    '"user_agent", s.user_agent,' .
+                    '"dispositivo", s.dispositivo,' .
+                    '"activa", s.activa,' .
+                    '"expira_en", s.expira_en,' .
+                    '"cerrada_en", s.cerrada_en,' .
+                    '"creado_en", s.creado_en' .
+                ') FROM sesiones s ' .
+                'WHERE s.id_usuario = u.id_usuario ' .
+                'ORDER BY s.creado_en DESC, s.id_sesion DESC ' .
+                'LIMIT 1) as sesion'
+            )
+            ->selectRaw(
+                '(SELECT COALESCE(JSON_ARRAYAGG(JSON_OBJECT(' .
+                    '"id_permiso", p.id_permiso,' .
+                    '"id_tipo_usuario", p.id_tipo_usuario,' .
+                    '"id_menu", p.id_menu,' .
+                    '"id_submenu", p.id_submenu,' .
+                    '"id_modulo", p.id_modulo,' .
+                    '"puede_ver", p.puede_ver,' .
+                    '"puede_crear", p.puede_crear,' .
+                    '"puede_editar", p.puede_editar,' .
+                    '"puede_eliminar", p.puede_eliminar,' .
+                    '"puede_exportar", p.puede_exportar,' .
+                    '"puede_imprimir", p.puede_imprimir' .
+                ')), JSON_ARRAY()) ' .
+                'FROM permisos p ' .
+                'WHERE p.id_tipo_usuario = u.id_tipo_usuario) as permisos'
+            )
+            ->selectRaw(
+                '(SELECT COALESCE(JSON_ARRAYAGG(JSON_OBJECT(' .
+                    '"id_permiso_usuario", pu.id_permiso_usuario,' .
+                    '"id_usuario", pu.id_usuario,' .
+                    '"id_menu", pu.id_menu,' .
+                    '"id_submenu", pu.id_submenu,' .
+                    '"id_modulo", pu.id_modulo,' .
+                    '"puede_ver", pu.puede_ver,' .
+                    '"puede_crear", pu.puede_crear,' .
+                    '"puede_editar", pu.puede_editar,' .
+                    '"puede_eliminar", pu.puede_eliminar,' .
+                    '"puede_exportar", pu.puede_exportar,' .
+                    '"puede_imprimir", pu.puede_imprimir,' .
+                    '"concedido", pu.concedido,' .
+                    '"motivo", pu.motivo' .
+                ')), JSON_ARRAY()) ' .
+                'FROM permisos_usuario pu ' .
+                'WHERE pu.id_usuario = u.id_usuario) as permisos_usuario'
+            )
             ->first();
 
-        if (! $usuario) {
+        if (! $registro) {
             return (object) [
                 'codigo'  => 408,
                 'mensaje' => 'login no existe',
@@ -256,19 +330,14 @@ class Usuario extends BaseModel implements AuthenticatableContract
             ];
         }
 
-        $usuario->setRelation(
-            'permisosTipo',
-            Permiso::query()
-                ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
-                ->get()
-        );
-
-        $usuario->setRelation('ultimaSesion', $usuario->sesiones->first());
+        $registro->sesion = $registro->sesion ? json_decode($registro->sesion) : null;
+        $registro->permisos = $registro->permisos ? json_decode($registro->permisos) : [];
+        $registro->permisos_usuario = $registro->permisos_usuario ? json_decode($registro->permisos_usuario) : [];
 
         return (object) [
             'codigo'  => 200,
             'mensaje' => 'login encontrado',
-            'data'    => $usuario,
+            'data'    => $registro,
         ];
     }
 
