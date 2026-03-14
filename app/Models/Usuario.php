@@ -280,6 +280,65 @@ class Usuario extends BaseModel implements AuthenticatableContract
         ];
     }
 
+
+    /**
+     * Busca el usuario para autenticación por email (Google).
+     *
+     * Retorna la misma estructura de validarLogin().
+     */
+    public static function validarLoginGoogle(string $email): object
+    {
+        $usuario = self::query()
+            ->where('email', $email)
+            ->with([
+                'tipoUsuario',
+                'sexo',
+                'credencial' => static function ($query) {
+                    $query->select([
+                        'id_credencial',
+                        'id_usuario',
+                        'password_hash',
+                        'algoritmo',
+                        'debe_cambiar_pass',
+                        'intentos_fallidos',
+                        'bloqueado_hasta',
+                        'ultimo_cambio_pass',
+                        'creado_en',
+                        'actualizado_en',
+                    ]);
+                },
+                'permisosIndividuales',
+                'ultimaSesion',
+            ])
+            ->first();
+
+        if (! $usuario) {
+            return (object) [
+                'codigo'  => 408,
+                'mensaje' => 'login no existe',
+                'data'    => null,
+            ];
+        }
+
+        $permisosTipo = Permiso::query()
+            ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
+            ->get();
+
+        $usuario->setRelation('permisosTipo', $permisosTipo);
+
+        if ($usuario->credencial) {
+            $usuario->credencial->makeVisible(['password_hash']);
+        }
+
+        $data = json_decode($usuario->toJson(), true);
+
+        return (object) [
+            'codigo'  => 200,
+            'mensaje' => 'login encontrado',
+            'data'    => $data,
+        ];
+    }
+
     // ── Scopes propios ────────────────────────────────────────────
 
     /** Solo usuarios no bloqueados */
