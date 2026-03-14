@@ -69,6 +69,17 @@
 
     document.addEventListener('alpine:init', registerDialogStore);
 
+
+    function getAppRoute(name, fallback = '') {
+        const routeValue = window.AppRoutes?.[name];
+
+        if (typeof routeValue === 'string' && routeValue.length > 0) {
+            return routeValue;
+        }
+
+        return fallback;
+    }
+
     window.showSystemDialog = function showSystemDialog(type, title, message) {
         const store = window.Alpine?.store?.('dialog');
         const payload = window.dialog(type, title, message);
@@ -101,7 +112,7 @@
         }
 
         try {
-            const response = await axios.post('/ingresar', { login, password });
+            const response = await axios.post(getAppRoute('ingresar', '/ingresar'), { login, password });
             const result = typeof response.data === 'string'
                 ? response.data
                 : JSON.stringify(response.data, null, 2);
@@ -130,7 +141,7 @@
             scope: payload.scope ?? null,
         };
 
-        const response = await axios.post('/auth_google', googlePayload);
+        const response = await axios.post(getAppRoute('authGoogle', '/auth_google'), googlePayload);
         const result = response.data;
         const resultMessage = typeof result === 'string'
             ? result
