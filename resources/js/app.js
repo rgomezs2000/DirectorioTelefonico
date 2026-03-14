@@ -77,14 +77,23 @@ window.loginAjax = async function loginAjax(component = null) {
     const form = component?.form ?? {};
     const login = String(form.login ?? '').trim();
     const password = String(form.password ?? '').trim();
+    const focusInput = (inputId) => {
+        const input = document.getElementById(inputId);
+
+        if (input && typeof input.focus === 'function') {
+            input.focus();
+        }
+    };
 
     if (!login) {
         window.showSystemDialog('info', 'Acceso al Sistema', 'requiere usuario');
+        focusInput('login');
         return;
     }
 
     if (!password) {
         window.showSystemDialog('info', 'Acceso al Sistema', 'requiere contraseña');
+        focusInput('password');
         return;
     }
 
