@@ -217,7 +217,7 @@ class Usuario extends BaseModel implements AuthenticatableContract
      * - Permiso (por tipo de usuario)
      * - PermisoUsuario (permisos individuales)
      */
-    public static function validarLogin(string $login): ?object
+    public static function validarLogin(string $login): object
     {
         $usuario = self::query()
             ->with([
@@ -238,13 +238,22 @@ class Usuario extends BaseModel implements AuthenticatableContract
                     ]);
                 },
                 'permisosIndividuales',
+                'sesiones' => static function ($query) {
+                    $query->orderByDesc('creado_en')
+                        ->orderByDesc('id_sesion')
+                        ->limit(1);
+                },
             ])
             ->where('username', $login)
             ->orWhere('email', $login)
             ->first();
 
         if (! $usuario) {
-            return null;
+            return (object) [
+                'codigo'  => 408,
+                'mensaje' => 'login no existe',
+                'data'    => null,
+            ];
         }
 
         $usuario->setRelation(
@@ -254,7 +263,13 @@ class Usuario extends BaseModel implements AuthenticatableContract
                 ->get()
         );
 
-        return $usuario;
+        $usuario->setRelation('ultimaSesion', $usuario->sesiones->first());
+
+        return (object) [
+            'codigo'  => 200,
+            'mensaje' => 'login encontrado',
+            'data'    => $usuario,
+        ];
     }
 
     // ── Scopes propios ────────────────────────────────────────────
