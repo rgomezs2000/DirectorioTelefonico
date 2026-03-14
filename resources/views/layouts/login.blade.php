@@ -82,6 +82,14 @@
             JS GLOBAL (sin Vite)
             Lógica de modal y helpers globales vía Blade.
        ============================================== --}}
+       <script>
+            window.AppRoutes = Object.freeze({
+                home: @json(route('home')),
+                login: @json(route('login')),
+                ingresar: @json(route('ingresar')),
+                authGoogle: @json(route('auth.google')),
+            });
+       </script>
        <script src="{{ asset('js/dialog.js') }}"></script>
        <script src="{{ asset('js/app.js') }}"></script>
        <script src="{{ asset('js/dates.js') }}"></script>
