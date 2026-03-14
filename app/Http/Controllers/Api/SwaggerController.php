@@ -200,6 +200,100 @@ class SwaggerController extends Controller
                     ],
                 ],
             ],
+            'post api/login/ingresar' => [
+                'requestBody' => [
+                    'required' => true,
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => ['login', 'password'],
+                                'properties' => [
+                                    'login' => [
+                                        'type' => 'string',
+                                        'description' => 'Usuario o correo del usuario',
+                                        'example' => 'admin',
+                                    ],
+                                    'password' => [
+                                        'type' => 'string',
+                                        'format' => 'password',
+                                        'description' => 'Contraseña ingresada por el usuario',
+                                        'example' => 'Admin@12345!',
+                                    ],
+                                ],
+                            ],
+                            'examples' => [
+                                'credenciales' => [
+                                    'summary' => 'Login estándar',
+                                    'value' => [
+                                        'login' => 'admin',
+                                        'password' => 'Admin@12345!',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Login correcto',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'login correcto'],
+                                        'data' => [
+                                            'type' => 'object',
+                                            'description' => 'Datos del usuario devueltos por validarLogin()',
+                                            'additionalProperties' => true,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '308' => [
+                        'description' => 'Password incorrecto',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 308],
+                                        'mensaje' => ['type' => 'string', 'example' => 'password incorrecto'],
+                                        'data' => [
+                                            'type' => 'array',
+                                            'items' => ['type' => 'string'],
+                                            'example' => [],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '408' => [
+                        'description' => 'Login no existe',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 408],
+                                        'mensaje' => ['type' => 'string', 'example' => 'login no existe'],
+                                        'data' => [
+                                            'type' => 'array',
+                                            'items' => ['type' => 'string'],
+                                            'example' => [],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         return $map[Str::lower($method.' '.$uri)] ?? [];
