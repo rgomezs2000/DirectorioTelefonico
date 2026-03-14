@@ -126,6 +126,12 @@ class Usuario extends BaseModel implements AuthenticatableContract
         return $this->hasMany(Sesion::class, 'id_usuario', 'id_usuario');
     }
 
+    public function ultimaSesion(): HasOne
+    {
+        return $this->hasOne(Sesion::class, 'id_usuario', 'id_usuario')
+            ->latestOfMany('creado_en');
+    }
+
     public function contactos(): HasMany
     {
         return $this->hasMany(Contacto::class, 'id_usuario', 'id_usuario');
@@ -203,6 +209,132 @@ class Usuario extends BaseModel implements AuthenticatableContract
                 'permisos'         => $permisosTipo,
                 'permisos_usuario' => $usuario->permisosIndividuales,
             ],
+        ];
+    }
+
+    /**
+     * Busca el usuario para autenticación por username o email.
+     *
+     * Retorna un objeto con los datos de:
+     * - Usuario
+     * - Credencial (incluyendo password_hash)
+     * - TipoUsuario
+     * - Sexo
+     * - Permiso (por tipo de usuario)
+     * - PermisoUsuario (permisos individuales)
+     */
+    public static function validarLogin(string $login): object
+    {
+        $usuario = self::query()
+            ->where(static function (Builder $query) use ($login) {
+                $query->where('username', $login)
+                    ->orWhere('email', $login);
+            })
+            ->with([
+                'tipoUsuario',
+                'sexo',
+                'credencial' => static function ($query) {
+                    $query->select([
+                        'id_credencial',
+                        'id_usuario',
+                        'password_hash',
+                        'algoritmo',
+                        'debe_cambiar_pass',
+                        'intentos_fallidos',
+                        'bloqueado_hasta',
+                        'ultimo_cambio_pass',
+                        'creado_en',
+                        'actualizado_en',
+                    ]);
+                },
+                'permisosIndividuales',
+                'ultimaSesion',
+            ])
+            ->first();
+
+        if (! $usuario) {
+            return (object) [
+                'codigo'  => 408,
+                'mensaje' => 'login no existe',
+                'data'    => null,
+            ];
+        }
+
+        $permisosTipo = Permiso::query()
+            ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
+            ->get();
+
+        $usuario->setRelation('permisosTipo', $permisosTipo);
+
+        if ($usuario->credencial) {
+            $usuario->credencial->makeVisible(['password_hash']);
+        }
+
+        $data = json_decode($usuario->toJson(), true);
+
+        return (object) [
+            'codigo'  => 200,
+            'mensaje' => 'login encontrado',
+            'data'    => $data,
+        ];
+    }
+
+
+    /**
+     * Busca el usuario para autenticación por email (Google).
+     *
+     * Retorna la misma estructura de validarLogin().
+     */
+    public static function validarLoginGoogle(string $email): object
+    {
+        $usuario = self::query()
+            ->where('email', $email)
+            ->with([
+                'tipoUsuario',
+                'sexo',
+                'credencial' => static function ($query) {
+                    $query->select([
+                        'id_credencial',
+                        'id_usuario',
+                        'password_hash',
+                        'algoritmo',
+                        'debe_cambiar_pass',
+                        'intentos_fallidos',
+                        'bloqueado_hasta',
+                        'ultimo_cambio_pass',
+                        'creado_en',
+                        'actualizado_en',
+                    ]);
+                },
+                'permisosIndividuales',
+                'ultimaSesion',
+            ])
+            ->first();
+
+        if (! $usuario) {
+            return (object) [
+                'codigo'  => 408,
+                'mensaje' => 'login no existe',
+                'data'    => null,
+            ];
+        }
+
+        $permisosTipo = Permiso::query()
+            ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
+            ->get();
+
+        $usuario->setRelation('permisosTipo', $permisosTipo);
+
+        if ($usuario->credencial) {
+            $usuario->credencial->makeVisible(['password_hash']);
+        }
+
+        $data = json_decode($usuario->toJson(), true);
+
+        return (object) [
+            'codigo'  => 200,
+            'mensaje' => 'login encontrado',
+            'data'    => $data,
         ];
     }
 
