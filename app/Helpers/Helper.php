@@ -122,11 +122,11 @@ class Helper
     }
 
     /**
-     * Valida token de cabecera para endpoints API protegidos.
+     * Valida token Bearer enviado en Authorization para endpoints API protegidos.
      */
-    public static function validarTokenHeader(?string $tokenHeader): array
+    public static function validarTokenHeader(?string $bearerToken): array
     {
-        if (empty($tokenHeader)) {
+        if (empty($bearerToken)) {
             return [
                 'codigo' => 306,
                 'mensaje' => 'Token Incorrecto',
@@ -134,7 +134,7 @@ class Helper
             ];
         }
 
-        $token = ApiToken::query()->where('api_token', $tokenHeader)->latest('id')->first();
+        $token = ApiToken::query()->where('api_token', $bearerToken)->latest('id')->first();
 
         if (! $token) {
             return [

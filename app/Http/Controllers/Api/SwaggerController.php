@@ -87,13 +87,14 @@ class SwaggerController extends Controller
 
         if ($this->requireTokenHeader($uri)) {
             $parameters[] = [
-                'name' => 'token',
+                'name' => 'Authorization',
                 'in' => 'header',
                 'required' => true,
                 'schema' => [
                     'type' => 'string',
+                    'example' => 'Bearer eyJ...oTokenGenerado',
                 ],
-                'description' => 'Token obtenido desde /api/api_token',
+                'description' => 'Bearer token obtenido desde /api/api_token. Formato: Bearer <token>',
             ];
         }
 
@@ -116,6 +117,7 @@ class SwaggerController extends Controller
                 'required' => true,
                 'schema' => [
                     'type' => 'string',
+                    'example' => 'Bearer eyJ...oTokenGenerado',
                 ],
                 'description' => 'Parámetro de ruta',
             ];

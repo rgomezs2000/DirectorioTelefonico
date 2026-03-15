@@ -14,8 +14,8 @@ class LoginController extends Controller
 {
     public function ingresar(Request $request): JsonResponse
     {
-        $tokenHeader = (string) $request->header('token', '');
-        $validacionToken = Helper::validarTokenHeader($tokenHeader);
+        $bearerToken = (string) $request->bearerToken();
+        $validacionToken = Helper::validarTokenHeader($bearerToken);
 
         if (($validacionToken['codigo'] ?? 306) !== 200) {
             return response()->json($validacionToken);
