@@ -42,7 +42,7 @@ class SwaggerController extends Controller
                     'tags' => ['API'],
                     'summary' => $this->buildSummary($method, $uri),
                     'operationId' => $this->buildOperationId($method, $uri),
-                    'parameters' => $this->pathParameters($uri),
+                    'parameters' => $this->buildParameters($uri),
                     'responses' => $endpointDoc['responses'] ?? $this->defaultResponses(),
                 ];
 
@@ -81,6 +81,31 @@ class SwaggerController extends Controller
         return strtolower($method).'_'.str_replace(['/', '{', '}'], ['_', '', ''], $uri);
     }
 
+    private function buildParameters(string $uri): array
+    {
+        $parameters = $this->pathParameters($uri);
+
+        if ($this->requireTokenHeader($uri)) {
+            $parameters[] = [
+                'name' => 'Authorization',
+                'in' => 'header',
+                'required' => true,
+                'schema' => [
+                    'type' => 'string',
+                    'example' => 'Bearer eyJ...oTokenGenerado',
+                ],
+                'description' => 'Bearer token obtenido desde /api/api_token. Formato: Bearer <token>',
+            ];
+        }
+
+        return $parameters;
+    }
+
+    private function requireTokenHeader(string $uri): bool
+    {
+        return ! in_array($uri, ['api/api_token', 'api/db-test/validar-login-test'], true);
+    }
+
     private function pathParameters(string $uri): array
     {
         preg_match_all('/\{([^}]+)\}/', $uri, $matches);
@@ -92,6 +117,7 @@ class SwaggerController extends Controller
                 'required' => true,
                 'schema' => [
                     'type' => 'string',
+                    'example' => 'Bearer eyJ...oTokenGenerado',
                 ],
                 'description' => 'Parámetro de ruta',
             ];
@@ -129,6 +155,33 @@ class SwaggerController extends Controller
     private function endpointDocumentation(string $method, string $uri): array
     {
         $map = [
+            'get api/api_token' => [
+                'responses' => [
+                    '200' => [
+                        'description' => 'Token generado correctamente',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'exitoso'],
+                                        'data' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'id' => ['type' => 'integer', 'example' => 1],
+                                                'api_token' => ['type' => 'string', 'example' => 'token_sha512...'],
+                                                'fecha_token_inicio' => ['type' => 'string', 'example' => '2026-03-15 10:00:00'],
+                                                'fecha_fin_token' => ['type' => 'string', 'example' => '2026-03-15 10:30:00'],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             'post api/db-test/validar-login-test' => [
                 'requestBody' => [
                     'required' => true,
@@ -137,22 +190,10 @@ class SwaggerController extends Controller
                             'schema' => [
                                 'type' => 'object',
                                 'properties' => [
-                                    'login' => [
-                                        'type' => 'string',
-                                        'example' => 'admin',
-                                    ],
-                                    'usuario' => [
-                                        'type' => 'string',
-                                        'example' => 'admin',
-                                    ],
-                                    'password' => [
-                                        'type' => 'string',
-                                        'example' => '123456',
-                                    ],
-                                    'clave' => [
-                                        'type' => 'string',
-                                        'example' => '123456',
-                                    ],
+                                    'login' => ['type' => 'string', 'example' => 'admin'],
+                                    'usuario' => ['type' => 'string', 'example' => 'admin'],
+                                    'password' => ['type' => 'string', 'example' => '123456'],
+                                    'clave' => ['type' => 'string', 'example' => '123456'],
                                 ],
                                 'anyOf' => [
                                     ['required' => ['login', 'password']],
@@ -172,10 +213,7 @@ class SwaggerController extends Controller
                                     'properties' => [
                                         'codigo' => ['type' => 'integer', 'example' => 200],
                                         'mensaje' => ['type' => 'string', 'example' => 'Usuario válido'],
-                                        'datos' => [
-                                            'type' => 'object',
-                                            'additionalProperties' => true,
-                                        ],
+                                        'datos' => ['type' => 'object', 'additionalProperties' => true],
                                     ],
                                 ],
                             ],
@@ -189,10 +227,7 @@ class SwaggerController extends Controller
                                     'type' => 'object',
                                     'properties' => [
                                         'codigo' => ['type' => 'integer', 'example' => 422],
-                                        'mensaje' => [
-                                            'type' => 'string',
-                                            'example' => 'Debe enviar login/usuario y password/clave en JSON',
-                                        ],
+                                        'mensaje' => ['type' => 'string', 'example' => 'Debe enviar login/usuario y password/clave en JSON'],
                                     ],
                                 ],
                             ],
@@ -222,15 +257,6 @@ class SwaggerController extends Controller
                                     ],
                                 ],
                             ],
-                            'examples' => [
-                                'credenciales' => [
-                                    'summary' => 'Login estándar',
-                                    'value' => [
-                                        'login' => 'admin',
-                                        'password' => 'Admin@12345!',
-                                    ],
-                                ],
-                            ],
                         ],
                     ],
                 ],
@@ -244,53 +270,23 @@ class SwaggerController extends Controller
                                     'properties' => [
                                         'codigo' => ['type' => 'integer', 'example' => 200],
                                         'mensaje' => ['type' => 'string', 'example' => 'login correcto'],
-                                        'data' => [
-                                            'type' => 'object',
-                                            'description' => 'Datos del usuario devueltos por validarLogin()',
-                                            'additionalProperties' => true,
-                                        ],
+                                        'data' => ['type' => 'object', 'additionalProperties' => true],
                                     ],
                                 ],
                             ],
                         ],
+                    ],
+                    '306' => [
+                        'description' => 'Token incorrecto',
+                    ],
+                    '307' => [
+                        'description' => 'Token expirado',
                     ],
                     '308' => [
                         'description' => 'Password incorrecto',
-                        'content' => [
-                            'application/json' => [
-                                'schema' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'codigo' => ['type' => 'integer', 'example' => 308],
-                                        'mensaje' => ['type' => 'string', 'example' => 'password incorrecto'],
-                                        'data' => [
-                                            'type' => 'array',
-                                            'items' => ['type' => 'string'],
-                                            'example' => [],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
                     ],
                     '408' => [
                         'description' => 'Login no existe',
-                        'content' => [
-                            'application/json' => [
-                                'schema' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'codigo' => ['type' => 'integer', 'example' => 408],
-                                        'mensaje' => ['type' => 'string', 'example' => 'login no existe'],
-                                        'data' => [
-                                            'type' => 'array',
-                                            'items' => ['type' => 'string'],
-                                            'example' => [],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
                     ],
                 ],
             ],

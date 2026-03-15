@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\ApiToken;
+use App\Models\Credencial;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -47,15 +46,16 @@ class LoginController extends Controller
             ]);
         }
 
+        $idUsuario = (int) ($respuestaLogin->data['id_usuario'] ?? 0);
         $passwordGuardado = $respuestaLogin->data['credencial']['password_hash'] ?? '';
 
-        if (! $this->coincidePassword($passwordGuardado, $password)) {
+        $resultadoIntento = $this->coincidePassword($idUsuario, $passwordGuardado, $password);
+
+        if ($resultadoIntento['fallido']) {
             return response()->json([
-                'codigo' => 308,
-                'mensaje' => 'password incorrecto',
-                'data' => [
-                    'token' => $nuevoToken->api_token,
-                ],
+                'codigo' => ($resultadoIntento['intentos'] ?? 0) >= 3 ? 309 : 308,
+                'mensaje' => $resultadoIntento['mensaje'] ?? 'Contraseña incorrecta',
+                'data' => [],
             ]);
         }
 
@@ -69,22 +69,16 @@ class LoginController extends Controller
         ]);
     }
 
-    private function coincidePassword(string $passwordGuardado, string $passwordIngresado): bool
+    private function coincidePassword(int $idUsuario, string $passwordGuardado, string $passwordIngresado): array
     {
-        if ($passwordGuardado === '' || $passwordIngresado === '') {
-            return false;
+        if ($idUsuario <= 0 || $passwordGuardado === '' || $passwordIngresado === '') {
+            return [
+                'intentos' => 1,
+                'fallido'  => true,
+                'mensaje'  => 'Contraseña incorrecta. Te queda 2 intentos',
+            ];
         }
 
-        if (Hash::check($passwordIngresado, $passwordGuardado)) {
-            return true;
-        }
-
-        try {
-            $passwordPlano = Crypt::decryptString($passwordGuardado);
-
-            return hash_equals($passwordPlano, $passwordIngresado);
-        } catch (\Throwable) {
-            return false;
-        }
+        return Credencial::bloqueoIntento($idUsuario, $passwordIngresado);
     }
 }

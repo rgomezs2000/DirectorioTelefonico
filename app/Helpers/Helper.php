@@ -3,6 +3,10 @@
 namespace App\Helpers;
 
 use App\Models\ApiToken;
+<<<<<<< codex/create-api-token-table-and-files-rr1wy9
+=======
+use Illuminate\Support\Facades\Http;
+>>>>>>> main
 use Illuminate\Support\Str;
 
 class Helper
@@ -101,6 +105,25 @@ class Helper
     }
 
     /**
+     * Obtiene un token API consumiendo el endpoint /api/api_token y devuelve solo el valor del token.
+     */
+    public static function obtenerToken(): string
+    {
+        $url = rtrim(config('app.url', ''), '/').'/api/api_token';
+
+        if ($url === '/api/api_token') {
+            return '';
+        }
+
+        $respuesta = Http::acceptJson()->get($url);
+
+        if (! $respuesta->successful()) {
+            return '';
+        }
+
+        return (string) data_get($respuesta->json(), 'data.api_token', '');
+    }
+
      * Valida token de cabecera para endpoints API.
      */
     public static function validarTokenHeader(): object
@@ -147,7 +170,6 @@ class Helper
             'mensaje' => 'Token Válido',
             'data'    => [
                 'token' => $tokenHeader,
-            ],
-        ];
+        ],
     }
 }
