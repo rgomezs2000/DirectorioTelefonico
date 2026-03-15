@@ -3,7 +3,10 @@
 namespace App\Helpers;
 
 use App\Models\ApiToken;
+<<<<<<< codex/create-api-token-table-and-files-rr1wy9
+=======
 use Illuminate\Support\Facades\Http;
+>>>>>>> main
 use Illuminate\Support\Str;
 
 class Helper
@@ -121,41 +124,52 @@ class Helper
         return (string) data_get($respuesta->json(), 'data.api_token', '');
     }
 
-    /**
-     * Valida token Bearer enviado en Authorization para endpoints API protegidos.
+     * Valida token de cabecera para endpoints API.
      */
-    public static function validarTokenHeader(?string $bearerToken): array
+    public static function validarTokenHeader(): object
     {
-        if (empty($bearerToken)) {
-            return [
-                'codigo' => 306,
+        $tokenHeader = request()->bearerToken()
+            ?: (string) request()->header('X-Api-Token', request()->header('api-token', ''));
+
+        if ($tokenHeader === '') {
+            return (object) [
+                'codigo'  => 309,
                 'mensaje' => 'Token Incorrecto',
-                'data' => [],
+                'data'    => [],
             ];
         }
 
-        $token = ApiToken::query()->where('api_token', $bearerToken)->latest('id')->first();
+        $token = ApiToken::where('api_token', $tokenHeader)->first();
 
         if (! $token) {
-            return [
-                'codigo' => 306,
+            return (object) [
+                'codigo'  => 309,
                 'mensaje' => 'Token Incorrecto',
-                'data' => [],
+                'data'    => [],
             ];
         }
 
-        if (now()->greaterThan($token->fecha_fin_token)) {
-            return [
-                'codigo' => 307,
-                'mensaje' => 'Token expirado',
-                'data' => [],
+        if ($token->fecha_fin_token->lessThanOrEqualTo(now())) {
+            return (object) [
+                'codigo'  => 311,
+                'mensaje' => 'Token Expirado',
+                'data'    => [],
             ];
         }
 
-        return [
-            'codigo' => 200,
-            'mensaje' => 'Token válido',
-            'data' => [],
-        ];
+        if ((bool) $token->usado) {
+            return (object) [
+                'codigo'  => 310,
+                'mensaje' => 'Token Usado',
+                'data'    => [],
+            ];
+        }
+
+        return (object) [
+            'codigo'  => 200,
+            'mensaje' => 'Token Válido',
+            'data'    => [
+                'token' => $tokenHeader,
+        ],
     }
 }

@@ -14,6 +14,7 @@ return new class extends Migration
             $table->index('api_token', 'idx_api_token_token');
             $table->dateTime('fecha_token_inicio');
             $table->dateTime('fecha_fin_token');
+            $table->boolean('usado')->default(false);
         });
     }
 
