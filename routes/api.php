@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\ApiTokenController;
 use App\Http\Controllers\Api\DbTestController;
 use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/db-test/validar-login-test', [DbTestController::class, 'validarLoginTest']);
+Route::post('/api_token', [ApiTokenController::class, 'apiToken']);
 Route::post('/login/ingresar', [LoginController::class, 'ingresar']);
