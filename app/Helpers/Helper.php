@@ -112,7 +112,7 @@ class Helper
             return '';
         }
 
-        $respuesta = Http::acceptJson()->post($url);
+        $respuesta = Http::acceptJson()->get($url);
 
         if (! $respuesta->successful()) {
             return '';

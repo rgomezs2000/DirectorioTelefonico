@@ -153,7 +153,7 @@ class SwaggerController extends Controller
     private function endpointDocumentation(string $method, string $uri): array
     {
         $map = [
-            'post api/api_token' => [
+            'get api/api_token' => [
                 'responses' => [
                     '200' => [
                         'description' => 'Token generado correctamente',
