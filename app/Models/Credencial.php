@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @property int         $id_credencial
@@ -116,5 +118,77 @@ class Credencial extends BaseModel
             'intentos_fallidos' => 0,
             'bloqueado_hasta'   => null,
         ]);
+    }
+
+    /**
+     * Valida el password y controla el bloqueo por intentos fallidos.
+     *
+     * @return array{intentos:int,fallido:bool,mensaje:string}
+     */
+    public static function bloqueoIntento(int $idUsuario, string $password): array
+    {
+        $credencial = self::query()->where('id_usuario', $idUsuario)->first();
+
+        if (! $credencial || $password === '') {
+            return [
+                'intentos' => 0,
+                'fallido'  => true,
+                'mensaje'  => 'Contraseña incorrecta. Te queda 2 intentos',
+            ];
+        }
+
+        $passwordCoincide = false;
+
+        if (Hash::check($password, (string) $credencial->password_hash)) {
+            $passwordCoincide = true;
+        } else {
+            try {
+                $passwordDesencriptado = Crypt::decryptString((string) $credencial->password_hash);
+                $passwordCoincide = hash_equals($passwordDesencriptado, $password);
+            } catch (\Throwable) {
+                $passwordCoincide = false;
+            }
+        }
+
+        if ($passwordCoincide) {
+            $credencial->update([
+                'intentos_fallidos' => 0,
+                'bloqueado_hasta'   => null,
+            ]);
+
+            Usuario::query()
+                ->where('id_usuario', $idUsuario)
+                ->update(['bloqueado' => false]);
+
+            return [
+                'intentos' => 0,
+                'fallido'  => false,
+                'mensaje'  => '',
+            ];
+        }
+
+        $intentos = (int) $credencial->intentos_fallidos + 1;
+
+        $credencial->update(['intentos_fallidos' => $intentos]);
+
+        if ($intentos >= 3) {
+            Usuario::query()
+                ->where('id_usuario', $idUsuario)
+                ->update(['bloqueado' => true]);
+
+            return [
+                'intentos' => 3,
+                'fallido'  => true,
+                'mensaje'  => 'Contraseña incorrecta. Su usuario ha sido bloqueado. Favor comunicarse con el Administrador del sistema',
+            ];
+        }
+
+        $intentosRestantes = 3 - $intentos;
+
+        return [
+            'intentos' => $intentos,
+            'fallido'  => true,
+            'mensaje'  => "Contraseña incorrecta. Te queda {$intentosRestantes} intentos",
+        ];
     }
 }
