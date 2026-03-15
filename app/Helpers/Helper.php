@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\ApiToken;
 use Illuminate\Support\Str;
 
 class Helper
@@ -97,5 +98,56 @@ class Helper
     public static function inArray(mixed $value, array $array): bool
     {
         return in_array($value, $array, true);
+    }
+
+    /**
+     * Valida token de cabecera para endpoints API.
+     */
+    public static function validarTokenHeader(): object
+    {
+        $tokenHeader = request()->bearerToken()
+            ?: (string) request()->header('X-Api-Token', request()->header('api-token', ''));
+
+        if ($tokenHeader === '') {
+            return (object) [
+                'codigo'  => 309,
+                'mensaje' => 'Token Incorrecto',
+                'data'    => [],
+            ];
+        }
+
+        $token = ApiToken::where('api_token', $tokenHeader)->first();
+
+        if (! $token) {
+            return (object) [
+                'codigo'  => 309,
+                'mensaje' => 'Token Incorrecto',
+                'data'    => [],
+            ];
+        }
+
+        if ($token->fecha_fin_token->lessThanOrEqualTo(now())) {
+            return (object) [
+                'codigo'  => 311,
+                'mensaje' => 'Token Expirado',
+                'data'    => [],
+            ];
+        }
+
+        if ((bool) $token->usado) {
+            return (object) [
+                'codigo'  => 310,
+                'mensaje' => 'Token Usado',
+                'data'    => [],
+            ];
+        }
+
+        return (object) [
+            'codigo'  => 200,
+            'mensaje' => 'Token Válido',
+            'data'    => [
+                'token' => $tokenHeader,
+            ],
+        ];
     }
 }

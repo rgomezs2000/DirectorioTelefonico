@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\ApiToken;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +15,23 @@ class LoginController extends Controller
 {
     public function ingresar(Request $request): JsonResponse
     {
+        $validacionToken = Helper::validarTokenHeader();
+
+        if (($validacionToken->codigo ?? null) !== 200) {
+            return response()->json([
+                'codigo' => $validacionToken->codigo ?? 309,
+                'mensaje' => $validacionToken->mensaje ?? 'Token Incorrecto',
+                'data' => [],
+            ]);
+        }
+
+        $tokenConsumido = (string) ($validacionToken->data['token'] ?? '');
+        if ($tokenConsumido !== '') {
+            ApiToken::tokenUsado($tokenConsumido);
+        }
+
+        $nuevoToken = ApiToken::obtenerToken();
+
         $login = (string) $request->input('login', '');
         $password = (string) $request->input('password', '');
 
@@ -22,7 +41,9 @@ class LoginController extends Controller
             return response()->json([
                 'codigo' => $respuestaLogin->codigo ?? 408,
                 'mensaje' => $respuestaLogin->mensaje ?? 'login no existe',
-                'data' => [],
+                'data' => [
+                    'token' => $nuevoToken->api_token,
+                ],
             ]);
         }
 
@@ -32,14 +53,19 @@ class LoginController extends Controller
             return response()->json([
                 'codigo' => 308,
                 'mensaje' => 'password incorrecto',
-                'data' => [],
+                'data' => [
+                    'token' => $nuevoToken->api_token,
+                ],
             ]);
         }
 
         return response()->json([
             'codigo' => 200,
             'mensaje' => 'login correcto',
-            'data' => $respuestaLogin->data,
+            'data' => [
+                'usuario' => $respuestaLogin->data,
+                'token' => $nuevoToken->api_token,
+            ],
         ]);
     }
 
