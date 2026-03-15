@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 /**
  * @property int    $id
@@ -28,16 +29,35 @@ class ApiToken extends BaseModel
         'fecha_fin_token',
     ];
 
-    protected $hidden = [
-        'api_token',
-    ];
-
     protected $casts = [
         'fecha_token_inicio' => 'datetime',
         'fecha_fin_token'    => 'datetime',
     ];
 
-    // ── Scopes propios ────────────────────────────────────────────
+    /**
+     * Crea un token API con vigencia de 30 minutos y retorna el último token creado.
+     */
+    public static function obtenerToken(): object
+    {
+        $inicio = now();
+        $fin = now()->addMinutes(30);
+
+        $token = substr(hash('sha512', Str::uuid()->toString().microtime(true).Str::random(128)).hash('sha512', Str::random(128).microtime(true)), 0, 255);
+
+        self::create([
+            'api_token' => $token,
+            'fecha_token_inicio' => $inicio,
+            'fecha_fin_token' => $fin,
+        ]);
+
+        $ultimoToken = self::query()->latest('id')->first();
+
+        return (object) [
+            'codigo' => 200,
+            'mensaje' => 'exitoso',
+            'data' => $ultimoToken,
+        ];
+    }
 
     /** Tokens que ya están vigentes y aún no vencen */
     public function scopeVigentes(Builder $query): Builder
@@ -51,8 +71,6 @@ class ApiToken extends BaseModel
     {
         return $query->where('fecha_fin_token', '<=', now());
     }
-
-    // ── Helpers ──────────────────────────────────────────────────
 
     /** Retorna true si el token está actualmente vigente */
     public function estaVigente(): bool
