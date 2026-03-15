@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\ApiToken;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class Helper
@@ -97,5 +99,63 @@ class Helper
     public static function inArray(mixed $value, array $array): bool
     {
         return in_array($value, $array, true);
+    }
+
+    /**
+     * Obtiene un token API consumiendo el endpoint /api/api_token y devuelve solo el valor del token.
+     */
+    public static function obtenerToken(): string
+    {
+        $url = rtrim(config('app.url', ''), '/').'/api/api_token';
+
+        if ($url === '/api/api_token') {
+            return '';
+        }
+
+        $respuesta = Http::acceptJson()->get($url);
+
+        if (! $respuesta->successful()) {
+            return '';
+        }
+
+        return (string) data_get($respuesta->json(), 'data.api_token', '');
+    }
+
+    /**
+     * Valida token Bearer enviado en Authorization para endpoints API protegidos.
+     */
+    public static function validarTokenHeader(?string $bearerToken): array
+    {
+        if (empty($bearerToken)) {
+            return [
+                'codigo' => 306,
+                'mensaje' => 'Token Incorrecto',
+                'data' => [],
+            ];
+        }
+
+        $token = ApiToken::query()->where('api_token', $bearerToken)->latest('id')->first();
+
+        if (! $token) {
+            return [
+                'codigo' => 306,
+                'mensaje' => 'Token Incorrecto',
+                'data' => [],
+            ];
+        }
+
+        if (now()->greaterThan($token->fecha_fin_token)) {
+            return [
+                'codigo' => 307,
+                'mensaje' => 'Token expirado',
+                'data' => [],
+            ];
+        }
+
+        return [
+            'codigo' => 200,
+            'mensaje' => 'Token válido',
+            'data' => [],
+        ];
     }
 }

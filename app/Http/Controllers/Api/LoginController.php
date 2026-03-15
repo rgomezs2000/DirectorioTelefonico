@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,13 @@ class LoginController extends Controller
 {
     public function ingresar(Request $request): JsonResponse
     {
+        $bearerToken = (string) $request->bearerToken();
+        $validacionToken = Helper::validarTokenHeader($bearerToken);
+
+        if (($validacionToken['codigo'] ?? 306) !== 200) {
+            return response()->json($validacionToken);
+        }
+
         $login = (string) $request->input('login', '');
         $password = (string) $request->input('password', '');
 
