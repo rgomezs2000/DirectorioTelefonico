@@ -76,8 +76,7 @@ class ApiToken extends BaseModel
                      ->where('fecha_fin_token', '>', now())
                      ->where('usado', false);
     }
-
-
+  
     /** Tokens expirados */
     public function scopeExpirados(Builder $query): Builder
     {
