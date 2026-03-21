@@ -9,9 +9,13 @@
         },
         dialogStore() {
             return this.$store?.dialog ?? this.fallback;
-        }
+        },
+        init() {
+            const dialog = this.dialogStore();
+            dialog.open = false;
+        },
     }"
-    x-show="dialogStore().open"
+    x-show="dialogStore().open === true"
     x-transition.opacity
     x-cloak
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
@@ -57,9 +61,6 @@
                 </svg>
 
 
-                <svg x-show="$store.dialog.data.icon === 'success'" class="h-6 w-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m9 12 2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
             </div>
 
             <p class="text-sm leading-6 text-neutral-600" x-text="dialogStore().data.message"></p>
