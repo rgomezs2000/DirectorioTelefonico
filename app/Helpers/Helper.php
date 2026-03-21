@@ -3,10 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\ApiToken;
-<<<<<<< codex/create-api-token-table-and-files-rr1wy9
-=======
 use Illuminate\Support\Facades\Http;
->>>>>>> main
 use Illuminate\Support\Str;
 
 class Helper
@@ -124,8 +121,7 @@ class Helper
         return (string) data_get($respuesta->json(), 'data.api_token', '');
     }
 
-     * Valida token de cabecera para endpoints API.
-     */
+     /** Valida token de cabecera para endpoints API.*/
     public static function validarTokenHeader(): object
     {
         $tokenHeader = request()->bearerToken()
@@ -170,6 +166,6 @@ class Helper
             'mensaje' => 'Token Válido',
             'data'    => [
                 'token' => $tokenHeader,
-        ],
+        ];
     }
 }
