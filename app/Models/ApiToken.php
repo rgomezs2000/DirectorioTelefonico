@@ -76,7 +76,7 @@ class ApiToken extends BaseModel
                      ->where('fecha_fin_token', '>', now())
                      ->where('usado', false);
     }
-
+  
     /** Tokens expirados */
     public function scopeExpirados(Builder $query): Builder
     {
@@ -91,11 +91,14 @@ class ApiToken extends BaseModel
             && $this->fecha_fin_token->isFuture();
     }
 
-    /** Marca como usado un token si existe y no está usado. */
+    /** Marca como usado un token si existe y no está usado (false o null). */
     public static function tokenUsado(string $token): bool
     {
         return self::where('api_token', $token)
-            ->where('usado', false)
+            ->where(function (Builder $query): void {
+                $query->where('usado', false)
+                    ->orWhereNull('usado');
+            })
             ->update(['usado' => true]) > 0;
     }
 }
