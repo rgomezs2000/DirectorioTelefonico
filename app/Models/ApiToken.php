@@ -77,7 +77,6 @@ class ApiToken extends BaseModel
                      ->where('usado', false);
     }
 
-
     /** Tokens expirados */
     public function scopeExpirados(Builder $query): Builder
     {
