@@ -32,6 +32,7 @@ class LoginController extends Controller
             }
 
             $nuevoToken = ApiToken::obtenerToken();
+            $tokenGenerado = (string) ($nuevoToken->api_token ?? data_get($nuevoToken, 'data.api_token', ''));
 
             $login = (string) $request->input('login', '');
             $password = (string) $request->input('password', '');
@@ -43,7 +44,7 @@ class LoginController extends Controller
                     'codigo' => $respuestaLogin->codigo ?? 408,
                     'mensaje' => $respuestaLogin->mensaje ?? 'login no existe',
                     'data' => [
-                        'token' => $nuevoToken->api_token,
+                        'token' => $tokenGenerado,
                     ],
                 ]);
             }
@@ -66,7 +67,7 @@ class LoginController extends Controller
                 'mensaje' => 'login correcto',
                 'data' => [
                     'usuario' => $respuestaLogin->data,
-                    'token' => $nuevoToken->api_token,
+                    'token' => $tokenGenerado,
                 ],
             ]);
         } catch (Throwable $exception) {
