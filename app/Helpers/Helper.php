@@ -146,6 +146,8 @@ class Helper
         }
 
         if ($token->fecha_fin_token->lessThanOrEqualTo(now())) {
+            ApiToken::tokenUsado($tokenHeader);
+
             return (object) [
                 'codigo'  => 311,
                 'mensaje' => 'Token Expirado',
@@ -170,3 +172,4 @@ class Helper
         ];
     }
 }
+
