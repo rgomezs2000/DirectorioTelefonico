@@ -8,67 +8,87 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Throwable;
 
 class SwaggerController extends Controller
 {
-    public function ui(): View
+    public function ui(): View|JsonResponse
     {
-        return view('swagger-ui');
+        try {
+            return view('swagger-ui');
+        } catch (Throwable $exception) {
+            return response()->json([
+                'codigo' => 500,
+                'mensaje' => 'Error interno del servidor',
+                'error' => app()->hasDebugModeEnabled()
+                    ? $exception->getMessage()
+                    : 'Ocurrió un error inesperado',
+            ], 500);
+        }
     }
 
     public function spec(Request $request): JsonResponse
     {
-        $paths = [];
+        try {
+            $paths = [];
 
-        foreach (Route::getRoutes() as $route) {
-            $uri = $route->uri();
+            foreach (Route::getRoutes() as $route) {
+                $uri = $route->uri();
 
-            if (! str_starts_with($uri, 'api/')) {
-                continue;
-            }
+                if (! str_starts_with($uri, 'api/')) {
+                    continue;
+                }
 
-            if (in_array($uri, ['api/openapi.json'], true)) {
-                continue;
-            }
+                if (in_array($uri, ['api/openapi.json'], true)) {
+                    continue;
+                }
 
-            $path = '/'.$uri;
-            $methods = array_values(array_diff($route->methods(), ['HEAD']));
+                $path = '/'.$uri;
+                $methods = array_values(array_diff($route->methods(), ['HEAD']));
 
-            foreach ($methods as $method) {
-                $lowerMethod = strtolower($method);
-                $endpointDoc = $this->endpointDocumentation($lowerMethod, $uri);
+                foreach ($methods as $method) {
+                    $lowerMethod = strtolower($method);
+                    $endpointDoc = $this->endpointDocumentation($lowerMethod, $uri);
 
-                $paths[$path][$lowerMethod] = [
-                    'tags' => ['API'],
-                    'summary' => $this->buildSummary($method, $uri),
-                    'operationId' => $this->buildOperationId($method, $uri),
-                    'parameters' => $this->buildParameters($uri),
-                    'responses' => $endpointDoc['responses'] ?? $this->defaultResponses(),
-                ];
+                    $paths[$path][$lowerMethod] = [
+                        'tags' => ['API'],
+                        'summary' => $this->buildSummary($method, $uri),
+                        'operationId' => $this->buildOperationId($method, $uri),
+                        'parameters' => $this->buildParameters($uri),
+                        'responses' => $endpointDoc['responses'] ?? $this->defaultResponses(),
+                    ];
 
-                if (isset($endpointDoc['requestBody'])) {
-                    $paths[$path][$lowerMethod]['requestBody'] = $endpointDoc['requestBody'];
+                    if (isset($endpointDoc['requestBody'])) {
+                        $paths[$path][$lowerMethod]['requestBody'] = $endpointDoc['requestBody'];
+                    }
                 }
             }
-        }
+            ksort($paths);
 
-        ksort($paths);
-
-        return response()->json([
-            'openapi' => '3.0.3',
-            'info' => [
-                'title' => config('app.name').' API',
-                'description' => 'Documentación automática de endpoints disponibles bajo /api.',
-                'version' => '1.0.0',
-            ],
-            'servers' => [
-                [
-                    'url' => $request->getSchemeAndHttpHost(),
-                    'description' => 'Servidor actual',
+            return response()->json([
+                'openapi' => '3.0.3',
+                'info' => [
+                    'title' => config('app.name').' API',
+                    'description' => 'Documentación automática de endpoints disponibles bajo /api.',
+                    'version' => '1.0.0',
                 ],
-            ],
-            'paths' => $paths,
-        ]);
+                'servers' => [
+                    [
+                        'url' => $request->getSchemeAndHttpHost(),
+                        'description' => 'Servidor actual',
+                    ],
+                ],
+                'paths' => $paths,
+            ]);
+        } catch (Throwable $exception) {
+            return response()->json([
+                'codigo' => 500,
+                'mensaje' => 'Error interno del servidor',
+                'error' => app()->hasDebugModeEnabled()
+                    ? $exception->getMessage()
+                    : 'Ocurrió un error inesperado',
+            ], 500);
+        }
     }
 
     private function buildSummary(string $method, string $uri): string
