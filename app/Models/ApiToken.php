@@ -39,42 +39,7 @@ class ApiToken extends BaseModel
         'fecha_token_inicio' => 'datetime',
         'fecha_fin_token'    => 'datetime',
         'usado'              => 'boolean',
-      ];
-  
-    /**
-       * Crea un token API con vigencia de 30 minutos y retorna el último token creado.
-       */
-      public static function obtenerToken(): object
-      {
-          $inicio = now();
-          $fin = now()->addMinutes(30);
-
-          $token = substr(hash('sha512', Str::uuid()->toString().microtime(true).Str::random(128)).hash('sha512', Str::random(128).microtime(true)), 0, 255);
-
-          self::create([
-              'api_token' => $token,
-              'fecha_token_inicio' => $inicio,
-              'fecha_fin_token' => $fin,
-          ]);
-
-          $ultimoToken = self::query()->latest('id')->first();
-
-          return (object) [
-              'codigo' => 200,
-              'mensaje' => 'exitoso',
-              'data' => $ultimoToken,
-          ];
-      }
-  
-    // ── Scopes propios ────────────────────────────────────────────
-
-    /** Tokens que ya están vigentes, no vencen y no fueron usados */
-    public function scopeVigentes(Builder $query): Builder
-    {
-        return $query->where('fecha_token_inicio', '<=', now())
-                     ->where('fecha_fin_token', '>', now())
-                     ->where('usado', false);
-    }
+    ];
 
     /**
      * Crea un token API con vigencia de 30 minutos y retorna el último token creado.
@@ -86,8 +51,8 @@ class ApiToken extends BaseModel
 
         $token = substr(hash('sha512', Str::uuid()->toString().microtime(true).Str::random(128)).hash('sha512', Str::random(128).microtime(true)), 0, 255);
 
-        return self::create([
-            'api_token'         => (string) Str::uuid(),
+        self::create([
+            'api_token'         => $token,
             'fecha_token_inicio'=> $inicio,
             'fecha_fin_token'   => $fin,
             'usado'             => false,
@@ -96,11 +61,22 @@ class ApiToken extends BaseModel
         $ultimoToken = self::query()->latest('id')->first();
 
         return (object) [
-            'codigo' => 200,
+            'codigo'  => 200,
             'mensaje' => 'exitoso',
-            'data' => $ultimoToken,
+            'data'    => $ultimoToken,
         ];
     }
+
+    // ── Scopes propios ────────────────────────────────────────────
+
+    /** Tokens que ya están vigentes, no vencen y no fueron usados */
+    public function scopeVigentes(Builder $query): Builder
+    {
+        return $query->where('fecha_token_inicio', '<=', now())
+                     ->where('fecha_fin_token', '>', now())
+                     ->where('usado', false);
+    }
+
 
     /** Tokens expirados */
     public function scopeExpirados(Builder $query): Builder
@@ -116,11 +92,14 @@ class ApiToken extends BaseModel
             && $this->fecha_fin_token->isFuture();
     }
 
-    /** Marca como usado un token si existe y no está usado. */
+    /** Marca como usado un token si existe y no está usado (false o null). */
     public static function tokenUsado(string $token): bool
     {
         return self::where('api_token', $token)
-            ->where('usado', false)
+            ->where(function (Builder $query): void {
+                $query->where('usado', false)
+                    ->orWhereNull('usado');
+            })
             ->update(['usado' => true]) > 0;
     }
 }
