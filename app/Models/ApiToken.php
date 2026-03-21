@@ -31,9 +31,6 @@ class ApiToken extends BaseModel
         'usado',
     ];
 
-    protected $hidden = [
-        'api_token',
-    ];
 
     protected $casts = [
         'fecha_token_inicio' => 'datetime',
@@ -51,6 +48,13 @@ class ApiToken extends BaseModel
 
         $token = substr(hash('sha512', Str::uuid()->toString().microtime(true).Str::random(128)).hash('sha512', Str::random(128).microtime(true)), 0, 255);
 
+        self::query()
+            ->where(function (Builder $query): void {
+                $query->where('usado', false)
+                    ->orWhereNull('usado');
+            })
+            ->update(['usado' => true]);
+
         self::create([
             'api_token'         => $token,
             'fecha_token_inicio'=> $inicio,
@@ -58,7 +62,14 @@ class ApiToken extends BaseModel
             'usado'             => false,
         ]);
 
-        $ultimoToken = self::query()->latest('id')->first();
+        $ultimoToken = self::query()
+            ->where(function (Builder $query): void {
+                $query->where('usado', false)
+                    ->orWhereNull('usado');
+            })
+            ->latest('id')
+            ->first();
+
 
         return (object) [
             'codigo'  => 200,
