@@ -166,6 +166,8 @@ class Helper
             'mensaje' => 'Token Válido',
             'data'    => [
                 'token' => $tokenHeader,
+            ],
         ];
     }
 }
+
