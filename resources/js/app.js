@@ -3,6 +3,8 @@ import { debounce, getCsrfToken, buildQueryString } from './functions.js';
 import { slug, truncate, formatCurrency }           from './strings.js';
 import { timeAgo, formatDate, countdown }           from './dates.js';
 import { dialog, question }                         from './dialog.js';
+// Nota: la pantalla de login actualmente usa public/js/app.js directo por CDN.
+// Mantener sincronizados los helpers de Google OAuth en ambos archivos.
 
 window.dialog = dialog;
 window.question = question;
