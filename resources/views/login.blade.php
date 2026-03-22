@@ -61,6 +61,8 @@
                  loading : false,
                  form    : { login: '', password: '' },
                  googleLoading: false,
+                 googleLoggedIn: false,
+                 googleUser: null,
                  showModal(type, title, message) {
                      const store = window.Alpine?.store?.('dialog');
                      if (store && typeof window.dialog === 'function') {
@@ -68,25 +70,12 @@
                      }
                  },
                  async submitGoogleAuth() {
-                     this.googleLoading = true;
-
-                     try {
-                         const payload = {
-                             email: this.form.login || null,
-                             name: null,
-                             credential: null,
-                             client_id: '{{ config('services.google.client_id') }}'
-                         };
-
-                         await window.initGoogleAuth(payload);
-                     } catch (err) {
-                         // El manejo visual de éxito/error se centraliza en window.initGoogleAuth.
-                     } finally {
-                         this.googleLoading = false;
-                     }
+                     window.openGoogleAuthPopup(this);
                  }
              }"
              x-init="
+                 window.googleClientId = '{{ config('services.google.client_id') }}';
+
                  const validationErrors = @js($errors->all());
                  if (validationErrors.length) {
                      showModal('error', 'No fue posible iniciar sesión', validationErrors.join('\n'));
@@ -96,6 +85,10 @@
                  if (sessionStatus) {
                      showModal('info', 'Información', sessionStatus);
                  }
+
+                 const authStatus = await window.fetchGoogleSessionStatus();
+                 googleLoggedIn = !!authStatus?.is_logged_in;
+                 googleUser = authStatus?.user ?? null;
              ">
 
             <div class="au-2 w-full py-4 text-center bg-white">
@@ -277,6 +270,16 @@
                         </button>
                     </div>{{-- /FILA 4 --}}
 
+                    <div class="px-5 sm:px-8 pb-6 text-center text-xs text-neutral-500"
+                         x-show="googleUser"
+                         x-cloak>
+                        <p>
+                            Estado Google:
+                            <span class="font-semibold" x-text="googleLoggedIn ? 'Sesión iniciada' : 'Sin sesión'"></span>
+                        </p>
+                        <p x-text="googleUser?.email ?? ''"></p>
+                    </div>
+
                     {{-- ── ¿Olvidaste tu contraseña? ──────────── --}}
                     @if (Route::has('password.request'))
                         <div class="px-6 pb-5 pt-1 text-center">
@@ -302,4 +305,3 @@
 </div>
 
 @endsection
-
