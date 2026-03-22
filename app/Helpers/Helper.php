@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\ApiToken;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -121,6 +122,31 @@ class Helper
         return (string) data_get($respuesta->json(), 'data.api_token', '');
     }
 
+    /**
+     * Obtiene y reutiliza el bearer token en sesión para consumo de APIs desde controladores Web.
+     * Si $forzarRenovacion es true, elimina el token en sesión y solicita uno nuevo.
+     */
+    public static function obtenerBearerTokenDesdeSesion(Request $request, bool $forzarRenovacion = false): string
+    {
+        if ($forzarRenovacion) {
+            $request->session()->forget('api_bearer_token');
+        }
+
+        $tokenEnSesion = (string) $request->session()->get('api_bearer_token', '');
+
+        if ($tokenEnSesion !== '') {
+            return $tokenEnSesion;
+        }
+
+        $token = self::obtenerToken();
+
+        if ($token !== '') {
+            $request->session()->put('api_bearer_token', $token);
+        }
+
+        return $token;
+    }
+
      /** Valida token de cabecera para endpoints API.*/
     public static function validarTokenHeader(): object
     {
@@ -172,4 +198,3 @@ class Helper
         ];
     }
 }
-

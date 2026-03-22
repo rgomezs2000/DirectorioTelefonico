@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Models\ApiToken;
 use App\Models\Credencial;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
@@ -26,14 +25,6 @@ class LoginController extends Controller
                 ]);
             }
 
-            $tokenConsumido = (string) ($validacionToken->data['token'] ?? '');
-            if ($tokenConsumido !== '') {
-                ApiToken::tokenUsado($tokenConsumido);
-            }
-
-            $nuevoToken = ApiToken::obtenerToken();
-            $tokenGenerado = (string) ($nuevoToken->api_token ?? data_get($nuevoToken, 'data.api_token', ''));
-
             $login = (string) $request->input('login', '');
             $password = (string) $request->input('password', '');
 
@@ -43,9 +34,7 @@ class LoginController extends Controller
                 return response()->json([
                     'codigo' => $respuestaLogin->codigo ?? 408,
                     'mensaje' => $respuestaLogin->mensaje ?? 'login no existe',
-                    'data' => [
-                        'token' => $tokenGenerado,
-                    ],
+                    'data' => [],
                 ]);
             }
 
@@ -67,7 +56,6 @@ class LoginController extends Controller
                 'mensaje' => 'login correcto',
                 'data' => [
                     'usuario' => $respuestaLogin->data,
-                    'token' => $tokenGenerado,
                 ],
             ]);
         } catch (Throwable $exception) {
