@@ -3,6 +3,8 @@ import { debounce, getCsrfToken, buildQueryString } from './functions.js';
 import { slug, truncate, formatCurrency }           from './strings.js';
 import { timeAgo, formatDate, countdown }           from './dates.js';
 import { dialog, question }                         from './dialog.js';
+// Nota: la pantalla de login actualmente usa public/js/app.js directo por CDN.
+// Mantener sincronizados los helpers de Google OAuth en ambos archivos.
 
 window.dialog = dialog;
 window.question = question;
@@ -158,6 +160,64 @@ window.initGoogleAuth = async function initGoogleAuth(payload = {}) {
 
         throw error;
     }
+};
 
-    return result;
+window.fetchGoogleSessionStatus = async function fetchGoogleSessionStatus() {
+    try {
+        const response = await axios.get(getAppRoute('authGoogleStatus', '/auth_google/status'));
+        return response.data ?? { ok: false, is_logged_in: false };
+    } catch (error) {
+        return {
+            ok: false,
+            is_logged_in: false,
+            message: error.message ?? 'No se pudo obtener el estado de sesión de Google',
+        };
+    }
+};
+
+window.openGoogleAuthPopup = function openGoogleAuthPopup(component = null) {
+    const clientId = window.googleClientId ?? '';
+
+    if (!window.google?.accounts?.id || !clientId) {
+        window.showSystemDialog(
+            'error',
+            'Acceso al Sistema',
+            'Google OAuth no está configurado (falta cargar SDK o client_id).',
+        );
+        return;
+    }
+
+    window.google.accounts.id.initialize({
+        client_id: clientId,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+        callback: async (response) => {
+            if (component) {
+                component.googleLoading = true;
+            }
+
+            try {
+                const result = await window.initGoogleAuth({ credential: response?.credential ?? null });
+
+                if (component) {
+                    component.googleUser = result?.google_user ?? null;
+                    component.googleLoggedIn = !!result?.google_user;
+                }
+            } finally {
+                if (component) {
+                    component.googleLoading = false;
+                }
+            }
+        },
+    });
+
+    window.google.accounts.id.prompt((notification) => {
+        if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
+            window.showSystemDialog(
+                'info',
+                'Acceso al Sistema',
+                'Google no pudo mostrar el popup. Verifica popups bloqueados o el dominio autorizado.',
+            );
+        }
+    });
 };
