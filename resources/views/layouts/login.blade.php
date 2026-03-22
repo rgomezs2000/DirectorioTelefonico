@@ -61,6 +61,7 @@
             defer
             src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
         ></script>
+        <script defer src="https://accounts.google.com/gsi/client"></script>
 
         </head>
 
@@ -88,6 +89,7 @@
                 login: @json(route('login')),
                 ingresar: @json(route('ingresar')),
                 authGoogle: @json(route('auth.google')),
+                authGoogleStatus: @json(route('auth.google.status')),
             });
        </script>
        <script src="{{ asset('js/dialog.js') }}"></script>

@@ -1,5 +1,8 @@
 (function () {
     'use strict';
+    // IMPORTANTE:
+    // Esta app carga este archivo directamente desde Blade/CDN (sin pipeline NPM en login).
+    // Mantener en sincronía con los helpers equivalentes de resources/js/app.js.
 
     const ICONS_BY_TYPE = {
         error: 'error',
@@ -141,14 +144,84 @@
             scope: payload.scope ?? null,
         };
 
-        const response = await axios.post(getAppRoute('authGoogle', '/auth_google'), googlePayload);
-        const result = response.data;
-        const resultMessage = typeof result === 'string'
-            ? result
-            : JSON.stringify(result, null, 2);
+        try {
+            const response = await axios.post(getAppRoute('authGoogle', '/auth_google'), googlePayload);
+            const result = response.data;
+            const resultMessage = typeof result === 'string'
+                ? result
+                : JSON.stringify(result, null, 2);
 
-        window.showSystemDialog('info', 'Prueba Google OAuth', resultMessage);
+            window.showSystemDialog('success', 'Acceso al Sistema', resultMessage);
 
-        return result;
+            return result;
+        } catch (error) {
+            const errorMessage = error.response?.data
+                ? JSON.stringify(error.response.data, null, 2)
+                : (error.message ?? 'Error desconocido');
+
+            window.showSystemDialog('error', 'Acceso al Sistema', errorMessage);
+
+            throw error;
+        }
+    };
+
+    window.fetchGoogleSessionStatus = async function fetchGoogleSessionStatus() {
+        try {
+            const response = await axios.get(getAppRoute('authGoogleStatus', '/auth_google/status'));
+            return response.data ?? { ok: false, is_logged_in: false };
+        } catch (error) {
+            return {
+                ok: false,
+                is_logged_in: false,
+                message: error.message ?? 'No se pudo obtener el estado de sesión de Google',
+            };
+        }
+    };
+
+    window.openGoogleAuthPopup = function openGoogleAuthPopup(component = null) {
+        const clientId = window.googleClientId ?? '';
+
+        if (!window.google?.accounts?.id || !clientId) {
+            window.showSystemDialog(
+                'error',
+                'Acceso al Sistema',
+                'Google OAuth no está configurado (falta cargar SDK o client_id).',
+            );
+            return;
+        }
+
+        window.google.accounts.id.initialize({
+            client_id: clientId,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            callback: async (response) => {
+                if (component) {
+                    component.googleLoading = true;
+                }
+
+                try {
+                    const result = await window.initGoogleAuth({ credential: response?.credential ?? null });
+
+                    if (component) {
+                        component.googleUser = result?.google_user ?? null;
+                        component.googleLoggedIn = !!result?.google_user;
+                    }
+                } finally {
+                    if (component) {
+                        component.googleLoading = false;
+                    }
+                }
+            },
+        });
+
+        window.google.accounts.id.prompt((notification) => {
+            if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
+                window.showSystemDialog(
+                    'info',
+                    'Acceso al Sistema',
+                    'Google no pudo mostrar el popup. Verifica popups bloqueados o el dominio autorizado.',
+                );
+            }
+        });
     };
 })();
