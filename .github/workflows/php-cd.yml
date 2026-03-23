@@ -1,5 +1,8 @@
 name: PHP CD (Deploy Windows)
 
+# Configura estos secrets en GitHub > Settings > Secrets and variables > Actions:
+# WINDOWS_HOST, WINDOWS_PORT, WINDOWS_USER, WINDOWS_PASSWORD, WINDOWS_DEPLOY_PATH
+
 on:
   push:
     branches:
