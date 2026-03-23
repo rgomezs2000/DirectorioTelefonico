@@ -53,47 +53,36 @@ jobs:
             -AcceptKey
 
           try {
-            $remoteScript = @"
-`$ErrorActionPreference = 'Stop'
-Write-Host '[1/9] Iniciando conexión y validaciones'
+            $safeDeployPath = $env:WINDOWS_DEPLOY_PATH -replace "'", "''"
+            $remoteLines = @(
+              "`$ErrorActionPreference = 'Stop'",
+              "Write-Host '[1/9] Iniciando conexión y validaciones'",
+              "`$deployPath = '$safeDeployPath'",
+              "if (-not (Test-Path `$deployPath)) { throw \"Ruta de despliegue no existe: `$deployPath\" }",
+              "Set-Location `$deployPath",
+              "Write-Host \"[2/9] Carpeta de despliegue: `$deployPath\"",
+              "if (-not (Test-Path '.git')) { throw \"La carpeta no es un repositorio Git: `$deployPath\" }",
+              "Write-Host '[3/9] Preparando repositorio para evitar conflictos'",
+              "git fetch origin main --prune",
+              "git checkout main",
+              "git reset --hard origin/main",
+              "git clean -fd",
+              "Write-Host '[4/9] Actualizando dependencias Composer'",
+              "composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader",
+              "Write-Host '[5/9] Fetch/Pull de seguridad'",
+              "git fetch origin main --prune",
+              "git pull --ff-only origin main",
+              "Write-Host '[6/9] Limpiando cachés de Laravel'",
+              "php artisan optimize:clear",
+              "Write-Host '[7/9] Optimizando proyecto'",
+              "php artisan config:cache",
+              "php artisan route:cache",
+              "php artisan view:cache",
+              "Write-Host '[8/9] Transacción finalizada correctamente'",
+              "Write-Host '[9/9] Desconexión completada por fin del job'"
+            )
 
-`$deployPath = '$($env:WINDOWS_DEPLOY_PATH)'
-if (-not (Test-Path `$deployPath)) {
-  throw "Ruta de despliegue no existe: `$deployPath"
-}
-
-Set-Location `$deployPath
-Write-Host "[2/9] Carpeta de despliegue: `$deployPath"
-
-if (-not (Test-Path '.git')) {
-  throw "La carpeta no es un repositorio Git: `$deployPath"
-}
-
-Write-Host '[3/9] Preparando repositorio para evitar conflictos'
-git fetch origin main --prune
-git checkout main
-git reset --hard origin/main
-git clean -fd
-
-Write-Host '[4/9] Actualizando dependencias Composer'
-composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader
-
-Write-Host '[5/9] Fetch/Pull de seguridad'
-git fetch origin main --prune
-git pull --ff-only origin main
-
-Write-Host '[6/9] Limpiando cachés de Laravel'
-php artisan optimize:clear
-
-Write-Host '[7/9] Optimizando proyecto'
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-Write-Host '[8/9] Transacción finalizada correctamente'
-Write-Host '[9/9] Desconexión completada por fin del job'
-"@
-
+            $remoteScript = $remoteLines -join "`n"
             $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($remoteScript))
             $command = "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded"
             $result = Invoke-SSHCommand -SessionId $session.SessionId -Command $command -TimeOut 1800
