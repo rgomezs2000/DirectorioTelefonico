@@ -32,38 +32,76 @@ class LoginController extends Controller
                 ], 500);
             }
 
-            $url = rtrim(config('app.url', ''), '/') . '/api/login/ingresar';
+            $baseUrls = array_values(array_unique(array_filter(array_map(
+                static fn (string $url): string => rtrim($url, '/'),
+                [
+                    $request->getSchemeAndHttpHost(),
+                    (string) config('app.url', ''),
+                    (string) url('/'),
+                ]
+            ))));
 
-            if ($url === '/api/login/ingresar') {
+            $payload = [
+                'login' => (string) $request->input('login', ''),
+                'password' => (string) $request->input('password', ''),
+            ];
+
+            $respuesta = null;
+            foreach ($baseUrls as $baseUrl) {
+                $url = $baseUrl . '/api/login/ingresar';
+
+                $intento = Http::acceptJson()
+                    ->withToken($token)
+                    ->post($url, $payload);
+
+                if ($intento->status() === 404) {
+                    continue;
+                }
+
+                $respuesta = $intento;
+                break;
+            }
+
+            if ($respuesta === null) {
                 return response()->json([
                     'codigo' => 500,
-                    'mensaje' => 'URL de API inválida',
+                    'mensaje' => 'No se encontró un endpoint válido para login API',
                     'data' => [],
                 ], 500);
             }
-
-            $respuesta = Http::acceptJson()
-                ->withToken($token)
-                ->post($url, [
-                    'login' => (string) $request->input('login', ''),
-                    'password' => (string) $request->input('password', ''),
-                ]);
 
             $codigoRespuesta = (int) ($respuesta->json('codigo') ?? 0);
             if (in_array($codigoRespuesta, [309, 310, 311], true)) {
                 $token = Helper::obtenerBearerTokenDesdeSesion($request, true);
 
                 if ($token !== '') {
-                    $respuesta = Http::acceptJson()
-                        ->withToken($token)
-                        ->post($url, [
-                            'login' => (string) $request->input('login', ''),
-                            'password' => (string) $request->input('password', ''),
-                        ]);
+                    foreach ($baseUrls as $baseUrl) {
+                        $url = $baseUrl . '/api/login/ingresar';
+
+                        $intento = Http::acceptJson()
+                            ->withToken($token)
+                            ->post($url, $payload);
+
+                        if ($intento->status() === 404) {
+                            continue;
+                        }
+
+                        $respuesta = $intento;
+                        break;
+                    }
                 }
             }
 
-            return response()->json($respuesta->json(), $respuesta->status());
+            $jsonRespuesta = $respuesta->json();
+            if (! is_array($jsonRespuesta)) {
+                return response()->json([
+                    'codigo' => $respuesta->status(),
+                    'mensaje' => 'La API devolvió una respuesta no JSON',
+                    'data' => [],
+                ], $respuesta->status());
+            }
+
+            return response()->json($jsonRespuesta, $respuesta->status());
         } catch (Throwable $exception) {
             return response()->json([
                 'codigo' => 500,

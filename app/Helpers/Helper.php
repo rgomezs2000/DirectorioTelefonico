@@ -105,21 +105,47 @@ class Helper
     /**
      * Obtiene un token API consumiendo el endpoint /api/api_token y devuelve solo el valor del token.
      */
-    public static function obtenerToken(): string
+    public static function obtenerToken(?Request $request = null): string
     {
-        $url = rtrim(config('app.url', ''), '/').'/api/api_token';
+        $baseUrls = [];
 
-        if ($url === '/api/api_token') {
-            return '';
+        if ($request !== null) {
+            $baseUrls[] = $request->getSchemeAndHttpHost();
         }
 
-        $respuesta = Http::acceptJson()->get($url);
+        $baseUrls[] = (string) config('app.url', '');
+        $baseUrls[] = (string) url('/');
+        $baseUrls = array_values(array_unique(array_filter(array_map(
+            static fn (string $url): string => rtrim($url, '/'),
+            $baseUrls
+        ))));
 
-        if (! $respuesta->successful()) {
-            return '';
+        foreach ($baseUrls as $baseUrl) {
+            $url = rtrim($baseUrl, '/') . '/api/api_token';
+
+            if ($url === '/api/api_token') {
+                continue;
+            }
+
+            $respuesta = Http::acceptJson()->get($url);
+
+            if (! $respuesta->successful()) {
+                continue;
+            }
+
+            $payload = $respuesta->json();
+            $token = (string) (
+                data_get($payload, 'data.api_token')
+                ?? data_get($payload, 'api_token')
+                ?? ''
+            );
+
+            if ($token !== '') {
+                return $token;
+            }
         }
 
-        return (string) data_get($respuesta->json(), 'data.api_token', '');
+        return '';
     }
 
     /**
@@ -138,7 +164,7 @@ class Helper
             return $tokenEnSesion;
         }
 
-        $token = self::obtenerToken();
+        $token = self::obtenerToken($request);
 
         if ($token !== '') {
             $request->session()->put('api_bearer_token', $token);
