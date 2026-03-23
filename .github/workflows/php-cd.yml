@@ -1,20 +1,113 @@
-name: PHP CD (Plantilla)
+name: PHP CD (Deploy Windows)
+
+# Configura estos secrets en GitHub > Settings > Secrets and variables > Actions:
+# WINDOWS_HOST, WINDOWS_PORT, WINDOWS_USER, WINDOWS_PASSWORD, WINDOWS_DEPLOY_PATH
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy (placeholder)
-    runs-on: ubuntu-latest
+    name: Deploy to AWS Windows Server
+    runs-on: windows-2025
     environment: production
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # TODO: Agregar pasos de empaquetado/publicación según estrategia de despliegue
-      - name: Placeholder CD
+      - name: Install Posh-SSH module
+        shell: pwsh
         run: |
-          echo "Plantilla CD creada."
-          echo "Completar proceso de release/deploy cuando corresponda."
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          if (-not (Get-Module -ListAvailable -Name Posh-SSH)) {
+            Install-Module Posh-SSH -Scope CurrentUser -Force
+          }
+
+      - name: Deploy over SSH (PowerShell)
+        shell: pwsh
+        env:
+          WINDOWS_HOST: ${{ secrets.WINDOWS_HOST }}
+          WINDOWS_PORT: ${{ secrets.WINDOWS_PORT || '22' }}
+          WINDOWS_USER: ${{ secrets.WINDOWS_USER }}
+          WINDOWS_PASSWORD: ${{ secrets.WINDOWS_PASSWORD }}
+          WINDOWS_DEPLOY_PATH: ${{ secrets.WINDOWS_DEPLOY_PATH }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module Posh-SSH
+
+          if ([string]::IsNullOrWhiteSpace($env:WINDOWS_HOST) -or
+              [string]::IsNullOrWhiteSpace($env:WINDOWS_USER) -or
+              [string]::IsNullOrWhiteSpace($env:WINDOWS_PASSWORD) -or
+              [string]::IsNullOrWhiteSpace($env:WINDOWS_DEPLOY_PATH)) {
+            throw 'Faltan secretos requeridos: WINDOWS_HOST, WINDOWS_USER, WINDOWS_PASSWORD o WINDOWS_DEPLOY_PATH.'
+          }
+
+          $securePassword = ConvertTo-SecureString $env:WINDOWS_PASSWORD -AsPlainText -Force
+          $credential = [pscredential]::new($env:WINDOWS_USER, $securePassword)
+
+          $session = New-SSHSession `
+            -ComputerName $env:WINDOWS_HOST `
+            -Port ([int]$env:WINDOWS_PORT) `
+            -Credential $credential `
+            -AcceptKey
+
+          try {
+            $remoteScript = @"
+`$ErrorActionPreference = 'Stop'
+Write-Host '[1/9] Iniciando conexión y validaciones'
+
+`$deployPath = '$($env:WINDOWS_DEPLOY_PATH)'
+if (-not (Test-Path `$deployPath)) {
+  throw "Ruta de despliegue no existe: `$deployPath"
+}
+
+Set-Location `$deployPath
+Write-Host "[2/9] Carpeta de despliegue: `$deployPath"
+
+if (-not (Test-Path '.git')) {
+  throw "La carpeta no es un repositorio Git: `$deployPath"
+}
+
+Write-Host '[3/9] Preparando repositorio para evitar conflictos'
+git fetch origin main --prune
+git checkout main
+git reset --hard origin/main
+git clean -fd
+
+Write-Host '[4/9] Actualizando dependencias Composer'
+composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader
+
+Write-Host '[5/9] Fetch/Pull de seguridad'
+git fetch origin main --prune
+git pull --ff-only origin main
+
+Write-Host '[6/9] Limpiando cachés de Laravel'
+php artisan optimize:clear
+
+Write-Host '[7/9] Optimizando proyecto'
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+Write-Host '[8/9] Transacción finalizada correctamente'
+Write-Host '[9/9] Desconexión completada por fin del job'
+"@
+
+            $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($remoteScript))
+            $command = "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded"
+            $result = Invoke-SSHCommand -SessionId $session.SessionId -Command $command -TimeOut 1800
+
+            if ($result.ExitStatus -ne 0) {
+              throw "El despliegue remoto falló con ExitStatus $($result.ExitStatus). Output: $($result.Output -join [Environment]::NewLine)"
+            }
+
+            if ($result.Output) {
+              $result.Output | ForEach-Object { Write-Host $_ }
+            }
+          }
+          finally {
+            if ($session) {
+              Remove-SSHSession -SessionId $session.SessionId | Out-Null
+            }
+          }
