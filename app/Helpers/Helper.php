@@ -107,19 +107,37 @@ class Helper
      */
     public static function obtenerToken(): string
     {
-        $url = rtrim(config('app.url', ''), '/').'/api/api_token';
+        $baseUrls = array_filter([
+            (string) config('app.url', ''),
+            rtrim((string) url('/'), '/'),
+        ]);
 
-        if ($url === '/api/api_token') {
-            return '';
+        foreach ($baseUrls as $baseUrl) {
+            $url = rtrim($baseUrl, '/') . '/api/api_token';
+
+            if ($url === '/api/api_token') {
+                continue;
+            }
+
+            $respuesta = Http::acceptJson()->get($url);
+
+            if (! $respuesta->successful()) {
+                continue;
+            }
+
+            $payload = $respuesta->json();
+            $token = (string) (
+                data_get($payload, 'data.api_token')
+                ?? data_get($payload, 'api_token')
+                ?? ''
+            );
+
+            if ($token !== '') {
+                return $token;
+            }
         }
 
-        $respuesta = Http::acceptJson()->get($url);
-
-        if (! $respuesta->successful()) {
-            return '';
-        }
-
-        return (string) data_get($respuesta->json(), 'data.api_token', '');
+        return '';
     }
 
     /**
