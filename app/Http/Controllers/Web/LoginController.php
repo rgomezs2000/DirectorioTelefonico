@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Web;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
@@ -87,6 +87,17 @@ class LoginController extends Controller
     }
 
     public function authGoogleStatus(Request $request): JsonResponse
+    {
+        $googleUser = $request->session()->get('google_user');
+
+        return response()->json([
+            'ok' => true,
+            'is_logged_in' => ! empty($googleUser),
+            'user' => $googleUser,
+        ]);
+    }
+
+    public function googleStatus(Request $request): JsonResponse
     {
         $googleUser = $request->session()->get('google_user');
 
