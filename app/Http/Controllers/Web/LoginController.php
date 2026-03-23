@@ -75,28 +75,6 @@ class LoginController extends Controller
         }
     }
 
-    public function authGoogleStatus(Request $request): JsonResponse
-    {
-        $googleUser = $request->session()->get('google_user');
-
-        return response()->json([
-            'ok' => true,
-            'is_logged_in' => ! empty($googleUser),
-            'user' => $googleUser,
-        ]);
-    }
-
-    public function authGoogleStatus(Request $request): JsonResponse
-    {
-        $googleUser = $request->session()->get('google_user');
-
-        return response()->json([
-            'ok' => true,
-            'is_logged_in' => ! empty($googleUser),
-            'user' => $googleUser,
-        ]);
-    }
-
     public function googleStatus(Request $request): JsonResponse
     {
         $googleUser = $request->session()->get('google_user');
@@ -108,15 +86,12 @@ class LoginController extends Controller
         ]);
     }
 
-    public function googleStatus(Request $request): JsonResponse
+    /**
+     * Compatibilidad con implementaciones anteriores.
+     */
+    public function authGoogleStatus(Request $request): JsonResponse
     {
-        $googleUser = $request->session()->get('google_user');
-
-        return response()->json([
-            'ok' => true,
-            'is_logged_in' => ! empty($googleUser),
-            'user' => $googleUser,
-        ]);
+        return $this->googleStatus($request);
     }
 
     public function authGoogle(Request $request): JsonResponse
