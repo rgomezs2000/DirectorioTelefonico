@@ -121,6 +121,21 @@ class Credencial extends BaseModel
     }
 
     /**
+     * Limpia intentos_fallidos para la credencial vigente de un usuario
+     * cuando no está bloqueado y tiene entre 1 y 2 intentos fallidos.
+     */
+    public static function limpiarIntentos(int $idUsuario): void
+    {
+        self::query()
+            ->where('id_usuario', $idUsuario)
+            ->whereNull('bloqueado_hasta')
+            ->whereBetween('intentos_fallidos', [1, 2])
+            ->update([
+                'intentos_fallidos' => 0,
+            ]);
+    }
+
+    /**
      * Valida el password y controla el bloqueo por intentos fallidos.
      *
      * @return array{intentos:int,fallido:bool,mensaje:string}
