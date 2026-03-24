@@ -261,6 +261,12 @@ class Usuario extends BaseModel implements AuthenticatableContract
             ];
         }
 
+        $resultadoBloqueo = self::usuarioBloqueado($usuario);
+
+        if (($resultadoBloqueo->codigo ?? 200) !== 200) {
+            return $resultadoBloqueo;
+        }
+
         $permisosTipo = Permiso::query()
             ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
             ->get();
@@ -291,6 +297,23 @@ class Usuario extends BaseModel implements AuthenticatableContract
             'codigo'  => 200,
             'mensaje' => 'login encontrado',
             'data'    => $data,
+        ];
+    }
+
+    public static function usuarioBloqueado(self $usuario): object
+    {
+        if ((bool) $usuario->bloqueado) {
+            return (object) [
+                'codigo'  => 407,
+                'mensaje' => 'Su usuario se encuentra bloqueado, favor contactar con el administrador del sistema',
+                'data'    => null,
+            ];
+        }
+
+        return (object) [
+            'codigo'  => 200,
+            'mensaje' => 'usuario habilitado',
+            'data'    => null,
         ];
     }
 
