@@ -86,6 +86,8 @@
                  const authStatus = await window.fetchGoogleSessionStatus();
                  googleLoggedIn = !!authStatus?.is_logged_in;
                  googleUser = authStatus?.user ?? null;
+
+                 await window.prepareGoogleAuthButton($data);
              ">
 
             <div class="au-2 w-full py-4 text-center bg-white">
