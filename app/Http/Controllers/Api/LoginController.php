@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Throwable;
 
 class LoginController extends Controller
@@ -47,10 +48,8 @@ class LoginController extends Controller
         } catch (Throwable $exception) {
             return response()->json([
                 'codigo' => 500,
-                'mensaje' => 'Error interno del servidor',
-                'error' => app()->hasDebugModeEnabled()
-                    ? $exception->getMessage()
-                    : 'Ocurrió un error inesperado',
+                'mensaje' => 'Error del servidor',
+                'error' => Str::limit(trim((string) $exception->getMessage()) ?: 'Error inesperado', 120),
             ], 500);
         }
     }
@@ -89,10 +88,8 @@ class LoginController extends Controller
         } catch (Throwable $exception) {
             return response()->json([
                 'codigo' => 500,
-                'mensaje' => 'Error interno del servidor',
-                'error' => app()->hasDebugModeEnabled()
-                    ? $exception->getMessage()
-                    : 'Ocurrió un error inesperado',
+                'mensaje' => 'Error del servidor',
+                'error' => Str::limit(trim((string) $exception->getMessage()) ?: 'Error inesperado', 120),
             ], 500);
         }
     }

@@ -19,10 +19,8 @@ class SwaggerController extends Controller
         } catch (Throwable $exception) {
             return response()->json([
                 'codigo' => 500,
-                'mensaje' => 'Error interno del servidor',
-                'error' => app()->hasDebugModeEnabled()
-                    ? $exception->getMessage()
-                    : 'Ocurrió un error inesperado',
+                'mensaje' => 'Error del servidor',
+                'error' => Str::limit(trim((string) $exception->getMessage()) ?: 'Error inesperado', 120),
             ], 500);
         }
     }
@@ -83,10 +81,8 @@ class SwaggerController extends Controller
         } catch (Throwable $exception) {
             return response()->json([
                 'codigo' => 500,
-                'mensaje' => 'Error interno del servidor',
-                'error' => app()->hasDebugModeEnabled()
-                    ? $exception->getMessage()
-                    : 'Ocurrió un error inesperado',
+                'mensaje' => 'Error del servidor',
+                'error' => Str::limit(trim((string) $exception->getMessage()) ?: 'Error inesperado', 120),
             ], 500);
         }
     }
