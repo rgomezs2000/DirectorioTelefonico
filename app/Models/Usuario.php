@@ -357,6 +357,12 @@ class Usuario extends BaseModel implements AuthenticatableContract
             ];
         }
 
+        $resultadoBloqueo = self::usuarioBloqueado($usuario);
+
+        if (($resultadoBloqueo->codigo ?? 200) !== 200) {
+            return $resultadoBloqueo;
+        }
+
         $permisosTipo = Permiso::query()
             ->where('id_tipo_usuario', $usuario->id_tipo_usuario)
             ->get();
