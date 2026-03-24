@@ -175,49 +175,61 @@ window.fetchGoogleSessionStatus = async function fetchGoogleSessionStatus() {
     }
 };
 
-window.openGoogleAuthPopup = function openGoogleAuthPopup(component = null) {
-    const clientId = window.googleClientId ?? '';
+window.handleCredentialResponse = async function handleCredentialResponse(response) {
+    const credential = response?.credential ?? '';
+    const route = getAppRoute('authGoogle', '/auth_google');
 
-    if (!window.google?.accounts?.id || !clientId) {
+    if (!credential) {
         window.showSystemDialog(
             'error',
             'Acceso al Sistema',
-            'Google OAuth no está configurado (falta cargar SDK o client_id).',
+            'Google OAuth no devolvió credential (id_token).',
         );
         return;
     }
 
-    window.google.accounts.id.initialize({
-        client_id: clientId,
-        auto_select: false,
-        cancel_on_tap_outside: true,
-        callback: async (response) => {
-            if (component) {
-                component.googleLoading = true;
-            }
-
-            try {
-                const result = await window.initGoogleAuth({ credential: response?.credential ?? null });
-
-                if (component) {
-                    component.googleUser = result?.google_user ?? null;
-                    component.googleLoggedIn = !!result?.google_user;
-                }
-            } finally {
-                if (component) {
-                    component.googleLoading = false;
-                }
-            }
-        },
+    const payload = new URLSearchParams({
+        id_token: credential,
+        credential,
     });
 
-    window.google.accounts.id.prompt((notification) => {
-        if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
-            window.showSystemDialog(
-                'info',
-                'Acceso al Sistema',
-                'Google no pudo mostrar el popup. Verifica popups bloqueados o el dominio autorizado.',
-            );
+    try {
+        const serverResponse = await fetch(route, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: payload.toString(),
+        });
+
+        const rawText = await serverResponse.text();
+        let data = null;
+
+        try {
+            data = rawText ? JSON.parse(rawText) : null;
+        } catch {
+            data = null;
         }
-    });
+
+        if (!serverResponse.ok) {
+            const backendMessage = data?.message ?? rawText ?? `Error HTTP ${serverResponse.status}`;
+            window.showSystemDialog(
+                'error',
+                'Acceso al Sistema',
+                `Google OAuth rechazado por backend.\nHTTP: ${serverResponse.status}\nDetalle: ${backendMessage}`,
+            );
+            return;
+        }
+
+        const successPayload = data ?? { ok: true, message: rawText || 'Google OAuth validado correctamente' };
+        window.showSystemDialog('success', 'Acceso al Sistema', JSON.stringify(successPayload, null, 2));
+    } catch (error) {
+        window.showSystemDialog(
+            'error',
+            'Acceso al Sistema',
+            `Error de red al validar OAuth con backend: ${error.message ?? 'Error desconocido'}`,
+        );
+    }
 };
