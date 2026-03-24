@@ -76,6 +76,7 @@
             defer
             src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
         ></script>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
 
         {{-- =============================================
              CSS GLOBAL (compilado de la app)

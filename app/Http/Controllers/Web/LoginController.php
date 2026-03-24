@@ -135,14 +135,24 @@ class LoginController extends Controller
     public function authGoogle(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'credential' => ['required', 'string'],
+            'credential' => ['nullable', 'string', 'required_without:id_token'],
+            'id_token' => ['nullable', 'string', 'required_without:credential'],
         ]);
+
+        $idToken = (string) ($validated['credential'] ?? $validated['id_token'] ?? '');
+
+        if ($idToken === '') {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Google OAuth no envió id_token válido',
+            ], 422);
+        }
 
         try {
             $tokenInfo = Http::asForm()
                 ->timeout(10)
                 ->post('https://oauth2.googleapis.com/tokeninfo', [
-                    'id_token' => $validated['credential'],
+                    'id_token' => $idToken,
                 ])
                 ->throw()
                 ->json();
