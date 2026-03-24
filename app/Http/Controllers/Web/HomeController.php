@@ -22,4 +22,12 @@ class HomeController extends Controller
     {
         return view('home');
     }
+<<<<<<< codex/implement-frontend-layout-according-to-mockup-0nla75
+=======
+
+    public function homePruebas(): View
+    {
+        return $this->homePrueba();
+    }
+>>>>>>> main
 }
