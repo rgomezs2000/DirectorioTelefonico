@@ -178,6 +178,85 @@
         }
     };
 
+    window.handleGoogleCredentialResponse = async function handleGoogleCredentialResponse(response, component = null) {
+        if (component) {
+            component.googleLoading = true;
+        }
+
+        try {
+            const result = await window.initGoogleAuth({ credential: response?.credential ?? null });
+
+            if (component) {
+                component.googleUser = result?.google_user ?? null;
+                component.googleLoggedIn = !!result?.google_user;
+            }
+        } finally {
+            if (component) {
+                component.googleLoading = false;
+            }
+        }
+    };
+
+    window.prepareGoogleAuthButton = async function prepareGoogleAuthButton(component = null) {
+        const clientId = window.googleClientId ?? '';
+        const buttonHost = document.getElementById('google-signin-button');
+
+        window.__googleAuthComponent = component ?? null;
+
+        if (!window.google?.accounts?.id || !clientId || !buttonHost) {
+            return;
+        }
+
+        if (!window.__googleIdentityInitialized) {
+            window.google.accounts.id.initialize({
+                client_id: clientId,
+                auto_select: false,
+                cancel_on_tap_outside: true,
+                callback: async (response) => {
+                    await window.handleGoogleCredentialResponse(response, window.__googleAuthComponent);
+                },
+            });
+
+            window.__googleIdentityInitialized = true;
+        }
+
+        if (!buttonHost.dataset.rendered) {
+            window.google.accounts.id.renderButton(buttonHost, {
+                theme: 'outline',
+                size: 'large',
+                shape: 'pill',
+                text: 'signin_with',
+                width: 280,
+            });
+            buttonHost.dataset.rendered = 'true';
+        }
+    };
+
+    function buildGooglePromptErrorMessage(notification = null) {
+        const origin = window.location?.origin ?? 'origen desconocido';
+        const reason = notification?.getNotDisplayedReason?.() ?? notification?.getSkippedReason?.() ?? 'unknown_reason';
+        const reasonMap = {
+            browser_not_supported: 'El navegador no soporta Google Identity Services.',
+            invalid_client: 'El client_id de Google es inválido.',
+            missing_client_id: 'Falta el client_id de Google en la configuración.',
+            unregistered_origin: 'El origen actual no está autorizado en Google Cloud Console.',
+            secure_http_required: 'Google requiere HTTPS (localhost es la excepción permitida).',
+            suppressed_by_user: 'El usuario bloqueó/descartó el popup previamente.',
+            opt_out_or_no_session: 'No hay sesión de Google activa o el usuario rechazó el prompt.',
+            unknown_reason: 'Google no devolvió un motivo específico.',
+        };
+
+        const reasonMessage = reasonMap[reason] ?? `Google devolvió el motivo: ${reason}`;
+
+        return [
+            'Google no pudo mostrar el popup.',
+            reasonMessage,
+            `Origen actual: ${origin}`,
+            'Verifica en Google Cloud Console > OAuth 2.0 Client ID > Authorized JavaScript origins.',
+            'Debes registrar exactamente este origen (incluyendo puerto), por ejemplo: http://localhost:8088',
+        ].join('\n');
+    }
+
     window.openGoogleAuthPopup = function openGoogleAuthPopup(component = null) {
         const clientId = window.googleClientId ?? '';
 
@@ -190,36 +269,14 @@
             return;
         }
 
-        window.google.accounts.id.initialize({
-            client_id: clientId,
-            auto_select: false,
-            cancel_on_tap_outside: true,
-            callback: async (response) => {
-                if (component) {
-                    component.googleLoading = true;
-                }
-
-                try {
-                    const result = await window.initGoogleAuth({ credential: response?.credential ?? null });
-
-                    if (component) {
-                        component.googleUser = result?.google_user ?? null;
-                        component.googleLoggedIn = !!result?.google_user;
-                    }
-                } finally {
-                    if (component) {
-                        component.googleLoading = false;
-                    }
-                }
-            },
-        });
+        window.prepareGoogleAuthButton(component);
 
         window.google.accounts.id.prompt((notification) => {
             if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
                 window.showSystemDialog(
                     'info',
                     'Acceso al Sistema',
-                    'Google no pudo mostrar el popup. Verifica popups bloqueados o el dominio autorizado.',
+                    buildGooglePromptErrorMessage(notification),
                 );
             }
         });
