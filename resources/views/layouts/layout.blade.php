@@ -62,29 +62,18 @@
         ></script>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<<<<<<< codex/implement-frontend-layout-according-to-mockup-0nla75
-=======
         {{-- CSS extra inyectado desde la vista hija --}}
->>>>>>> main
         @yield('styles')
         @stack('css')
 
     </head>
 
     <body
-<<<<<<< codex/implement-frontend-layout-according-to-mockup-0nla75
         class="min-h-screen bg-neutral-100 antialiased"
         x-data="{
             sidebarOpen: false,
             setupSidebar() {
                 const media = window.matchMedia('(min-width: 768px)');
-=======
-        class="min-h-screen bg-neutral-100"
-        x-data="{
-            sidebarOpen: false,
-            setupSidebar() {
-                const media = window.matchMedia('(min-width: 1024px)');
->>>>>>> main
                 this.sidebarOpen = media.matches;
                 media.addEventListener('change', (event) => {
                     this.sidebarOpen = event.matches;
