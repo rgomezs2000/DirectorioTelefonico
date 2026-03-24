@@ -15,40 +15,40 @@
             <h1 class="text-center text-[17px] font-semibold leading-tight tracking-wide whitespace-nowrap text-neutral-900">DIRECTORIO TELEFONICO</h1>
         </div>
 
-        <nav class="flex-1 overflow-y-auto px-3 py-4">
-            <ul class="space-y-2 text-[14px] text-neutral-800">
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="text-[14px] text-neutral-800">
                 <li>
-                    <a href="#" class="block rounded-md px-3 py-3 shadow-sm transition hover:bg-neutral-200">Inicio</a>
+                    <a href="#" class="block px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Inicio</a>
                 </li>
 
                 <li>
                     <button
                         type="button"
-                        class="flex w-full items-center justify-between rounded-md px-3 py-3 text-left shadow-sm transition hover:bg-neutral-200"
+                        class="flex w-full items-center justify-between px-4 py-3 text-left shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
                         @click="menuOpen = !menuOpen"
                     >
                         <span>Menu</span>
                         <span class="text-sm" x-text="menuOpen ? '▾' : '▸'"></span>
                     </button>
 
-                    <ul class="mt-2 space-y-2 pl-4" x-show="menuOpen" x-collapse>
+                    <ul x-show="menuOpen" x-collapse>
                         <li>
-                            <a href="#" class="block rounded-md px-3 py-2.5 text-[14px] shadow-sm transition hover:bg-neutral-200">Módulo en menu</a>
+                            <a href="#" class="block py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Módulo en menu</a>
                         </li>
 
                         <li>
                             <button
                                 type="button"
-                                class="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-[14px] shadow-sm transition hover:bg-neutral-200"
+                                class="flex w-full items-center justify-between py-2.5 pr-4 pl-8 text-left text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
                                 @click="submenuOpen = !submenuOpen"
                             >
                                 <span>Submenu</span>
                                 <span class="text-xs" x-text="submenuOpen ? '▾' : '▸'"></span>
                             </button>
 
-                            <ul class="mt-2 space-y-2 pl-4" x-show="submenuOpen" x-collapse>
+                            <ul x-show="submenuOpen" x-collapse>
                                 <li>
-                                    <a href="#" class="block rounded-md px-3 py-2 text-[14px] shadow-sm transition hover:bg-neutral-200">Módulo C</a>
+                                    <a href="#" class="block py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Módulo C</a>
                                 </li>
                             </ul>
                         </li>
@@ -56,12 +56,12 @@
                 </li>
 
                 <li>
-                    <a href="#" class="block rounded-md px-3 py-3 shadow-sm transition hover:bg-neutral-200">Cerrar Sesión</a>
+                    <a href="#" class="block px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Cerrar Sesión</a>
                 </li>
             </ul>
         </nav>
 
-        <div class="mx-3 mt-auto mb-4 rounded-md px-4 py-4 text-center text-[12px] leading-relaxed text-neutral-700">
+        <div class="mt-auto w-full border-t border-neutral-300 px-4 py-4 text-center text-[12px] leading-relaxed text-neutral-700 shadow-[0_-1px_0_0_rgba(0,0,0,0.1)]">
             <p>Hola, &lt;Usuario&gt;</p>
             <p>Tu ultima sesión fue en: &lt;Fecha, Hora (ultima sesión)&gt;</p>
             <p>&lt;IP sesion actual&gt;</p>
