@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ApiToken;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ApiTokenController extends Controller
@@ -22,10 +23,8 @@ class ApiTokenController extends Controller
         } catch (Throwable $exception) {
             return response()->json([
                 'codigo' => 500,
-                'mensaje' => 'Error interno del servidor',
-                'error' => app()->hasDebugModeEnabled()
-                    ? $exception->getMessage()
-                    : 'Ocurrió un error inesperado',
+                'mensaje' => 'Error del servidor',
+                'error' => Str::limit(trim((string) $exception->getMessage()) ?: 'Error inesperado', 120),
             ], 500);
         }
     }
