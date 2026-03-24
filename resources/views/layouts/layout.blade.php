@@ -98,15 +98,6 @@
             @include('layouts.sidebar')
 
             <div class="flex min-h-screen flex-col">
-<<<<<<< codex/implement-frontend-layout-according-to-mockup-0nla75
-                @include('layouts.header')
-
-                <main class="flex-1">
-                    @yield('alerts')
-                    @yield('content')
-                </main>
-
-=======
                 {{-- =============================================
                      HEADER / NAVEGACIÓN
                 ============================================== --}}
@@ -116,17 +107,10 @@
                      CONTENIDO PRINCIPAL
                 ============================================== --}}
                 <main class="flex-1">
-                    {{-- Alertas / flash messages --}}
                     @yield('alerts')
-
-                    {{-- Cuerpo de la vista hija --}}
                     @yield('content')
                 </main>
 
-                {{-- =============================================
-                     FOOTER
-                ============================================== --}}
->>>>>>> main
                 <footer>
                     @yield('footer')
                 </footer>
