@@ -17,4 +17,14 @@ class HomeController extends Controller
 
         return view('home');
     }
+
+    public function homePrueba(): View
+    {
+        return view('home');
+    }
+
+    public function homePruebas(): View
+    {
+        return $this->homePrueba();
+    }
 }

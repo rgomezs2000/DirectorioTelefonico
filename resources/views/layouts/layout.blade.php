@@ -78,12 +78,6 @@
         ></script>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-        {{-- =============================================
-             CSS GLOBAL (compilado de la app)
-        ============================================== --}}
-        {{-- @vite(['resources/css/app.css']) --}}
-        {{-- <link rel="stylesheet" href="{{ asset('css/app.css') }}"> --}}
-
         {{-- CSS extra inyectado desde la vista hija --}}
         @yield('styles')
 
@@ -92,46 +86,49 @@
 
     </head>
 
-    <body>
+    <body
+        class="min-h-screen bg-neutral-100"
+        x-data="{
+            sidebarOpen: false,
+            setupSidebar() {
+                const media = window.matchMedia('(min-width: 1024px)');
+                this.sidebarOpen = media.matches;
+                media.addEventListener('change', (event) => {
+                    this.sidebarOpen = event.matches;
+                });
+            }
+        }"
+        x-init="setupSidebar()"
+    >
 
-        {{-- =============================================
-             HEADER / NAVEGACIÓN
-        ============================================== --}}
-        <header>
-            @yield('header')
-        </header>
+        <div class="relative min-h-screen lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
+            @include('layouts.sidebar')
 
-        {{-- =============================================
-             BARRA LATERAL (opcional)
-        ============================================== --}}
-        @hasSection('sidebar')
-            <aside>
-                @yield('sidebar')
-            </aside>
-        @endif
+            <div class="flex min-h-screen flex-col">
+                {{-- =============================================
+                     HEADER / NAVEGACIÓN
+                ============================================== --}}
+                @include('layouts.header')
 
-        {{-- =============================================
-             CONTENIDO PRINCIPAL
-        ============================================== --}}
-        <main>
+                {{-- =============================================
+                     CONTENIDO PRINCIPAL
+                ============================================== --}}
+                <main class="flex-1">
+                    {{-- Alertas / flash messages --}}
+                    @yield('alerts')
 
-            {{-- Breadcrumb opcional --}}
-            @yield('breadcrumb')
+                    {{-- Cuerpo de la vista hija --}}
+                    @yield('content')
+                </main>
 
-            {{-- Alertas / flash messages --}}
-            @yield('alerts')
-
-            {{-- Cuerpo de la vista hija --}}
-            @yield('content')
-
-        </main>
-
-        {{-- =============================================
-             FOOTER
-        ============================================== --}}
-        <footer>
-            @yield('footer')
-        </footer>
+                {{-- =============================================
+                     FOOTER
+                ============================================== --}}
+                <footer>
+                    @yield('footer')
+                </footer>
+            </div>
+        </div>
 
         {{-- =============================================
              MODALES GLOBALES (portales)
@@ -148,6 +145,7 @@
                 login: @json(route('login')),
                 ingresar: @json(route('ingresar')),
                 authGoogle: @json(route('auth.google')),
+                authGoogleStatus: @json(route('auth.google.status')),
             });
         </script>
         <script src="{{ asset('js/dialog.js') }}"></script>
