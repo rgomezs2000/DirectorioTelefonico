@@ -43,31 +43,15 @@
         <link rel="icon"             type="image/x-icon" href="@yield('favicon', asset('favicon.ico'))">
         <link rel="apple-touch-icon"                     href="@yield('apple_icon', asset('apple-touch-icon.png'))">
 
-        {{-- =============================================
-            TAILWIND CSS v4  —  Play CDN
-            ⚠️  Solo para desarrollo/prototipo.
-            En producción usa Vite (@vite).
-        ============================================== --}}
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-        {{-- Estilos globales / tokens personalizados --}}
         <style type="text/tailwindcss">
             @theme {
-                /* --color-primary: #1e40af; */
-                /* --font-sans: 'Inter', sans-serif; */
             }
         </style>
 
-        {{-- =============================================
-            AXIOS v1.13.4
-            Debe cargarse ANTES de Alpine.js
-        ============================================== --}}
         <script src="https://cdn.jsdelivr.net/npm/axios@1.13.4/dist/axios.min.js"></script>
 
-        {{-- =============================================
-             ALPINE.JS — defer obligatorio, al final del head
-             Alpine Plugins + Alpine Core por CDN
-        ============================================== --}}
         <script
             defer
             src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"
@@ -78,76 +62,52 @@
         ></script>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-        {{-- =============================================
-             CSS GLOBAL (compilado de la app)
-        ============================================== --}}
-        {{-- @vite(['resources/css/app.css']) --}}
-        {{-- <link rel="stylesheet" href="{{ asset('css/app.css') }}"> --}}
-
-        {{-- CSS extra inyectado desde la vista hija --}}
         @yield('styles')
-
-        {{-- Stack para hojas de estilo adicionales --}}
         @stack('css')
 
     </head>
 
-    <body>
+    <body
+        class="min-h-screen bg-neutral-100 antialiased"
+        x-data="{
+            sidebarOpen: false,
+            setupSidebar() {
+                const media = window.matchMedia('(min-width: 768px)');
+                this.sidebarOpen = media.matches;
+                media.addEventListener('change', (event) => {
+                    this.sidebarOpen = event.matches;
+                });
+            }
+        }"
+        x-init="setupSidebar()"
+    >
 
-        {{-- =============================================
-             HEADER / NAVEGACIÓN
-        ============================================== --}}
-        <header>
-            @yield('header')
-        </header>
+        <div class="relative min-h-screen lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
+            @include('layouts.sidebar')
 
-        {{-- =============================================
-             BARRA LATERAL (opcional)
-        ============================================== --}}
-        @hasSection('sidebar')
-            <aside>
-                @yield('sidebar')
-            </aside>
-        @endif
+            <div class="flex min-h-screen flex-col">
+                @include('layouts.header')
 
-        {{-- =============================================
-             CONTENIDO PRINCIPAL
-        ============================================== --}}
-        <main>
+                <main class="flex-1">
+                    @yield('alerts')
+                    @yield('content')
+                </main>
 
-            {{-- Breadcrumb opcional --}}
-            @yield('breadcrumb')
+                <footer>
+                    @yield('footer')
+                </footer>
+            </div>
+        </div>
 
-            {{-- Alertas / flash messages --}}
-            @yield('alerts')
-
-            {{-- Cuerpo de la vista hija --}}
-            @yield('content')
-
-        </main>
-
-        {{-- =============================================
-             FOOTER
-        ============================================== --}}
-        <footer>
-            @yield('footer')
-        </footer>
-
-        {{-- =============================================
-             MODALES GLOBALES (portales)
-        ============================================== --}}
         @include('layouts.modal')
 
-        {{-- =============================================
-             JS GLOBAL (sin Vite)
-             Lógica de modal y helpers globales vía Blade.
-        ============================================== --}}
         <script>
             window.AppRoutes = Object.freeze({
                 home: @json(route('home')),
                 login: @json(route('login')),
                 ingresar: @json(route('ingresar')),
                 authGoogle: @json(route('auth.google')),
+                authGoogleStatus: @json(route('auth.google.status')),
             });
         </script>
         <script src="{{ asset('js/dialog.js') }}"></script>
@@ -156,10 +116,7 @@
         <script src="{{ asset('js/functions.js') }}"></script>
         <script src="{{ asset('js/strings.js') }}"></script>
 
-        {{-- JS extra inyectado desde la vista hija --}}
         @yield('scripts')
-
-        {{-- Stack para scripts adicionales --}}
         @stack('js')
 
     </body>
