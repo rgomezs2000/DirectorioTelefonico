@@ -175,6 +175,60 @@ window.fetchGoogleSessionStatus = async function fetchGoogleSessionStatus() {
     }
 };
 
+window.handleGoogleCredentialResponse = async function handleGoogleCredentialResponse(response, component = null) {
+    if (component) {
+        component.googleLoading = true;
+    }
+
+    try {
+        const result = await window.initGoogleAuth({ credential: response?.credential ?? null });
+
+        if (component) {
+            component.googleUser = result?.google_user ?? null;
+            component.googleLoggedIn = !!result?.google_user;
+        }
+    } finally {
+        if (component) {
+            component.googleLoading = false;
+        }
+    }
+};
+
+window.prepareGoogleAuthButton = async function prepareGoogleAuthButton(component = null) {
+    const clientId = window.googleClientId ?? '';
+    const buttonHost = document.getElementById('google-signin-button');
+
+    window.__googleAuthComponent = component ?? null;
+
+    if (!window.google?.accounts?.id || !clientId || !buttonHost) {
+        return;
+    }
+
+    if (!window.__googleIdentityInitialized) {
+        window.google.accounts.id.initialize({
+            client_id: clientId,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            callback: async (response) => {
+                await window.handleGoogleCredentialResponse(response, window.__googleAuthComponent);
+            },
+        });
+
+        window.__googleIdentityInitialized = true;
+    }
+
+    if (!buttonHost.dataset.rendered) {
+        window.google.accounts.id.renderButton(buttonHost, {
+            theme: 'outline',
+            size: 'large',
+            shape: 'pill',
+            text: 'signin_with',
+            width: 280,
+        });
+        buttonHost.dataset.rendered = 'true';
+    }
+};
+
 function buildGooglePromptErrorMessage(notification = null) {
     const origin = window.location?.origin ?? 'origen desconocido';
     const reason = notification?.getNotDisplayedReason?.() ?? notification?.getSkippedReason?.() ?? 'unknown_reason';
@@ -212,29 +266,7 @@ window.openGoogleAuthPopup = function openGoogleAuthPopup(component = null) {
         return;
     }
 
-    window.google.accounts.id.initialize({
-        client_id: clientId,
-        auto_select: false,
-        cancel_on_tap_outside: true,
-        callback: async (response) => {
-            if (component) {
-                component.googleLoading = true;
-            }
-
-            try {
-                const result = await window.initGoogleAuth({ credential: response?.credential ?? null });
-
-                if (component) {
-                    component.googleUser = result?.google_user ?? null;
-                    component.googleLoggedIn = !!result?.google_user;
-                }
-            } finally {
-                if (component) {
-                    component.googleLoading = false;
-                }
-            }
-        },
-    });
+    window.prepareGoogleAuthButton(component);
 
     window.google.accounts.id.prompt((notification) => {
         if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
