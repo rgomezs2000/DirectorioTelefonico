@@ -224,7 +224,7 @@ class Usuario extends BaseModel implements AuthenticatableContract
      * - Permiso (por tipo de usuario)
      * - PermisoUsuario (permisos individuales)
      */
-    public static function validarLogin(string $login): object
+    public static function validarLogin(string $login, ?string $password = null): object
     {
         $usuario = self::query()
             ->where(static function (Builder $query) use ($login) {
@@ -269,6 +269,20 @@ class Usuario extends BaseModel implements AuthenticatableContract
 
         if ($usuario->credencial) {
             $usuario->credencial->makeVisible(['password_hash']);
+        }
+
+        if ($password !== null) {
+            $resultadoIntento = Credencial::bloqueoIntento((int) $usuario->id_usuario, $password);
+
+            if ($resultadoIntento['fallido']) {
+                return (object) [
+                    'codigo'  => ($resultadoIntento['intentos'] ?? 0) >= 3 ? 309 : 308,
+                    'mensaje' => $resultadoIntento['mensaje'] ?? 'Contraseña incorrecta',
+                    'data'    => null,
+                ];
+            }
+
+            Credencial::limpiarIntentos((int) $usuario->id_usuario);
         }
 
         $data = json_decode($usuario->toJson(), true);
