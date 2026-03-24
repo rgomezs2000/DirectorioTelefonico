@@ -73,20 +73,31 @@
         x-data="{
             sidebarOpen: false,
             setupSidebar() {
-                const media = window.matchMedia('(min-width: 768px)');
-                this.sidebarOpen = media.matches;
-                media.addEventListener('change', (event) => {
+                const desktopMedia = window.matchMedia('(min-width: 1024px)');
+                this.sidebarOpen = desktopMedia.matches;
+                desktopMedia.addEventListener('change', (event) => {
                     this.sidebarOpen = event.matches;
                 });
+            },
+            toggleSidebar() {
+                if (window.matchMedia('(min-width: 1024px)').matches) {
+                    this.sidebarOpen = !this.sidebarOpen;
+                    return;
+                }
+
+                this.sidebarOpen = !this.sidebarOpen;
             }
         }"
         x-init="setupSidebar()"
     >
 
-        <div class="relative min-h-screen lg:grid lg:grid-cols-[18rem_minmax(0,1fr)]">
+        <div class="relative min-h-screen">
             @include('layouts.sidebar')
 
-            <div class="flex min-h-screen flex-col">
+            <div
+                class="flex min-h-screen flex-col transition-[margin] duration-300 lg:ml-0"
+                :class="sidebarOpen ? 'lg:ml-72' : 'lg:ml-0'"
+            >
                 {{-- =============================================
                      HEADER / NAVEGACIÓN
                 ============================================== --}}
