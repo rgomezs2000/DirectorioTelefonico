@@ -105,12 +105,20 @@ class Helper
     /**
      * Obtiene un token API consumiendo el endpoint /api/api_token y devuelve solo el valor del token.
      */
-    public static function obtenerToken(): string
+    public static function obtenerToken(?Request $request = null): string
     {
-        $baseUrls = array_filter([
-            (string) config('app.url', ''),
-            rtrim((string) url('/'), '/'),
-        ]);
+        $baseUrls = [];
+
+        if ($request !== null) {
+            $baseUrls[] = $request->getSchemeAndHttpHost();
+        }
+
+        $baseUrls[] = (string) config('app.url', '');
+        $baseUrls[] = (string) url('/');
+        $baseUrls = array_values(array_unique(array_filter(array_map(
+            static fn (string $url): string => rtrim($url, '/'),
+            $baseUrls
+        ))));
 
         foreach ($baseUrls as $baseUrl) {
             $url = rtrim($baseUrl, '/') . '/api/api_token';
@@ -156,7 +164,7 @@ class Helper
             return $tokenEnSesion;
         }
 
-        $token = self::obtenerToken();
+        $token = self::obtenerToken($request);
 
         if ($token !== '') {
             $request->session()->put('api_bearer_token', $token);
