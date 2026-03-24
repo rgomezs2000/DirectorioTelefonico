@@ -11,8 +11,8 @@
         class="fixed inset-y-0 left-0 z-40 flex h-screen w-72 max-w-[85vw] -translate-x-full flex-col bg-neutral-100 shadow-lg transition-transform duration-300 lg:fixed"
         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
-        <div class="px-6 py-5 shadow-sm">
-            <h1 class="text-center text-[17px] font-semibold leading-tight tracking-wide whitespace-nowrap text-neutral-900">DIRECTORIO TELEFONICO</h1>
+        <div class="flex h-[74px] items-center px-6 shadow-sm">
+            <h1 class="w-full text-center text-[17px] font-semibold leading-tight tracking-wide whitespace-nowrap text-neutral-900">DIRECTORIO TELEFONICO</h1>
         </div>
 
         <nav class="flex-1 overflow-y-auto py-4">

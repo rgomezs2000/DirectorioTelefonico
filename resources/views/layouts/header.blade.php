@@ -1,5 +1,5 @@
-<header class="bg-neutral-100 px-4 py-4 shadow-sm md:px-6">
-    <div class="flex items-start gap-3 md:items-center md:gap-4">
+<header class="h-[74px] bg-neutral-100 px-4 shadow-sm md:px-6">
+    <div class="flex h-full items-center gap-3 md:gap-4">
         <button
             type="button"
             class="inline-flex h-10 w-10 shrink-0 items-center justify-center text-neutral-700 transition hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-400"
