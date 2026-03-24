@@ -43,31 +43,15 @@
         <link rel="icon"             type="image/x-icon" href="@yield('favicon', asset('favicon.ico'))">
         <link rel="apple-touch-icon"                     href="@yield('apple_icon', asset('apple-touch-icon.png'))">
 
-        {{-- =============================================
-            TAILWIND CSS v4  —  Play CDN
-            ⚠️  Solo para desarrollo/prototipo.
-            En producción usa Vite (@vite).
-        ============================================== --}}
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-        {{-- Estilos globales / tokens personalizados --}}
         <style type="text/tailwindcss">
             @theme {
-                /* --color-primary: #1e40af; */
-                /* --font-sans: 'Inter', sans-serif; */
             }
         </style>
 
-        {{-- =============================================
-            AXIOS v1.13.4
-            Debe cargarse ANTES de Alpine.js
-        ============================================== --}}
         <script src="https://cdn.jsdelivr.net/npm/axios@1.13.4/dist/axios.min.js"></script>
 
-        {{-- =============================================
-             ALPINE.JS — defer obligatorio, al final del head
-             Alpine Plugins + Alpine Core por CDN
-        ============================================== --}}
         <script
             defer
             src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"
@@ -78,20 +62,29 @@
         ></script>
         <script src="https://accounts.google.com/gsi/client" async defer></script>
 
+<<<<<<< codex/implement-frontend-layout-according-to-mockup-0nla75
+=======
         {{-- CSS extra inyectado desde la vista hija --}}
+>>>>>>> main
         @yield('styles')
-
-        {{-- Stack para hojas de estilo adicionales --}}
         @stack('css')
 
     </head>
 
     <body
+<<<<<<< codex/implement-frontend-layout-according-to-mockup-0nla75
+        class="min-h-screen bg-neutral-100 antialiased"
+        x-data="{
+            sidebarOpen: false,
+            setupSidebar() {
+                const media = window.matchMedia('(min-width: 768px)');
+=======
         class="min-h-screen bg-neutral-100"
         x-data="{
             sidebarOpen: false,
             setupSidebar() {
                 const media = window.matchMedia('(min-width: 1024px)');
+>>>>>>> main
                 this.sidebarOpen = media.matches;
                 media.addEventListener('change', (event) => {
                     this.sidebarOpen = event.matches;
@@ -105,6 +98,15 @@
             @include('layouts.sidebar')
 
             <div class="flex min-h-screen flex-col">
+<<<<<<< codex/implement-frontend-layout-according-to-mockup-0nla75
+                @include('layouts.header')
+
+                <main class="flex-1">
+                    @yield('alerts')
+                    @yield('content')
+                </main>
+
+=======
                 {{-- =============================================
                      HEADER / NAVEGACIÓN
                 ============================================== --}}
@@ -124,21 +126,15 @@
                 {{-- =============================================
                      FOOTER
                 ============================================== --}}
+>>>>>>> main
                 <footer>
                     @yield('footer')
                 </footer>
             </div>
         </div>
 
-        {{-- =============================================
-             MODALES GLOBALES (portales)
-        ============================================== --}}
         @include('layouts.modal')
 
-        {{-- =============================================
-             JS GLOBAL (sin Vite)
-             Lógica de modal y helpers globales vía Blade.
-        ============================================== --}}
         <script>
             window.AppRoutes = Object.freeze({
                 home: @json(route('home')),
@@ -154,10 +150,7 @@
         <script src="{{ asset('js/functions.js') }}"></script>
         <script src="{{ asset('js/strings.js') }}"></script>
 
-        {{-- JS extra inyectado desde la vista hija --}}
         @yield('scripts')
-
-        {{-- Stack para scripts adicionales --}}
         @stack('js')
 
     </body>
