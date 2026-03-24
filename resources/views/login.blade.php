@@ -237,19 +237,20 @@
                     </div>{{-- /FILA 3 --}}
 
                     {{-- ── FILA 4: GOOGLE ──────────────────────── --}}
-                    <div class="au-5 px-5 sm:px-8 py-5 flex flex-col items-center gap-3">
-                        <div id="google-signin-button"
-                             class="w-full sm:w-auto min-h-[40px] flex items-center justify-center"></div>
-
-                        <button type="button"
-                                @click="window.openGoogleAuthPopup($data)"
-                                :disabled="googleLoading"
-                                class="text-xs text-neutral-500 hover:text-neutral-700 underline underline-offset-2
-                                       disabled:opacity-60 disabled:cursor-not-allowed">
-                            <span x-text="googleLoading ? 'Conectando…' : 'Si no aparece Google, intentar popup'">
-                                Si no aparece Google, intentar popup
-                            </span>
-                        </button>
+                    <div class="au-5 px-5 sm:px-8 py-5 flex justify-center">
+                        <div id="g_id_onload"
+                             data-client_id="{{ config('services.google.client_id') }}"
+                             data-callback="handleCredentialResponse"
+                             data-auto_prompt="false"
+                             data-login_uri="{{ route('auth.google') }}">
+                        </div>
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="large"
+                             data-theme="outline"
+                             data-shape="pill"
+                             data-text="signin_with">
+                        </div>
                     </div>{{-- /FILA 4 --}}
 
                     <div class="px-5 sm:px-8 pb-6 text-center text-xs text-neutral-500"
