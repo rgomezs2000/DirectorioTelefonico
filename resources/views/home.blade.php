@@ -3,11 +3,11 @@
 @section('title', 'Home — Directorio Telefónico')
 
 @section('content')
-    <section class="p-4 md:p-6 lg:p-8">
-        <div class="mx-auto h-[360px] w-full max-w-5xl overflow-hidden rounded-md shadow-sm md:h-[560px] lg:h-[760px]">
+    <section class="flex min-h-[calc(100vh-9rem)] items-center justify-center p-4 md:min-h-[calc(100vh-10rem)] md:p-6 lg:p-8">
+        <div class="mx-auto flex w-full max-w-5xl items-center justify-center rounded-md">
             <img src="{{ asset('img/directorio.png') }}"
                  alt="Logo"
-                 class="w-full h-full object-cover">
+                 class="block h-auto w-full max-h-[70vh] rounded-lg object-contain object-center">
         </div>
     </section>
 @endsection
