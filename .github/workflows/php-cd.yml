@@ -68,7 +68,6 @@ jobs:
               'git reset --hard origin/main',
               'git clean -fd',
               'Write-Host ''[4/9] Fetch/Pull de seguridad''',
-              'git fetch origin main --prune',
               'git pull --ff-only origin main',
               'Write-Host ''[5/9] Actualizando dependencias Composer''',
               'composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader',
