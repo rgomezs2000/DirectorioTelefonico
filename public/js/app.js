@@ -226,8 +226,8 @@
                 return;
             }
 
-            const successMessage = data?.message ?? 'Google OAuth validado correctamente';
-            window.showSystemDialog('success', 'Acceso al Sistema', successMessage);
+            const successPayload = data ?? { ok: true, message: rawText || 'Google OAuth validado correctamente' };
+            window.showSystemDialog('success', 'Acceso al Sistema', JSON.stringify(successPayload, null, 2));
         } catch (error) {
             window.showSystemDialog(
                 'error',

@@ -248,7 +248,7 @@
                              data-type="standard"
                              data-size="large"
                              data-theme="outline"
-                             data-shape="pill"
+                             data-shape="rectangular"
                              data-text="signin_with">
                         </div>
                     </div>{{-- /FILA 4 --}}
