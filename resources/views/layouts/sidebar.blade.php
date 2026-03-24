@@ -61,10 +61,11 @@
             </ul>
         </nav>
 
-        <div class="mx-3 mt-auto mb-4 rounded-md px-4 py-4 text-center text-[12px] leading-relaxed text-neutral-700 shadow-sm">
+        <div class="mx-3 mt-auto mb-4 rounded-md px-4 py-4 text-center text-[12px] leading-relaxed text-neutral-700">
             <p>Hola, &lt;Usuario&gt;</p>
             <p>Tu ultima sesión fue en: &lt;Fecha, Hora (ultima sesión)&gt;</p>
             <p>&lt;IP sesion actual&gt;</p>
+            <p>&lt;Fecha, hora (actual)&gt;</p>
         </div>
     </aside>
 </div>
