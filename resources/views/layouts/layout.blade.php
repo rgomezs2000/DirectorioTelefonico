@@ -121,7 +121,7 @@
 
         <script>
             window.AppRoutes = Object.freeze({
-                home: @json(route('home')),
+                home: @json(url('/')),
                 login: @json(route('login')),
                 ingresar: @json(route('ingresar')),
                 authGoogle: @json(route('auth.google')),
