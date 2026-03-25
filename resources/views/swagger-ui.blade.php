@@ -20,6 +20,12 @@
             url: '{{ url('/api/openapi.json') }}',
             dom_id: '#swagger-ui',
             deepLinking: true,
+            displayRequestDuration: true,
+            filter: true,
+            tryItOutEnabled: true,
+            persistAuthorization: true,
+            docExpansion: 'list',
+            defaultModelsExpandDepth: 1,
             presets: [SwaggerUIBundle.presets.apis],
             layout: 'BaseLayout'
         });
