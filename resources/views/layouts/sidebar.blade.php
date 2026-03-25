@@ -140,8 +140,8 @@
         </nav>
 
         <div class="mt-auto w-full border-t border-neutral-300 px-4 py-4 text-center text-[12px] leading-relaxed text-neutral-700 shadow-[0_-1px_0_0_rgba(0,0,0,0.1)]">
-            <p>Hola, &lt;Usuario&gt;</p>
-            <p>Tu ultima sesión fue en: &lt;Fecha, Hora (ultima sesión)&gt;</p>
+            <p>Hola, {{$sesionUsuario->nombres}} {{$sesionUsuario->apellidos}} ({{$sesionUsuario->username}})</p>
+            <p>Tu ultima sesión fue en: {{ $sesionUsuario->ultima_sesion ? $sesionUsuario->ultima_sesion->format('d-m-Y H:i:s') : now()->format('d-m-Y H:i:s') }}</p>
             <p>&lt;IP sesion actual&gt;</p>
             <p>&lt;Fecha, hora (actual)&gt;</p>
         </div>
