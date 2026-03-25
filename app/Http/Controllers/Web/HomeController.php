@@ -12,6 +12,10 @@ class HomeController extends Controller
     public function home(Request $request): View|RedirectResponse
     {
         if (! $request->session()->has('usuario')) {
+            if (! $request->session()->isStarted()) {
+                $request->session()->start();
+            }
+
             return redirect()->route('login');
         }
 
