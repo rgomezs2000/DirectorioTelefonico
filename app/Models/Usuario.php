@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -298,6 +297,13 @@ class Usuario extends BaseModel implements AuthenticatableContract
             'mensaje' => 'login encontrado',
             'data'    => $data,
         ];
+    }
+
+    public static function setUltimoAcceso(int $idUsuario): bool
+    {
+        return self::query()
+            ->where('id_usuario', $idUsuario)
+            ->update(['ultimo_acceso' => now()]) > 0;
     }
 
     public static function usuarioBloqueado(self $usuario): object
