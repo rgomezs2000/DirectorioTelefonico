@@ -119,7 +119,7 @@ class SwaggerController extends Controller
 
     private function requireTokenHeader(string $uri): bool
     {
-        return ! in_array($uri, ['api/api_token', 'api/db-test/validar-login-test'], true);
+        return ! in_array($uri, ['api/api_token', 'api/db-test/validar-login-test', 'api/admin/lista_menu'], true);
     }
 
     private function pathParameters(string $uri): array
@@ -303,6 +303,107 @@ class SwaggerController extends Controller
                     ],
                     '408' => [
                         'description' => 'Login no existe',
+                    ],
+                ],
+            ],
+            'post api/login/auth_google' => [
+                'requestBody' => [
+                    'required' => true,
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => ['email'],
+                                'properties' => [
+                                    'email' => [
+                                        'type' => 'string',
+                                        'format' => 'email',
+                                        'description' => 'Correo del usuario autenticado con Google',
+                                        'example' => 'admin@empresa.com',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Login correcto',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'login correcto'],
+                                        'data' => ['type' => 'object', 'additionalProperties' => true],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '306' => [
+                        'description' => 'Token incorrecto',
+                    ],
+                    '307' => [
+                        'description' => 'Token expirado',
+                    ],
+                    '408' => [
+                        'description' => 'Login no existe',
+                    ],
+                ],
+            ],
+            'get api/admin/lista_menu' => [
+                'responses' => [
+                    '200' => [
+                        'description' => 'Módulos desplegados',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'modulos desplegados'],
+                                        'data' => [
+                                            'type' => 'array',
+                                            'items' => [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'id_menu' => ['type' => 'integer', 'example' => 1],
+                                                    'nombre' => ['type' => 'string', 'example' => 'Administración'],
+                                                    'submenus' => [
+                                                        'type' => 'array',
+                                                        'items' => [
+                                                            'type' => 'object',
+                                                            'properties' => [
+                                                                'id_submenu' => ['type' => 'integer', 'example' => 1],
+                                                                'nombre' => ['type' => 'string', 'example' => 'Usuarios'],
+                                                                'modulos' => [
+                                                                    'type' => 'array',
+                                                                    'items' => [
+                                                                        'type' => 'object',
+                                                                        'properties' => [
+                                                                            'id_modulo' => ['type' => 'integer', 'example' => 1],
+                                                                            'nombre' => ['type' => 'string', 'example' => 'Listado de usuarios'],
+                                                                        ],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '408' => [
+                        'description' => 'No hay módulos configurados',
+                    ],
+                    '500' => [
+                        'description' => 'Error del servidor',
                     ],
                 ],
             ],
