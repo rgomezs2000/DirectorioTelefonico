@@ -116,11 +116,23 @@
 
         try {
             const response = await axios.post(getAppRoute('ingresar', '/ingresar'), { login, password });
-            const result = typeof response.data === 'string'
-                ? response.data
-                : JSON.stringify(response.data, null, 2);
+            const data = response?.data ?? {};
+            const codigo = Number(data?.codigo ?? 0);
+            const mensaje = String(data?.mensaje ?? '').toLowerCase();
+            const loginExitoso = response.status === 200
+                || codigo === 200
+                || mensaje.includes('exitoso');
 
-            window.showSystemDialog('success', 'Acceso al Sistema', result);
+            if (loginExitoso) {
+                window.location.assign(getAppRoute('home', '/'));
+                return;
+            }
+
+            const result = typeof data === 'string'
+                ? data
+                : JSON.stringify(data, null, 2);
+
+            window.showSystemDialog('error', 'Acceso al Sistema', result);
         } catch (error) {
             const errorText = error.response?.data
                 ? JSON.stringify(error.response.data, null, 2)
