@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Helpers\Api;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Client\RequestException;
@@ -50,11 +51,9 @@ class LoginController extends Controller
             foreach ($baseUrls as $baseUrl) {
                 $url = $baseUrl . '/api/login/ingresar';
 
-                $intento = Http::acceptJson()
-                    ->withToken($token)
-                    ->post($url, $payload);
+                $intento = Api::initAPI($url, 'POST', $payload, $token);
 
-                if ($intento->status() === 404) {
+                if (($intento['status'] ?? 500) === 404) {
                     continue;
                 }
 
@@ -70,7 +69,7 @@ class LoginController extends Controller
                 ], 500);
             }
 
-            $codigoRespuesta = (int) ($respuesta->json('codigo') ?? 0);
+            $codigoRespuesta = (int) (($respuesta['json']['codigo'] ?? 0));
             if (in_array($codigoRespuesta, [309, 310, 311], true)) {
                 $token = Helper::obtenerBearerTokenDesdeSesion($request, true);
 
@@ -78,11 +77,9 @@ class LoginController extends Controller
                     foreach ($baseUrls as $baseUrl) {
                         $url = $baseUrl . '/api/login/ingresar';
 
-                        $intento = Http::acceptJson()
-                            ->withToken($token)
-                            ->post($url, $payload);
+                        $intento = Api::initAPI($url, 'POST', $payload, $token);
 
-                        if ($intento->status() === 404) {
+                        if (($intento['status'] ?? 500) === 404) {
                             continue;
                         }
 
@@ -92,16 +89,9 @@ class LoginController extends Controller
                 }
             }
 
-            $jsonRespuesta = $respuesta->json();
-            if (! is_array($jsonRespuesta)) {
-                return response()->json([
-                    'codigo' => $respuesta->status(),
-                    'mensaje' => 'La API devolvió una respuesta no JSON',
-                    'data' => [],
-                ], $respuesta->status());
-            }
+            $jsonRespuesta = $respuesta['json'] ?? [];
 
-            return response()->json($jsonRespuesta, $respuesta->status());
+            return response()->json($jsonRespuesta, (int) ($respuesta['status'] ?? 500));
         } catch (Throwable $exception) {
             return response()->json([
                 'codigo' => 500,
@@ -201,11 +191,9 @@ class LoginController extends Controller
             foreach ($baseUrls as $baseUrl) {
                 $url = $baseUrl . '/api/login/auth_google';
 
-                $intento = Http::acceptJson()
-                    ->withToken($token)
-                    ->post($url, $payload);
+                $intento = Api::initAPI($url, 'POST', $payload, $token);
 
-                if ($intento->status() === 404) {
+                if (($intento['status'] ?? 500) === 404) {
                     continue;
                 }
 
@@ -221,7 +209,7 @@ class LoginController extends Controller
                 ], 500);
             }
 
-            $codigoRespuesta = (int) ($respuesta->json('codigo') ?? 0);
+            $codigoRespuesta = (int) (($respuesta['json']['codigo'] ?? 0));
             if (in_array($codigoRespuesta, [309, 310, 311], true)) {
                 $token = Helper::obtenerBearerTokenDesdeSesion($request, true);
 
@@ -229,11 +217,9 @@ class LoginController extends Controller
                     foreach ($baseUrls as $baseUrl) {
                         $url = $baseUrl . '/api/login/auth_google';
 
-                        $intento = Http::acceptJson()
-                            ->withToken($token)
-                            ->post($url, $payload);
+                        $intento = Api::initAPI($url, 'POST', $payload, $token);
 
-                        if ($intento->status() === 404) {
+                        if (($intento['status'] ?? 500) === 404) {
                             continue;
                         }
 
@@ -255,16 +241,9 @@ class LoginController extends Controller
 
             $request->session()->put('google_user', $googleUser);
 
-            $jsonRespuesta = $respuesta->json();
-            if (! is_array($jsonRespuesta)) {
-                return response()->json([
-                    'codigo' => $respuesta->status(),
-                    'mensaje' => 'La API devolvió una respuesta no JSON',
-                    'data' => [],
-                ], $respuesta->status());
-            }
+            $jsonRespuesta = $respuesta['json'] ?? [];
 
-            return response()->json($jsonRespuesta, $respuesta->status());
+            return response()->json($jsonRespuesta, (int) ($respuesta['status'] ?? 500));
         } catch (RequestException $exception) {
             return response()->json([
                 'ok' => false,
