@@ -105,11 +105,23 @@ window.loginAjax = async function loginAjax(component = null) {
 
     try {
         const response = await axios.post(getAppRoute('ingresar', '/ingresar'), { login, password });
-        const result = typeof response.data === 'string'
-            ? response.data
-            : JSON.stringify(response.data, null, 2);
+        const data = response?.data ?? {};
+        const codigo = Number(data?.codigo ?? 0);
+        const mensaje = String(data?.mensaje ?? '').toLowerCase();
+        const loginExitoso = response.status === 200
+            || codigo === 200
+            || mensaje.includes('exitoso');
 
-        window.showSystemDialog('success', 'Acceso al Sistema', result);
+        if (loginExitoso) {
+            window.location.assign(getAppRoute('home', '/'));
+            return;
+        }
+
+        const result = typeof data === 'string'
+            ? data
+            : JSON.stringify(data, null, 2);
+
+        window.showSystemDialog('error', 'Acceso al Sistema', result);
     } catch (error) {
         const errorText = error.response?.data
             ? JSON.stringify(error.response.data, null, 2)
@@ -135,16 +147,23 @@ window.initGoogleAuth = async function initGoogleAuth(payload = {}) {
 
     try {
         const response = await axios.post(getAppRoute('authGoogle', '/auth_google'), googlePayload);
-        const result = response.data;
-        const resultMessage = typeof result === 'string'
+        const result = response?.data ?? {};
+        const codigo = Number(result?.codigo ?? 0);
+        const mensaje = String(result?.mensaje ?? '').toLowerCase();
+        const loginExitoso = response.status === 200
+            || codigo === 200
+            || mensaje.includes('exitoso');
+
+        if (loginExitoso) {
+            window.location.assign(getAppRoute('home', '/'));
+            return result;
+        }
+
+        const errorMessage = typeof result === 'string'
             ? result
             : JSON.stringify(result, null, 2);
 
-        showAjaxSystemDialog({
-            ok: true,
-            title: 'Acceso al Sistema',
-            message: resultMessage,
-        });
+        window.showSystemDialog('error', 'Acceso al Sistema', errorMessage);
 
         return result;
     } catch (error) {
