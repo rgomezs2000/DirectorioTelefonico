@@ -119,7 +119,7 @@ class SwaggerController extends Controller
 
     private function requireTokenHeader(string $uri): bool
     {
-        return ! in_array($uri, ['api/api_token', 'api/db-test/validar-login-test'], true);
+        return ! in_array($uri, ['api/api_token', 'api/db-test/validar-login-test', 'api/admin/lista_menu'], true);
     }
 
     private function pathParameters(string $uri): array
@@ -168,6 +168,38 @@ class SwaggerController extends Controller
         ];
     }
 
+    private function codigoResponse(int $codigo, string $mensaje, bool $includeData = false, bool $includeError = false): array
+    {
+        $properties = [
+            'codigo' => ['type' => 'integer', 'example' => $codigo],
+            'mensaje' => ['type' => 'string', 'example' => $mensaje],
+        ];
+
+        if ($includeData) {
+            $properties['data'] = [
+                'type' => 'array',
+                'items' => ['type' => 'object'],
+                'example' => [],
+            ];
+        }
+
+        if ($includeError) {
+            $properties['error'] = ['type' => 'string', 'example' => 'Error inesperado'];
+        }
+
+        return [
+            'description' => $mensaje,
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => $properties,
+                    ],
+                ],
+            ],
+        ];
+    }
+
     private function endpointDocumentation(string $method, string $uri): array
     {
         $map = [
@@ -196,6 +228,7 @@ class SwaggerController extends Controller
                             ],
                         ],
                     ],
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
                 ],
             ],
             'post api/db-test/validar-login-test' => [
@@ -235,6 +268,8 @@ class SwaggerController extends Controller
                             ],
                         ],
                     ],
+                    '202' => $this->codigoResponse(202, 'El usuario no existe'),
+                    '203' => $this->codigoResponse(203, 'Clave inválida'),
                     '422' => [
                         'description' => 'Datos incompletos',
                         'content' => [
@@ -249,6 +284,7 @@ class SwaggerController extends Controller
                             ],
                         ],
                     ],
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
                 ],
             ],
             'post api/login/ingresar' => [
@@ -292,18 +328,107 @@ class SwaggerController extends Controller
                             ],
                         ],
                     ],
-                    '306' => [
-                        'description' => 'Token incorrecto',
+                    '308' => $this->codigoResponse(308, 'Contraseña incorrecta', true),
+                    '309' => $this->codigoResponse(309, 'Token incorrecto o credencial bloqueada por intentos', true),
+                    '310' => $this->codigoResponse(310, 'Token usado', true),
+                    '311' => $this->codigoResponse(311, 'Token expirado', true),
+                    '407' => $this->codigoResponse(407, 'Usuario bloqueado', true),
+                    '408' => $this->codigoResponse(408, 'Login no existe', true),
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+            'post api/login/auth_google' => [
+                'requestBody' => [
+                    'required' => true,
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => ['email'],
+                                'properties' => [
+                                    'email' => [
+                                        'type' => 'string',
+                                        'format' => 'email',
+                                        'description' => 'Correo del usuario autenticado con Google',
+                                        'example' => 'admin@empresa.com',
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
-                    '307' => [
-                        'description' => 'Token expirado',
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Login correcto',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'login correcto'],
+                                        'data' => ['type' => 'object', 'additionalProperties' => true],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
-                    '308' => [
-                        'description' => 'Password incorrecto',
+                    '309' => $this->codigoResponse(309, 'Token incorrecto', true),
+                    '310' => $this->codigoResponse(310, 'Token usado', true),
+                    '311' => $this->codigoResponse(311, 'Token expirado', true),
+                    '407' => $this->codigoResponse(407, 'Usuario bloqueado', true),
+                    '408' => $this->codigoResponse(408, 'Login no existe', true),
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+            'get api/admin/lista_menu' => [
+                'responses' => [
+                    '200' => [
+                        'description' => 'Módulos desplegados',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'modulos desplegados'],
+                                        'data' => [
+                                            'type' => 'array',
+                                            'items' => [
+                                                'type' => 'object',
+                                                'properties' => [
+                                                    'id_menu' => ['type' => 'integer', 'example' => 1],
+                                                    'nombre' => ['type' => 'string', 'example' => 'Administración'],
+                                                    'submenus' => [
+                                                        'type' => 'array',
+                                                        'items' => [
+                                                            'type' => 'object',
+                                                            'properties' => [
+                                                                'id_submenu' => ['type' => 'integer', 'example' => 1],
+                                                                'nombre' => ['type' => 'string', 'example' => 'Usuarios'],
+                                                                'modulos' => [
+                                                                    'type' => 'array',
+                                                                    'items' => [
+                                                                        'type' => 'object',
+                                                                        'properties' => [
+                                                                            'id_modulo' => ['type' => 'integer', 'example' => 1],
+                                                                            'nombre' => ['type' => 'string', 'example' => 'Listado de usuarios'],
+                                                                        ],
+                                                                    ],
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
-                    '408' => [
-                        'description' => 'Login no existe',
-                    ],
+                    '408' => $this->codigoResponse(408, 'no hay modulos configurados en el sistema, consulte con su administrador', true),
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
                 ],
             ],
         ];
