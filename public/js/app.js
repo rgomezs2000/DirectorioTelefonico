@@ -259,4 +259,39 @@
             );
         }
     };
+
+
+    window.renderDynamicNowByAxios = async function renderDynamicNowByAxios() {
+        const placeholder = document.getElementById('dynamicNow');
+
+        if (!placeholder) {
+            return;
+        }
+
+        try {
+            const response = await axios({
+                method: 'get',
+                url: '/dynamic-now-client',
+                adapter: (config) => Promise.resolve({
+                    data: {
+                        dynamicNow: window.functions?.dynamicNow?.() ?? new Date().toLocaleString(),
+                    },
+                    status: 200,
+                    statusText: 'OK',
+                    headers: {},
+                    config,
+                    request: null,
+                }),
+            });
+
+            placeholder.textContent = response?.data?.dynamicNow ?? '';
+        } catch (error) {
+            placeholder.textContent = new Date().toLocaleString();
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        window.renderDynamicNowByAxios();
+        window.setInterval(window.renderDynamicNowByAxios, 1000);
+    });
 })();

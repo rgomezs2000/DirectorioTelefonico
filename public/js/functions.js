@@ -23,5 +23,22 @@
             });
             return search.toString();
         },
+
+        dynamicNow(locale = 'es-PE', options = {}) {
+            const date = new Date();
+            const formatOptions = Object.keys(options).length > 0
+                ? options
+                : {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                };
+
+            return new Intl.DateTimeFormat(locale, formatOptions).format(date);
+        },
     };
 })();

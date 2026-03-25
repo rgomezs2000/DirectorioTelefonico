@@ -143,7 +143,7 @@
             <p>Hola, {{$sesionUsuario->nombres}} {{$sesionUsuario->apellidos}} ({{$sesionUsuario->username}})</p>
             <p>Tu ultima sesión fue en: {{ $sesionUsuario->ultima_sesion ?  \App\Helpers\DateHelper::formatDateTime($sesionUsuario->ultima_sesion, 'd/m/Y H:i:s') : \App\Helpers\DateHelper::today('d/m/Y H:i:s') }}</p>
             <p>&lt;IP sesion actual&gt;</p>
-            <p>&lt;Fecha, hora (actual)&gt;</p>
+            <p id="dynamicNow" name="dynamicNow"></p>
         </div>
     </aside>
 </div>
