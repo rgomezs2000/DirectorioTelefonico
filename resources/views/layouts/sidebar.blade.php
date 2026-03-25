@@ -136,12 +136,6 @@
                     @endforeach
                 @endif
 
-                <li>
-                    <a href="#" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
-                        <x-ui.sidebar-icon name="arrow-right-on-rectangle" class="h-5 w-5 shrink-0" />
-                        <span>Cerrar Sesión</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 
