@@ -17,6 +17,10 @@ class LoginController extends Controller
 {
     public function login(): View
     {
+        if (! $request->session()->isStarted()) {
+                $request->session()->start();
+        }
+
         return view('login');
     }
 
