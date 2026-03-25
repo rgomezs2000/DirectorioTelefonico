@@ -1,6 +1,22 @@
 @php
     $menus = \App\Helpers\Menu::listarMenu();
 
+
+    $baseUrl = rtrim((string) url('/'), '/');
+
+    $resolverRuta = static function (?string $ruta, string $baseUrl): string {
+        $rutaNormalizada = trim((string) $ruta);
+
+        if ($rutaNormalizada === '') {
+            return '#';
+        }
+
+        if (str_starts_with($rutaNormalizada, 'http://') || str_starts_with($rutaNormalizada, 'https://')) {
+            return $rutaNormalizada;
+        }
+
+        return $baseUrl.'/'.ltrim($rutaNormalizada, '/');
+    };
     $resolverIcono = static function (array $item, string $fallback = 'chevron-right') {
         $nombre = (string) data_get($item, 'icono.nombre', '');
 
@@ -41,13 +57,13 @@
                         @php
                             $submenus = is_array($menu['submenus'] ?? null) ? $menu['submenus'] : [];
                             $menuNombre = (string) ($menu['nombre'] ?? 'Menú');
-                            $menuRuta = (string) ($menu['ruta'] ?? '#');
+                            $menuRuta = $resolverRuta((string) ($menu['ruta'] ?? ''), $baseUrl);
                             $menuIcono = $resolverIcono($menu, 'squares-2x2');
                         @endphp
 
                         @if (empty($submenus))
                             <li>
-                                <a href="{{ $menuRuta !== '' ? $menuRuta : '#' }}" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                <a href="{{ $menuRuta }}" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
                                     <x-ui.sidebar-icon :name="$menuIcono" class="h-5 w-5 shrink-0" />
                                     <span>{{ $menuNombre }}</span>
                                 </a>
@@ -71,13 +87,13 @@
                                         @php
                                             $modulos = is_array($submenu['modulos'] ?? null) ? $submenu['modulos'] : [];
                                             $submenuNombre = (string) ($submenu['nombre'] ?? 'Submenú');
-                                            $submenuRuta = (string) ($submenu['ruta'] ?? '#');
+                                            $submenuRuta = $resolverRuta((string) ($submenu['ruta'] ?? ''), $baseUrl);
                                             $submenuIcono = $resolverIcono($submenu, 'list-bullet');
                                         @endphp
 
                                         @if (empty($modulos))
                                             <li>
-                                                <a href="{{ $submenuRuta !== '' ? $submenuRuta : '#' }}" class="flex items-center gap-2 py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                                <a href="{{ $submenuRuta }}" class="flex items-center gap-2 py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
                                                     <x-ui.sidebar-icon :name="$submenuIcono" class="h-4 w-4 shrink-0" />
                                                     <span>{{ $submenuNombre }}</span>
                                                 </a>
@@ -100,11 +116,11 @@
                                                     @foreach ($modulos as $modulo)
                                                         @php
                                                             $moduloNombre = (string) ($modulo['nombre'] ?? 'Módulo');
-                                                            $moduloRuta = (string) ($modulo['ruta'] ?? '#');
+                                                            $moduloRuta = $resolverRuta((string) ($modulo['ruta'] ?? ''), $baseUrl);
                                                             $moduloIcono = $resolverIcono($modulo, 'chevron-right');
                                                         @endphp
                                                         <li>
-                                                            <a href="{{ $moduloRuta !== '' ? $moduloRuta : '#' }}" class="flex items-center gap-2 py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                                            <a href="{{ $moduloRuta }}" class="flex items-center gap-2 py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
                                                                 <x-ui.sidebar-icon :name="$moduloIcono" class="h-4 w-4 shrink-0" />
                                                                 <span>{{ $moduloNombre }}</span>
                                                             </a>
@@ -119,6 +135,13 @@
                         @endif
                     @endforeach
                 @endif
+
+                <li>
+                    <a href="#" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                        <x-ui.sidebar-icon name="arrow-right-on-rectangle" class="h-5 w-5 shrink-0" />
+                        <span>Cerrar Sesión</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 
