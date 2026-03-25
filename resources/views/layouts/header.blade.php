@@ -15,17 +15,17 @@
             <div class="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
                 <h2 class="text-[17px] font-semibold leading-tight tracking-wide text-neutral-900">Inicio</h2>
 
-                <nav class="text-[17px] leading-tight tracking-wide text-neutral-600" aria-label="Breadcrumb">
+                <nav class="text-[12px] leading-tight tracking-wide text-neutral-600" aria-label="Breadcrumb">
                     @yield('breadcrumb')
                     @hasSection('breadcrumb')
                     @else
-                        <a href="#" class="hover:text-neutral-900">Inicio</a>
-                        <span class="mx-1 inline-block align-middle">/</span>
-                        <a href="#" class="hover:text-neutral-900">Modulo</a>
-                        <span class="mx-1 inline-block align-middle">/</span>
-                        <a href="#" class="hover:text-neutral-900">Submodulo</a>
-                        <span class="mx-1 inline-block align-middle">/</span>
-                        <span>funcion</span>
+                        <a href="#" class="text-neutral-500 transition hover:text-neutral-700">Inicio</a>
+                        <span class="mx-1 inline-block align-middle text-neutral-400">&gt;</span>
+                        <a href="#" class="text-neutral-500 transition hover:text-neutral-700">Modulo</a>
+                        <span class="mx-1 inline-block align-middle text-neutral-400">&gt;</span>
+                        <a href="#" class="text-neutral-500 transition hover:text-neutral-700">Submodulo</a>
+                        <span class="mx-1 inline-block align-middle text-neutral-400">&gt;</span>
+                        <span class="font-medium text-neutral-800">funcion</span>
                     @endif
                 </nav>
             </div>
