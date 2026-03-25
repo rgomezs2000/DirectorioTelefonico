@@ -1,11 +1,16 @@
 @php
     $menus = \App\Helpers\Menu::listarMenu();
 
-    $resolverIcono = static function (array $item, string $fallback = 'heroicon-o-chevron-right') {
-        $componente = (string) data_get($item, 'icono.componente', '');
+    $resolverIcono = static function (array $item, string $fallback = 'chevron-right') {
+        $nombre = (string) data_get($item, 'icono.nombre', '');
 
+        if ($nombre !== '') {
+            return $nombre;
+        }
+
+        $componente = (string) data_get($item, 'icono.componente', '');
         if ($componente !== '' && str_starts_with($componente, 'heroicon-')) {
-            return $componente;
+            return (string) str($componente)->after('heroicon-o-')->after('heroicon-s-')->after('heroicon-m-');
         }
 
         return $fallback;
@@ -33,7 +38,7 @@
             <ul class="text-[14px] text-neutral-800">
                 <li>
                     <a href="#" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
-                        <x-heroicon-o-home class="h-5 w-5 shrink-0" />
+                        <x-ui.sidebar-icon name="home" class="h-5 w-5 shrink-0" />
                         <span>Inicio</span>
                     </a>
                 </li>
@@ -44,13 +49,13 @@
                             $submenus = is_array($menu['submenus'] ?? null) ? $menu['submenus'] : [];
                             $menuNombre = (string) ($menu['nombre'] ?? 'Menú');
                             $menuRuta = (string) ($menu['ruta'] ?? '#');
-                            $menuIcono = $resolverIcono($menu, 'heroicon-o-squares-2x2');
+                            $menuIcono = $resolverIcono($menu, 'squares-2x2');
                         @endphp
 
                         @if (empty($submenus))
                             <li>
                                 <a href="{{ $menuRuta !== '' ? $menuRuta : '#' }}" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
-                                    <x-dynamic-component :component="$menuIcono" class="h-5 w-5 shrink-0" />
+                                    <x-ui.sidebar-icon :name="$menuIcono" class="h-5 w-5 shrink-0" />
                                     <span>{{ $menuNombre }}</span>
                                 </a>
                             </li>
@@ -62,7 +67,7 @@
                                     @click="abierto = !abierto"
                                 >
                                     <span class="flex items-center gap-2">
-                                        <x-dynamic-component :component="$menuIcono" class="h-5 w-5 shrink-0" />
+                                        <x-ui.sidebar-icon :name="$menuIcono" class="h-5 w-5 shrink-0" />
                                         <span>{{ $menuNombre }}</span>
                                     </span>
                                     <span class="text-sm" x-text="abierto ? '▾' : '▸'"></span>
@@ -74,13 +79,13 @@
                                             $modulos = is_array($submenu['modulos'] ?? null) ? $submenu['modulos'] : [];
                                             $submenuNombre = (string) ($submenu['nombre'] ?? 'Submenú');
                                             $submenuRuta = (string) ($submenu['ruta'] ?? '#');
-                                            $submenuIcono = $resolverIcono($submenu, 'heroicon-o-list-bullet');
+                                            $submenuIcono = $resolverIcono($submenu, 'list-bullet');
                                         @endphp
 
                                         @if (empty($modulos))
                                             <li>
                                                 <a href="{{ $submenuRuta !== '' ? $submenuRuta : '#' }}" class="flex items-center gap-2 py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
-                                                    <x-dynamic-component :component="$submenuIcono" class="h-4 w-4 shrink-0" />
+                                                    <x-ui.sidebar-icon :name="$submenuIcono" class="h-4 w-4 shrink-0" />
                                                     <span>{{ $submenuNombre }}</span>
                                                 </a>
                                             </li>
@@ -92,7 +97,7 @@
                                                     @click="abierto = !abierto"
                                                 >
                                                     <span class="flex items-center gap-2">
-                                                        <x-dynamic-component :component="$submenuIcono" class="h-4 w-4 shrink-0" />
+                                                        <x-ui.sidebar-icon :name="$submenuIcono" class="h-4 w-4 shrink-0" />
                                                         <span>{{ $submenuNombre }}</span>
                                                     </span>
                                                     <span class="text-xs" x-text="abierto ? '▾' : '▸'"></span>
@@ -103,11 +108,11 @@
                                                         @php
                                                             $moduloNombre = (string) ($modulo['nombre'] ?? 'Módulo');
                                                             $moduloRuta = (string) ($modulo['ruta'] ?? '#');
-                                                            $moduloIcono = $resolverIcono($modulo, 'heroicon-o-chevron-right');
+                                                            $moduloIcono = $resolverIcono($modulo, 'chevron-right');
                                                         @endphp
                                                         <li>
                                                             <a href="{{ $moduloRuta !== '' ? $moduloRuta : '#' }}" class="flex items-center gap-2 py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
-                                                                <x-dynamic-component :component="$moduloIcono" class="h-4 w-4 shrink-0" />
+                                                                <x-ui.sidebar-icon :name="$moduloIcono" class="h-4 w-4 shrink-0" />
                                                                 <span>{{ $moduloNombre }}</span>
                                                             </a>
                                                         </li>
@@ -124,7 +129,7 @@
 
                 <li>
                     <a href="#" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
-                        <x-heroicon-o-arrow-right-on-rectangle class="h-5 w-5 shrink-0" />
+                        <x-ui.sidebar-icon name="arrow-right-on-rectangle" class="h-5 w-5 shrink-0" />
                         <span>Cerrar Sesión</span>
                     </a>
                 </li>
