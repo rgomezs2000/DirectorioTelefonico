@@ -2,9 +2,9 @@
 
 namespace App\Helpers;
 
+use App\Helpers\Api;
 use App\Models\ApiToken;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class Helper
@@ -127,13 +127,13 @@ class Helper
                 continue;
             }
 
-            $respuesta = Http::acceptJson()->get($url);
+            $respuesta = Api::initAPI($url, 'GET');
 
-            if (! $respuesta->successful()) {
+            if (! ($respuesta['ok'] ?? false)) {
                 continue;
             }
 
-            $payload = $respuesta->json();
+            $payload = $respuesta['json'] ?? [];
             $token = (string) (
                 data_get($payload, 'data.api_token')
                 ?? data_get($payload, 'api_token')
