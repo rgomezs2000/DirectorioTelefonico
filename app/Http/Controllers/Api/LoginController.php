@@ -30,6 +30,10 @@ class LoginController extends Controller
 
             $respuestaLogin = Usuario::validarLogin($login, $password);
 
+            $tokenHeader = (string) ($request->bearerToken()
+                ?: $request->header('X-Api-Token', $request->header('api-token', '')));
+            Helper::tokenUsado($tokenHeader);
+
             if (($respuestaLogin->codigo ?? null) !== 200 || empty($respuestaLogin->data)) {
                 return response()->json([
                     'codigo' => $respuestaLogin->codigo ?? 408,
@@ -69,6 +73,10 @@ class LoginController extends Controller
 
             $email = (string) $request->input('email', '');
             $respuestaLogin = Usuario::validarLoginGoogle($email);
+
+            $tokenHeader = (string) ($request->bearerToken()
+                ?: $request->header('X-Api-Token', $request->header('api-token', '')));
+            Helper::tokenUsado($tokenHeader);
 
             if (($respuestaLogin->codigo ?? null) !== 200 || empty($respuestaLogin->data)) {
                 return response()->json([
