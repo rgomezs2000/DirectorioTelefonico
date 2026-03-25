@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\SwaggerController;
 use Illuminate\Support\Facades\Route;
 
 Route::match(['GET', 'HEAD'], '/', [HomeController::class, 'home'])->name('home');
-Route::match(['GET', 'HEAD'], '', [HomeController::class, 'home']);
 Route::get('/home_pruebas', [HomeController::class, 'homePrueba'])->name('home.pruebas');
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/ingresar', [LoginController::class, 'ingresar'])->name('ingresar');
