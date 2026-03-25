@@ -1,4 +1,23 @@
-<div x-data="{ menuOpen: false, submenuOpen: false }">
+@php
+    $menus = \App\Helpers\Menu::listarMenu();
+
+    $resolverIcono = static function (array $item, string $fallback = 'chevron-right') {
+        $nombre = (string) data_get($item, 'icono.nombre', '');
+
+        if ($nombre !== '') {
+            return $nombre;
+        }
+
+        $componente = (string) data_get($item, 'icono.componente', '');
+        if ($componente !== '' && str_starts_with($componente, 'heroicon-')) {
+            return (string) str($componente)->after('heroicon-o-')->after('heroicon-s-')->after('heroicon-m-');
+        }
+
+        return $fallback;
+    };
+@endphp
+
+<div>
     <div
         class="fixed inset-0 z-30 bg-black/35 lg:hidden"
         x-show="sidebarOpen"
@@ -18,45 +37,101 @@
         <nav class="flex-1 overflow-y-auto py-4">
             <ul class="text-[14px] text-neutral-800">
                 <li>
-                    <a href="#" class="block px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Inicio</a>
+                    <a href="#" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                        <x-ui.sidebar-icon name="home" class="h-5 w-5 shrink-0" />
+                        <span>Inicio</span>
+                    </a>
                 </li>
 
+                @if (! empty($menus))
+                    @foreach ($menus as $menu)
+                        @php
+                            $submenus = is_array($menu['submenus'] ?? null) ? $menu['submenus'] : [];
+                            $menuNombre = (string) ($menu['nombre'] ?? 'Menú');
+                            $menuRuta = (string) ($menu['ruta'] ?? '#');
+                            $menuIcono = $resolverIcono($menu, 'squares-2x2');
+                        @endphp
+
+                        @if (empty($submenus))
+                            <li>
+                                <a href="{{ $menuRuta !== '' ? $menuRuta : '#' }}" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                    <x-ui.sidebar-icon :name="$menuIcono" class="h-5 w-5 shrink-0" />
+                                    <span>{{ $menuNombre }}</span>
+                                </a>
+                            </li>
+                        @else
+                            <li x-data="{ abierto: false }">
+                                <button
+                                    type="button"
+                                    class="flex w-full items-center justify-between px-4 py-3 text-left shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
+                                    @click="abierto = !abierto"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <x-ui.sidebar-icon :name="$menuIcono" class="h-5 w-5 shrink-0" />
+                                        <span>{{ $menuNombre }}</span>
+                                    </span>
+                                    <span class="text-sm" x-text="abierto ? '▾' : '▸'"></span>
+                                </button>
+
+                                <ul x-show="abierto" x-collapse>
+                                    @foreach ($submenus as $submenu)
+                                        @php
+                                            $modulos = is_array($submenu['modulos'] ?? null) ? $submenu['modulos'] : [];
+                                            $submenuNombre = (string) ($submenu['nombre'] ?? 'Submenú');
+                                            $submenuRuta = (string) ($submenu['ruta'] ?? '#');
+                                            $submenuIcono = $resolverIcono($submenu, 'list-bullet');
+                                        @endphp
+
+                                        @if (empty($modulos))
+                                            <li>
+                                                <a href="{{ $submenuRuta !== '' ? $submenuRuta : '#' }}" class="flex items-center gap-2 py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                                    <x-ui.sidebar-icon :name="$submenuIcono" class="h-4 w-4 shrink-0" />
+                                                    <span>{{ $submenuNombre }}</span>
+                                                </a>
+                                            </li>
+                                        @else
+                                            <li x-data="{ abierto: false }">
+                                                <button
+                                                    type="button"
+                                                    class="flex w-full items-center justify-between py-2.5 pr-4 pl-8 text-left text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
+                                                    @click="abierto = !abierto"
+                                                >
+                                                    <span class="flex items-center gap-2">
+                                                        <x-ui.sidebar-icon :name="$submenuIcono" class="h-4 w-4 shrink-0" />
+                                                        <span>{{ $submenuNombre }}</span>
+                                                    </span>
+                                                    <span class="text-xs" x-text="abierto ? '▾' : '▸'"></span>
+                                                </button>
+
+                                                <ul x-show="abierto" x-collapse>
+                                                    @foreach ($modulos as $modulo)
+                                                        @php
+                                                            $moduloNombre = (string) ($modulo['nombre'] ?? 'Módulo');
+                                                            $moduloRuta = (string) ($modulo['ruta'] ?? '#');
+                                                            $moduloIcono = $resolverIcono($modulo, 'chevron-right');
+                                                        @endphp
+                                                        <li>
+                                                            <a href="{{ $moduloRuta !== '' ? $moduloRuta : '#' }}" class="flex items-center gap-2 py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                                                <x-ui.sidebar-icon :name="$moduloIcono" class="h-4 w-4 shrink-0" />
+                                                                <span>{{ $moduloNombre }}</span>
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endif
+                    @endforeach
+                @endif
+
                 <li>
-                    <button
-                        type="button"
-                        class="flex w-full items-center justify-between px-4 py-3 text-left shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
-                        @click="menuOpen = !menuOpen"
-                    >
-                        <span>Menu</span>
-                        <span class="text-sm" x-text="menuOpen ? '▾' : '▸'"></span>
-                    </button>
-
-                    <ul x-show="menuOpen" x-collapse>
-                        <li>
-                            <a href="#" class="block py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Módulo en menu</a>
-                        </li>
-
-                        <li>
-                            <button
-                                type="button"
-                                class="flex w-full items-center justify-between py-2.5 pr-4 pl-8 text-left text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
-                                @click="submenuOpen = !submenuOpen"
-                            >
-                                <span>Submenu</span>
-                                <span class="text-xs" x-text="submenuOpen ? '▾' : '▸'"></span>
-                            </button>
-
-                            <ul x-show="submenuOpen" x-collapse>
-                                <li>
-                                    <a href="#" class="block py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Módulo C</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-
-                <li>
-                    <a href="#" class="block px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">Cerrar Sesión</a>
+                    <a href="#" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                        <x-ui.sidebar-icon name="arrow-right-on-rectangle" class="h-5 w-5 shrink-0" />
+                        <span>Cerrar Sesión</span>
+                    </a>
                 </li>
             </ul>
         </nav>
