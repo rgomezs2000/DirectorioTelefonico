@@ -16,10 +16,10 @@ use Throwable;
 
 class LoginController extends Controller
 {
-    public function login(): View
+    public function login(Request $request): View
     {
         if (! $request->session()->isStarted()) {
-                $request->session()->start();
+            $request->session()->start();
         }
 
         return view('login');
