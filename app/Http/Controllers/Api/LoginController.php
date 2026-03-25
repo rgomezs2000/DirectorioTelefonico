@@ -38,6 +38,10 @@ class LoginController extends Controller
                 ]);
             }
 
+            $tokenHeader = (string) ($request->bearerToken()
+                ?: $request->header('X-Api-Token', $request->header('api-token', '')));
+            Helper::tokenUsado($tokenHeader);
+
             return response()->json([
                 'codigo' => 200,
                 'mensaje' => 'login correcto',
@@ -77,6 +81,10 @@ class LoginController extends Controller
                     'data' => [],
                 ]);
             }
+
+            $tokenHeader = (string) ($request->bearerToken()
+                ?: $request->header('X-Api-Token', $request->header('api-token', '')));
+            Helper::tokenUsado($tokenHeader);
 
             return response()->json([
                 'codigo' => 200,
