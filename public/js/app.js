@@ -158,12 +158,23 @@
 
         try {
             const response = await axios.post(getAppRoute('authGoogle', '/auth_google'), googlePayload);
-            const result = response.data;
-            const resultMessage = typeof result === 'string'
+            const result = response?.data ?? {};
+            const codigo = Number(result?.codigo ?? 0);
+            const mensaje = String(result?.mensaje ?? '').toLowerCase();
+            const loginExitoso = response.status === 200
+                || codigo === 200
+                || mensaje.includes('exitoso');
+
+            if (loginExitoso) {
+                window.location.assign(getAppRoute('home', '/'));
+                return result;
+            }
+
+            const errorMessage = typeof result === 'string'
                 ? result
                 : JSON.stringify(result, null, 2);
 
-            window.showSystemDialog('success', 'Acceso al Sistema', resultMessage);
+            window.showSystemDialog('error', 'Acceso al Sistema', errorMessage);
 
             return result;
         } catch (error) {

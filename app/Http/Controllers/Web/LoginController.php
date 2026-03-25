@@ -275,6 +275,32 @@ class LoginController extends Controller
             $request->session()->put('google_user', $googleUser);
 
             $jsonRespuesta = $respuesta['json'] ?? [];
+            $codigoRespuesta = (int) ($jsonRespuesta['codigo'] ?? 0);
+            $statusRespuesta = (int) ($respuesta['status'] ?? 0);
+            $mensajeRespuesta = mb_strtolower((string) ($jsonRespuesta['mensaje'] ?? ''));
+            $loginExitoso = $codigoRespuesta === 200
+                || $statusRespuesta === 200
+                || str_contains($mensajeRespuesta, 'exitoso');
+
+            if ($loginExitoso && isset($jsonRespuesta['data']['usuario']) && is_array($jsonRespuesta['data']['usuario'])) {
+                $usuario = $jsonRespuesta['data']['usuario'];
+
+                if (
+                    isset($usuario['credencial'])
+                    && is_array($usuario['credencial'])
+                    && isset($usuario['credencial']['password_hash'])
+                    && is_string($usuario['credencial']['password_hash'])
+                    && $usuario['credencial']['password_hash'] !== ''
+                ) {
+                    try {
+                        $usuario['credencial']['password_hash'] = Crypt::decryptString($usuario['credencial']['password_hash']);
+                    } catch (Throwable) {
+                        // Si no se puede descifrar, se conserva el valor original.
+                    }
+                }
+
+                $request->session()->put('usuario', (object) $usuario);
+            }
 
             return response()->json($jsonRespuesta, (int) ($respuesta['status'] ?? 500));
         } catch (RequestException $exception) {
