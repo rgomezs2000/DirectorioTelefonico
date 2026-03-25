@@ -15,6 +15,20 @@ class Api
     {
         try {
             $metodo = strtoupper(trim($tipo));
+            $endpointNormalizado = self::normalizarEndpoint($endpoint);
+
+            if ($endpointNormalizado === '') {
+                return [
+                    'ok' => false,
+                    'status' => 400,
+                    'json' => [
+                        'codigo' => 400,
+                        'mensaje' => 'Endpoint inválido',
+                        'data' => [],
+                    ],
+                ];
+            }
+
             $request = Http::acceptJson();
 
             if (! empty($tokenBearer)) {
@@ -27,7 +41,7 @@ class Api
                 $opciones[$claveDatos] = $jsonEntrada;
             }
 
-            $respuesta = $request->send($metodo, $endpoint, $opciones);
+            $respuesta = $request->send($metodo, $endpointNormalizado, $opciones);
             $jsonSalida = $respuesta->json();
 
             return [
@@ -53,5 +67,30 @@ class Api
                 ],
             ];
         }
+    }
+
+    private static function normalizarEndpoint(string $endpoint): string
+    {
+        $endpoint = trim($endpoint);
+
+        if ($endpoint === '') {
+            return '';
+        }
+
+        if (Str::startsWith($endpoint, ['http://', 'https://'])) {
+            return $endpoint;
+        }
+
+        $baseUrl = rtrim((string) config('app.url', ''), '/');
+
+        if ($baseUrl === '') {
+            $baseUrl = rtrim((string) url('/'), '/');
+        }
+
+        if ($baseUrl === '') {
+            return '';
+        }
+
+        return $baseUrl.'/'.ltrim($endpoint, '/');
     }
 }
