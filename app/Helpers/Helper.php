@@ -173,7 +173,18 @@ class Helper
         return $token;
     }
 
-     /** Valida token de cabecera para endpoints API.*/
+ 
+    /** Marca como usado un token API. */
+    public static function tokenUsado(string $token): bool
+    {
+        if ($token === '') {
+            return false;
+        }
+
+        return ApiToken::tokenUsado($token);
+    }
+
+    /** Valida token de cabecera para endpoints API.*/
     public static function validarTokenHeader(): object
     {
         $tokenHeader = request()->bearerToken()
