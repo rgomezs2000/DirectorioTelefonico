@@ -52,13 +52,6 @@
 
         <nav class="flex-1 overflow-y-auto py-4">
             <ul class="text-[14px] text-neutral-800">
-                <li>
-                    <a href="{{ $baseUrl }}" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
-                        <x-ui.sidebar-icon name="home" class="h-5 w-5 shrink-0" />
-                        <span>Inicio</span>
-                    </a>
-                </li>
-
                 @if (! empty($menus))
                     @foreach ($menus as $menu)
                         @php
