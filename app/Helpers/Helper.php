@@ -110,7 +110,8 @@ class Helper
         $baseUrls = [];
 
         if ($request !== null) {
-            $baseUrls[] = $request->getSchemeAndHttpHost();
+            $baseUrls[] = $request->root();
+            $baseUrls[] = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
         }
 
         $baseUrls[] = (string) config('app.url', '');

@@ -83,6 +83,14 @@ class Api
 
         $baseUrl = rtrim((string) config('app.url', ''), '/');
 
+        if ($baseUrl === '' && app()->bound('request')) {
+            $baseUrl = rtrim((string) request()->root(), '/');
+        }
+
+        if ($baseUrl === '' && app()->bound('request')) {
+            $baseUrl = rtrim((string) (request()->getSchemeAndHttpHost() . request()->getBaseUrl()), '/');
+        }
+
         if ($baseUrl === '') {
             $baseUrl = rtrim((string) url('/'), '/');
         }

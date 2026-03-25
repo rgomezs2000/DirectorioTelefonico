@@ -36,7 +36,8 @@ class LoginController extends Controller
             $baseUrls = array_values(array_unique(array_filter(array_map(
                 static fn (string $url): string => rtrim($url, '/'),
                 [
-                    $request->getSchemeAndHttpHost(),
+                    $request->root(),
+                    $request->getSchemeAndHttpHost() . $request->getBaseUrl(),
                     (string) config('app.url', ''),
                     (string) url('/'),
                 ]
@@ -177,7 +178,8 @@ class LoginController extends Controller
             $baseUrls = array_values(array_unique(array_filter(array_map(
                 static fn (string $url): string => rtrim($url, '/'),
                 [
-                    $request->getSchemeAndHttpHost(),
+                    $request->root(),
+                    $request->getSchemeAndHttpHost() . $request->getBaseUrl(),
                     (string) config('app.url', ''),
                     (string) url('/'),
                 ]
