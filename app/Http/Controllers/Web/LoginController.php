@@ -321,6 +321,22 @@ class LoginController extends Controller
                     }
                 }
 
+                $sesion = (object) $request->session()->get('session', (object) [
+                    'token_sesion' => $request->session()->getId(),
+                    'ip_origen' => (string) $request->ip(),
+                    'dispositivo' => (string) $request->userAgent(),
+                ]);
+                $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
+                $loginSesion = (string) ($usuario['username'] ?? '');
+                $idSesion = $idUsuarioSesion > 0
+                    ? Sesion::registrarSesion($idUsuarioSesion, $loginSesion, $sesion)
+                    : null;
+
+                if ($idSesion !== null) {
+                    $sesion->id_sesion = $idSesion;
+                    $request->session()->put('session', $sesion);
+                }
+
                 $request->session()->put('usuario', (object) $usuario);
             }
 
