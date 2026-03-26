@@ -15,9 +15,7 @@ class HomeController extends Controller
             return redirect()->route('login');
         }
 
-        $sesionUsuario = $request->session()->get('usuario');
-
-        return view('home', compact('sesionUsuario'));
+        return view('home');
     }
 
     public function homePrueba(): View

@@ -1,6 +1,10 @@
 @php
     $menus = \App\Helpers\Menu::listarMenu();
-
+    $sesionUsuario = \App\Helpers\Helper::obtenerSesionUsuario();
+    $hoy = \App\Helpers\DateHelper::today('d/m/Y H:i:s');
+    $ultimo_acceso = $sesionUsuario?->ultimo_acceso
+        ? \App\Helpers\DateHelper::formatDateTime($sesionUsuario->ultimo_acceso, 'd/m/Y H:i:s')
+        : $hoy;
 
     $baseUrl = rtrim((string) url('/'), '/');
 
@@ -140,8 +144,8 @@
         </nav>
 
         <div class="mt-auto w-full border-t border-neutral-300 px-4 py-4 text-center text-[12px] leading-relaxed text-neutral-700 shadow-[0_-1px_0_0_rgba(0,0,0,0.1)]">
-            <p>Hola, {{$sesionUsuario->nombres}} {{$sesionUsuario->apellidos}} ({{$sesionUsuario->username}})</p>
-            <p>Tu ultima sesión fue en: {{ $sesionUsuario->ultimo_acceso ?  \App\Helpers\DateHelper::formatDateTime($sesionUsuario->ultimo_acceso, 'd/m/Y H:i:s') : \App\Helpers\DateHelper::today('d/m/Y H:i:s') }}</p>
+            <p>Hola, {{ $sesionUsuario?->nombres ?? '-' }} {{ $sesionUsuario?->apellidos ?? '' }} ({{ $sesionUsuario?->username ?? '-' }})</p>
+            <p>Tu ultima sesión fue en: {{ $ultimo_acceso }}</p>
             <p>&lt;IP sesion actual&gt;</p>
             <p id="dynamicNow" name="dynamicNow"></p>
         </div>
