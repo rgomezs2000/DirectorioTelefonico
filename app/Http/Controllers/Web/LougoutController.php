@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Sesion;
 use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -19,6 +20,15 @@ class LougoutController extends Controller
 
             if (isset($sesionUsuario->id_usuario)) {
                 Usuario::setUltimoAcceso((int) $sesionUsuario->id_usuario);
+            }
+
+            $sesionActual = $request->session()->get('session');
+
+            if (isset($sesionUsuario->id_usuario, $sesionActual->id_sesion)) {
+                Sesion::cerrarSesion(
+                    (int) $sesionUsuario->id_usuario,
+                    (int) $sesionActual->id_sesion
+                );
             }
         } catch (Throwable $exception) {
             return response()->json([

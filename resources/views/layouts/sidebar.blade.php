@@ -1,6 +1,7 @@
 @php
     $menus = \App\Helpers\Menu::listarMenu();
     $sesionUsuario = \App\Helpers\Helper::obtenerSesionUsuario();
+    $sesionActual = \App\Helpers\Helper::obtenerSesion();
     $hoy = \App\Helpers\DateHelper::today('d/m/Y H:i:s');
     $ultimo_acceso = $sesionUsuario?->ultimo_acceso
         ? \App\Helpers\DateHelper::formatDateTime($sesionUsuario->ultimo_acceso, 'd/m/Y H:i:s')
