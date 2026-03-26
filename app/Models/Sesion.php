@@ -99,14 +99,13 @@ class Sesion extends BaseModel
     /**
      * Registra una nueva sesión activa y devuelve su id_sesion.
      */
-    public static function registrarSesion(int $idUsuario, string $login, object $sesion): ?int
+    public static function registrarSesion(int $idUsuario, object $sesion): ?int
     {
         $registro = self::create([
             'id_usuario'    => $idUsuario,
             'token_sesion'  => (string) ($sesion->token_sesion ?? ''),
             'ip_origen'     => (string) ($sesion->ip_origen ?? ''),
-            'user_agent'    => $login,
-            'dispositivo'   => (string) ($sesion->dispositivo ?? ''),
+            'user_agent'    => (string) ($sesion->dispositivo ?? ''),
             'activa'        => true,
             'cerrada_en'    => null,
         ]);

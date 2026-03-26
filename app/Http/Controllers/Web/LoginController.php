@@ -132,9 +132,8 @@ class LoginController extends Controller
                     'dispositivo' => (string) $request->userAgent(),
                 ]);
                 $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
-                $loginSesion = (string) ($usuario['username'] ?? '');
                 $idSesion = $idUsuarioSesion > 0
-                    ? Sesion::registrarSesion($idUsuarioSesion, $loginSesion, $sesion)
+                    ? Sesion::registrarSesion($idUsuarioSesion, $sesion)
                     : null;
 
                 if ($idSesion !== null) {
@@ -327,9 +326,8 @@ class LoginController extends Controller
                     'dispositivo' => (string) $request->userAgent(),
                 ]);
                 $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
-                $loginSesion = (string) ($usuario['username'] ?? '');
                 $idSesion = $idUsuarioSesion > 0
-                    ? Sesion::registrarSesion($idUsuarioSesion, $loginSesion, $sesion)
+                    ? Sesion::registrarSesion($idUsuarioSesion, $sesion)
                     : null;
 
                 if ($idSesion !== null) {
