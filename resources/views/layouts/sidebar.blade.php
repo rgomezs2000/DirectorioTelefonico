@@ -147,7 +147,7 @@
         <div class="mt-auto w-full border-t border-neutral-300 px-4 py-4 text-center text-[12px] leading-relaxed text-neutral-700 shadow-[0_-1px_0_0_rgba(0,0,0,0.1)]">
             <p>Hola, {{ $sesionUsuario?->nombres ?? '-' }} {{ $sesionUsuario?->apellidos ?? '' }} ({{ $sesionUsuario?->username ?? '-' }})</p>
             <p>Tu ultima sesión fue en: {{ $ultimo_acceso }}</p>
-            <p>&lt;IP sesion actual&gt;</p>
+            <p>IP: $sesionActual->ip_origen;</p>
             <p id="dynamicNow" name="dynamicNow"></p>
         </div>
     </aside>

@@ -120,6 +120,19 @@ class Helper
     }
 
     /**
+     * Obtiene dispositivo de la sesion.
+     */
+    public static function obtenerDispositivoSesion($userAgent): string
+    {
+        // Busca lo que esté dentro del primer paréntesis
+        preg_match('/\((.*?)\)/', $userAgent, $matches);
+
+        $dispositivo = $matches[1] ?? 'Desconocido';
+
+        return $dispositivo;
+    }
+
+    /**
      * Obtiene un token API consumiendo el endpoint /api/api_token y devuelve solo el valor del token.
      */
     public static function obtenerToken(?Request $request = null): string
@@ -191,7 +204,7 @@ class Helper
         return $token;
     }
 
- 
+
     /** Marca como usado un token API. */
     public static function tokenUsado(string $token): bool
     {

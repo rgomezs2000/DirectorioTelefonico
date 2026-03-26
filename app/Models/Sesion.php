@@ -105,7 +105,8 @@ class Sesion extends BaseModel
             'id_usuario'    => $idUsuario,
             'token_sesion'  => (string) ($sesion->token_sesion ?? ''),
             'ip_origen'     => (string) ($sesion->ip_origen ?? ''),
-            'user_agent'    => (string) ($sesion->dispositivo ?? ''),
+            'user_agent'    => (string) ($sesion->user_agent ?? ''),
+            'dispositivo'   => (string) ($sesion->dispositivo ?? ''),
             'activa'        => true,
             'cerrada_en'    => null,
         ]);

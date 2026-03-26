@@ -20,11 +20,17 @@ class LoginController extends Controller
     public function login(Request $request): View
     {
         if (! $request->session()->isStarted()) {
+            $userAgent = $request->userAgent();
+
+            // Invoca el helper para obtener el dispositivo a traves del user agent
+            $dispositivo = Helper::obtenerDispositivoSesion($userAgent);
+
             $request->session()->start();
             $request->session()->put('session', (object) [
                 'token_sesion' => $request->session()->getId(),
-                'ip_origen' => (string) $request->ip(),
-                'dispositivo' => (string) $request->userAgent(),
+                'ip_origen'    => $request->ip(),
+                'user_agent'  => $userAgent, // Guardará todo el agente"
+                'dispositivo'  => $dispositivo, // Guardará el dispositivo"
             ]);
         }
 
@@ -129,7 +135,8 @@ class LoginController extends Controller
                 $sesion = (object) $request->session()->get('session', (object) [
                     'token_sesion' => $request->session()->getId(),
                     'ip_origen' => (string) $request->ip(),
-                    'dispositivo' => (string) $request->userAgent(),
+                    'user_agent' => (string) $request->userAgent(),
+                    'dispositivo' => (string) Helper::obtenerDispositivoSesion($request->userAgent()),
                 ]);
                 $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
                 $idSesion = $idUsuarioSesion > 0
@@ -323,7 +330,8 @@ class LoginController extends Controller
                 $sesion = (object) $request->session()->get('session', (object) [
                     'token_sesion' => $request->session()->getId(),
                     'ip_origen' => (string) $request->ip(),
-                    'dispositivo' => (string) $request->userAgent(),
+                    'user_agent' => (string) $request->userAgent(),
+                    'dispositivo' => (string) Helper::obtenerDispositivoSesion($request->userAgent()),
                 ]);
                 $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
                 $idSesion = $idUsuarioSesion > 0
