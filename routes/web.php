@@ -10,7 +10,7 @@ Route::match(['GET', 'HEAD'], '/', [HomeController::class, 'home'])->name('home'
 Route::get('/home_pruebas', [HomeController::class, 'homePrueba'])->name('home.pruebas');
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/ingresar', [LoginController::class, 'ingresar'])->name('ingresar');
-Route::post('/logout', [LougoutController::class, 'lougout'])->name('logout');
+Route::get('/logout', [LougoutController::class, 'lougout'])->name('logout');
 Route::get('/auth_google/status', [LoginController::class, 'authGoogleStatus'])->name('auth.google.status');
 Route::post('/auth_google', [LoginController::class, 'authGoogle'])->name('auth.google');
 
