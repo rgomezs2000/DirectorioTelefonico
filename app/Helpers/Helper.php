@@ -112,6 +112,14 @@ class Helper
     }
 
     /**
+     * Obtiene el objeto de sesión técnica guardado en sesión bajo la clave "session".
+     */
+    public static function obtenerSesion(): mixed
+    {
+        return session()->get('session');
+    }
+
+    /**
      * Obtiene un token API consumiendo el endpoint /api/api_token y devuelve solo el valor del token.
      */
     public static function obtenerToken(?Request $request = null): string

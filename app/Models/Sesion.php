@@ -95,4 +95,38 @@ class Sesion extends BaseModel
             'cerrada_en' => now(),
         ]);
     }
+
+    /**
+     * Registra una nueva sesión activa y devuelve su id_sesion.
+     */
+    public static function registrarSesion(int $idUsuario, string $login, object $sesion): ?int
+    {
+        $registro = self::create([
+            'id_usuario'    => $idUsuario,
+            'token_sesion'  => (string) ($sesion->token_sesion ?? ''),
+            'ip_origen'     => (string) ($sesion->ip_origen ?? ''),
+            'user_agent'    => $login,
+            'dispositivo'   => (string) ($sesion->dispositivo ?? ''),
+            'activa'        => true,
+            'cerrada_en'    => null,
+        ]);
+
+        return $registro?->id_sesion;
+    }
+
+    /**
+     * Cierra una sesión activa por id de usuario e id de sesión.
+     */
+    public static function cerrarSesion(int $idUsuario, int $idSesion): bool
+    {
+        return self::query()
+            ->where('id_usuario', $idUsuario)
+            ->where('id_sesion', $idSesion)
+            ->where('activa', true)
+            ->whereNull('cerrada_en')
+            ->update([
+                'activa'     => false,
+                'cerrada_en' => now(),
+            ]) > 0;
+    }
 }
