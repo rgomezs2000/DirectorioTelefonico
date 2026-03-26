@@ -102,6 +102,15 @@ class Helper
         return in_array($value, $array, true);
     }
 
+
+    /**
+     * Obtiene el objeto de usuario guardado en sesión.
+     */
+    public static function obtenerSesionUsuario(): mixed
+    {
+        return session()->get('usuario');
+    }
+
     /**
      * Obtiene un token API consumiendo el endpoint /api/api_token y devuelve solo el valor del token.
      */
