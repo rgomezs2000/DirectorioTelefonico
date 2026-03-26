@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Helpers\Api;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
+use App\Models\Sesion;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,11 @@ class LoginController extends Controller
     {
         if (! $request->session()->isStarted()) {
             $request->session()->start();
+            $request->session()->put('session', (object) [
+                'token_sesion' => $request->session()->getId(),
+                'ip_origen' => (string) $request->ip(),
+                'dispositivo' => (string) $request->userAgent(),
+            ]);
         }
 
         return view('login');
@@ -118,6 +124,22 @@ class LoginController extends Controller
                     } catch (Throwable) {
                         // Si no se puede descifrar, se conserva el valor original.
                     }
+                }
+
+                $sesion = (object) $request->session()->get('session', (object) [
+                    'token_sesion' => $request->session()->getId(),
+                    'ip_origen' => (string) $request->ip(),
+                    'dispositivo' => (string) $request->userAgent(),
+                ]);
+                $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
+                $loginSesion = (string) ($usuario['username'] ?? '');
+                $idSesion = $idUsuarioSesion > 0
+                    ? Sesion::registrarSesion($idUsuarioSesion, $loginSesion, $sesion)
+                    : null;
+
+                if ($idSesion !== null) {
+                    $sesion->id_sesion = $idSesion;
+                    $request->session()->put('session', $sesion);
                 }
 
                 $request->session()->put('usuario', (object) $usuario);
