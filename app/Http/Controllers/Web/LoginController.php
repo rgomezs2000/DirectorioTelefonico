@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Web;
 use App\Helpers\Api;
 use App\Helpers\Helper;
 use App\Http\Controllers\Controller;
-use App\Models\Sesion;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -140,7 +139,7 @@ class LoginController extends Controller
                 ]);
                 $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
                 $idSesion = $idUsuarioSesion > 0
-                    ? Sesion::registrarSesion($idUsuarioSesion, $sesion)
+                    ? $this->registrarSesionApi($request, $baseUrls, $idUsuarioSesion, (array) $sesion)
                     : null;
 
                 if ($idSesion !== null) {
@@ -335,7 +334,7 @@ class LoginController extends Controller
                 ]);
                 $idUsuarioSesion = (int) ($usuario['usuario'] ?? $usuario['id_usuario'] ?? 0);
                 $idSesion = $idUsuarioSesion > 0
-                    ? Sesion::registrarSesion($idUsuarioSesion, $sesion)
+                    ? $this->registrarSesionApi($request, $baseUrls, $idUsuarioSesion, (array) $sesion)
                     : null;
 
                 if ($idSesion !== null) {
@@ -360,5 +359,43 @@ class LoginController extends Controller
                 'error' => Str::limit(trim((string) $exception->getMessage()) ?: 'Error inesperado', 120),
             ], 500);
         }
+    }
+
+    /**
+     * @param  array<int, string>  $baseUrls
+     * @param  array<string, mixed>  $sesion
+     */
+    private function registrarSesionApi(Request $request, array $baseUrls, int $idUsuario, array $sesion): ?int
+    {
+        $token = Helper::obtenerBearerTokenDesdeSesion($request, true);
+        if ($token === '') {
+            return null;
+        }
+
+        $payload = ['session' => $sesion];
+        $rutas = [
+            '/api/login/registrar_sesion/{id_usuario}',
+        ];
+
+        foreach ($baseUrls as $baseUrl) {
+            foreach ($rutas as $ruta) {
+                $url = rtrim($baseUrl, '/').$ruta;
+                $respuesta = Api::initAPI($url, 'POST', $payload, $token, $idUsuario);
+
+                if (($respuesta['status'] ?? 500) === 404) {
+                    continue;
+                }
+
+                $json = $respuesta['json'] ?? [];
+                $idSesion = (int) data_get($json, 'data.id_sesion', 0);
+                if (($respuesta['status'] ?? 500) === 200 && $idSesion > 0) {
+                    return $idSesion;
+                }
+
+                return null;
+            }
+        }
+
+        return null;
     }
 }

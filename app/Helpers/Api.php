@@ -11,11 +11,17 @@ class Api
     /**
      * Inicializa el consumo de un endpoint y retorna siempre un JSON de salida normalizado.
      */
-    public static function initAPI(string $endpoint, string $tipo, ?array $jsonEntrada = null, ?string $tokenBearer = null): array
+    public static function initAPI(
+        string $endpoint,
+        string $tipo,
+        ?array $jsonEntrada = null,
+        ?string $tokenBearer = null,
+        int|array|null $parametroNID = null
+    ): array
     {
         try {
             $metodo = strtoupper(trim($tipo));
-            $endpointNormalizado = self::normalizarEndpoint($endpoint);
+            $endpointNormalizado = self::normalizarEndpoint($endpoint, $parametroNID);
 
             if ($endpointNormalizado === '') {
                 return [
@@ -69,13 +75,16 @@ class Api
         }
     }
 
-    private static function normalizarEndpoint(string $endpoint): string
+    private static function normalizarEndpoint(string $endpoint, int|array|null $parametroNID = null): string
     {
         $endpoint = trim($endpoint);
 
         if ($endpoint === '') {
             return '';
         }
+
+        $parametros = self::normalizarParametrosNID($parametroNID);
+        $endpoint = self::inyectarParametrosEnEndpoint($endpoint, $parametros);
 
         if (Str::startsWith($endpoint, ['http://', 'https://'])) {
             return $endpoint;
@@ -100,5 +109,50 @@ class Api
         }
 
         return $baseUrl.'/'.ltrim($endpoint, '/');
+    }
+
+    /**
+     * @return array<int, int|string>
+     */
+    private static function normalizarParametrosNID(int|array|null $parametroNID = null): array
+    {
+        if ($parametroNID === null) {
+            return [];
+        }
+
+        $parametros = is_array($parametroNID) ? $parametroNID : [$parametroNID];
+
+        return array_values(array_filter(
+            $parametros,
+            static fn ($valor): bool => $valor !== null && $valor !== ''
+        ));
+    }
+
+    /**
+     * Soporta endpoints como /modulo/{id_n1}/{id_n2}...
+     *
+     * @param  array<int, int|string>  $parametros
+     */
+    private static function inyectarParametrosEnEndpoint(string $endpoint, array $parametros): string
+    {
+        if ($parametros === []) {
+            return $endpoint;
+        }
+
+        foreach ($parametros as $parametro) {
+            if (preg_match('/\{[^}]+\}/', $endpoint, $coincidencia) === 1) {
+                $endpoint = preg_replace(
+                    '/'.preg_quote($coincidencia[0], '/').'/',
+                    rawurlencode((string) $parametro),
+                    $endpoint,
+                    1
+                ) ?? $endpoint;
+                continue;
+            }
+
+            $endpoint = rtrim($endpoint, '/').'/'.rawurlencode((string) $parametro);
+        }
+
+        return $endpoint;
     }
 }
