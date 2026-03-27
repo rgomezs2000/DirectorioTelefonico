@@ -6,6 +6,8 @@
             endpoint: config.endpoint ?? null,
             rows: Array.isArray(config.rows) ? config.rows : [],
             columns: Array.isArray(config.columns) ? config.columns : [],
+            fieldOptions: Array.isArray(config.fieldOptions) ? config.fieldOptions : [],
+            searchField: config.searchField ?? '',
             search: '',
             sortBy: null,
             sortDirection: 'asc',
@@ -15,6 +17,14 @@
 
             async init() {
                 await this.load();
+
+                if (this.fieldOptions.length === 0) {
+                    this.fieldOptions = this.columns.map((column) => ({ value: column, label: column }));
+                }
+
+                if (!this.searchField && this.fieldOptions.length > 0) {
+                    this.searchField = this.fieldOptions[0].value;
+                }
             },
 
             async load() {
@@ -41,9 +51,13 @@
                 let data = [...this.rows];
 
                 if (term !== '') {
-                    data = data.filter((row) => this.columns.some((column) =>
-                        String(row?.[column] ?? '').toLowerCase().includes(term)
-                    ));
+                    if (this.searchField) {
+                        data = data.filter((row) => String(row?.[this.searchField] ?? '').toLowerCase().includes(term));
+                    } else {
+                        data = data.filter((row) => this.columns.some((column) =>
+                            String(row?.[column] ?? '').toLowerCase().includes(term)
+                        ));
+                    }
                 }
 
                 if (this.sortBy) {
@@ -86,6 +100,14 @@
             get allVisibleSelected() {
                 if (this.paginatedRows.length === 0) return false;
                 return this.paginatedRows.every((row) => this.selected.has(row.id));
+            },
+
+            clearFilters() {
+                this.search = '';
+                if (this.fieldOptions.length > 0) {
+                    this.searchField = this.fieldOptions[0].value;
+                }
+                this.setPage(1);
             },
 
             toggleSort(column) {

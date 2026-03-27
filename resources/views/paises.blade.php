@@ -12,7 +12,14 @@
             { id: 4, codigo: 'CO', nombre: 'Colombia', gentilicio: 'Colombiano', estado: 'Activo' },
             { id: 5, codigo: 'EC', nombre: 'Ecuador', gentilicio: 'Ecuatoriano', estado: 'Inactivo' }
         ],
-        columns: ['codigo', 'nombre', 'gentilicio', 'estado']
+        columns: ['codigo', 'nombre', 'gentilicio', 'estado'],
+        fieldOptions: [
+            { value: 'codigo', label: 'Código' },
+            { value: 'nombre', label: 'País' },
+            { value: 'gentilicio', label: 'Gentilicio' },
+            { value: 'estado', label: 'Estado' }
+        ],
+        searchField: 'codigo'
     })" x-init="init()">
         <div class="mx-auto w-full max-w-6xl space-y-5">
             <h1 class="text-center text-2xl font-bold tracking-wide text-neutral-900 md:text-4xl">GESTIONAR PAISES</h1>
@@ -25,6 +32,14 @@
                         </svg>
                         Nuevo
                     </button>
+
+                    <div>
+                        <select x-model="searchField" @change="setPage(1)" class="rounded-sm border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
+                            <template x-for="field in fieldOptions" :key="field.value">
+                                <option :value="field.value" x-text="field.label"></option>
+                            </template>
+                        </select>
+                    </div>
 
                     <div class="relative w-full lg:max-w-lg">
                         <input
@@ -46,7 +61,7 @@
                         Búsqueda avanzada
                     </button>
 
-                    <button type="button" class="inline-flex items-center gap-2 rounded-sm bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700">
+                    <button type="button" @click="clearFilters()" class="inline-flex items-center gap-2 rounded-sm bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346-.346a2.25 2.25 0 0 0-3.182 0L9 10.864m0 0L6.818 8.682a2.25 2.25 0 0 0-3.182 0L3 9.318m6 1.546 2.182 2.182a2.25 2.25 0 0 0 3.182 0L17 10.864m-8 0v8.25A2.25 2.25 0 0 0 11.25 21h1.5A2.25 2.25 0 0 0 15 18.75v-7.886" />
                         </svg>
