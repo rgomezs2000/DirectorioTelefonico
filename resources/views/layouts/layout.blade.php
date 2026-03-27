@@ -126,6 +126,7 @@
                 ingresar: @json(route('ingresar')),
                 authGoogle: @json(route('auth.google')),
                 authGoogleStatus: @json(route('auth.google.status')),
+                maestrosPaises: @json(route('maestros.paises')),
             });
         </script>
         <script src="{{ asset('js/dialog.js') }}"></script>
