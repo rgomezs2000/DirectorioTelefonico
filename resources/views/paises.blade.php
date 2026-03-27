@@ -1,6 +1,10 @@
 @extends('layouts.layout')
 
+<<<<<<< codex/create-countries-view-and-controller-1bidxd
+@section('title', 'GESTIONAR PAISES')
+=======
 @section('title', 'Gestionar Países')
+>>>>>>> main
 
 @section('content')
     <section class="p-4 md:p-6 lg:p-8" x-data="datatables({
@@ -17,9 +21,20 @@
         <div class="mx-auto w-full max-w-6xl space-y-5">
             <h1 class="text-center text-2xl font-bold tracking-wide text-neutral-900 md:text-4xl">GESTIONAR PAISES</h1>
 
+<<<<<<< codex/create-countries-view-and-controller-1bidxd
+            <div class="rounded-md border border-neutral-200 bg-white p-4 shadow-sm">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+                    <button type="button" class="inline-flex items-center gap-2 rounded-sm bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375H14.25m-4.5 0H7.875A3.375 3.375 0 0 0 4.5 11.625v6.75a3.375 3.375 0 0 0 3.375 3.375h8.25a3.375 3.375 0 0 0 3.375-3.375V16.5M16.5 3.75v4.5m2.25-2.25h-4.5" />
+                        </svg>
+                        Nuevo
+                    </button>
+=======
             <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
                     <button type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Nuevo</button>
+>>>>>>> main
 
                     <div class="relative w-full lg:max-w-lg">
                         <input
@@ -27,15 +42,38 @@
                             @input="setPage(1)"
                             type="text"
                             placeholder="Buscar..."
+<<<<<<< codex/create-countries-view-and-controller-1bidxd
+                            class="w-full rounded-sm border border-neutral-200 bg-neutral-100 px-10 py-2 text-sm text-neutral-700 outline-none focus:border-blue-300 focus:bg-white"
+=======
                             class="w-full rounded-lg border border-neutral-200 bg-neutral-100 px-10 py-2 text-sm text-neutral-700 outline-none focus:border-blue-300 focus:bg-white"
+>>>>>>> main
                         >
                         <svg class="pointer-events-none absolute left-3 top-2.5 h-5 w-5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3m1.3-5.2a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/>
                         </svg>
                     </div>
 
+<<<<<<< codex/create-countries-view-and-controller-1bidxd
+                    <button type="button" class="inline-flex items-center gap-2 rounded-sm bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.83 0 5.375 1.214 7.144 3.149M12 3v3m0-3H9m3 18c-2.83 0-5.375-1.214-7.144-3.149M12 21v-3m0 3h3M6.856 6.149A9 9 0 0 0 3 12m3.856 5.851A9 9 0 0 1 3 12m18 0a9 9 0 0 1-3.856 5.851M21 12a9 9 0 0 0-3.856-5.851" />
+                        </svg>
+                        Búsqueda avanzada
+                    </button>
+
+                    <button type="button" class="inline-flex items-center gap-2 rounded-sm border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346-.346a2.25 2.25 0 0 0-3.182 0L9 10.864m0 0L6.818 8.682a2.25 2.25 0 0 0-3.182 0L3 9.318m6 1.546 2.182 2.182a2.25 2.25 0 0 0 3.182 0L17 10.864m-8 0v8.25A2.25 2.25 0 0 0 11.25 21h1.5A2.25 2.25 0 0 0 15 18.75v-7.886" />
+                        </svg>
+                        Limpiar
+                    </button>
+
+                    <div class="lg:ml-auto">
+                        <select x-model.number="perPage" @change="setPage(1)" class="rounded-sm border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
+=======
                     <div class="lg:ml-auto">
                         <select x-model.number="perPage" @change="setPage(1)" class="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
+>>>>>>> main
                             <option :value="25">25 por página</option>
                             <option :value="50">50 por página</option>
                             <option :value="100">100 por página</option>
@@ -44,7 +82,11 @@
                 </div>
             </div>
 
+<<<<<<< codex/create-countries-view-and-controller-1bidxd
+            <div class="overflow-hidden rounded-md border border-neutral-200 bg-white shadow-sm">
+=======
             <div class="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
+>>>>>>> main
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm text-neutral-700">
                         <thead class="bg-neutral-100 text-neutral-900">
