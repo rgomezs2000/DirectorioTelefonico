@@ -119,7 +119,7 @@ class SwaggerController extends Controller
 
     private function requireTokenHeader(string $uri): bool
     {
-        return ! in_array($uri, ['api/api_token', 'api/db-test/validar-login-test', 'api/admin/lista_menu'], true);
+        return ! in_array($uri, ['api/api_token', 'api/db-test/validar-login-test', 'api/admin/lista_menu', 'api/admin/obtener_modulo', 'api/admin/obtener_modulo/{ruta}'], true);
     }
 
     private function pathParameters(string $uri): array
@@ -486,6 +486,104 @@ class SwaggerController extends Controller
                     '309' => $this->codigoResponse(309, 'Token incorrecto', true),
                     '310' => $this->codigoResponse(310, 'Token usado', true),
                     '311' => $this->codigoResponse(311, 'Token expirado', true),
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+
+            'get api/admin/obtener_modulo' => [
+                'responses' => [
+                    '200' => [
+                        'description' => 'Módulo actual: Inicio',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'estas en el modulo Inicio'],
+                                        'data' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'tipo' => ['type' => 'string', 'example' => 'inicio'],
+                                                'nombre' => ['type' => 'string', 'example' => 'Inicio'],
+                                                'ruta_actual' => ['type' => 'string', 'example' => '/'],
+                                                'breadcrumb' => [
+                                                    'type' => 'array',
+                                                    'items' => ['type' => 'string'],
+                                                    'example' => ['Inicio'],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '408' => [
+                        'description' => 'No hay modulo seleccionado',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 408],
+                                        'mensaje' => ['type' => 'string', 'example' => 'No hay modulo seleccionado'],
+                                        'data' => ['type' => 'object', 'nullable' => true, 'example' => null],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+            'get api/admin/obtener_modulo/{ruta}' => [
+                'responses' => [
+                    '200' => [
+                        'description' => 'Módulo actual por ruta',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'estas en el modulo Listar Contactos'],
+                                        'data' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'tipo' => ['type' => 'string', 'example' => 'modulo'],
+                                                'nombre' => ['type' => 'string', 'example' => 'Listar Contactos'],
+                                                'ruta_actual' => ['type' => 'string', 'example' => '/directorio/contactos'],
+                                                'breadcrumb' => [
+                                                    'type' => 'array',
+                                                    'items' => ['type' => 'string'],
+                                                    'example' => ['Inicio', 'Directorio', 'Mis Contactos', 'Listar Contactos'],
+                                                ],
+                                                'menu' => ['type' => 'object', 'additionalProperties' => true],
+                                                'submenu' => ['type' => 'object', 'additionalProperties' => true],
+                                                'modulo' => ['type' => 'object', 'additionalProperties' => true],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '408' => [
+                        'description' => 'No hay modulo seleccionado',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 408],
+                                        'mensaje' => ['type' => 'string', 'example' => 'No hay modulo seleccionado'],
+                                        'data' => ['type' => 'object', 'nullable' => true, 'example' => null],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                     '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
                 ],
             ],

@@ -52,4 +52,31 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    public function obtenerModulo(?string $ruta = null): JsonResponse
+    {
+        try {
+            $moduloActual = Menu::mostrarMenu($ruta);
+
+            if (empty($moduloActual)) {
+                return response()->json([
+                    'codigo' => 408,
+                    'mensaje' => 'No hay modulo seleccionado',
+                    'data' => null,
+                ], 408);
+            }
+
+            return response()->json([
+                'codigo' => 200,
+                'mensaje' => 'estas en el modulo '.$moduloActual['nombre'],
+                'data' => $moduloActual,
+            ]);
+        } catch (Throwable $exception) {
+            return response()->json([
+                'codigo' => 500,
+                'mensaje' => 'Error del servidor',
+                'error' => Str::limit(trim((string) $exception->getMessage()) ?: 'Error inesperado', 120),
+            ], 500);
+        }
+    }
 }
