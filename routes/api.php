@@ -16,3 +16,6 @@ Route::post('/logout/ultimo_acceso/{id_usuario}', [LogoutController::class, 'set
 Route::post('/logout/{id_usuario}/{id_sesion}', [LogoutController::class, 'cerrarSesion']);
 
 Route::get('/admin/lista_menu', [AdminController::class, 'listarMenu']);
+
+Route::get('/admin/obtener_modulo', [AdminController::class, 'obtenerModulo']);
+Route::get('/admin/obtener_modulo/{ruta}', [AdminController::class, 'obtenerModulo']);

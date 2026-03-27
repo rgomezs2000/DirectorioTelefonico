@@ -1,5 +1,9 @@
 @php
     $menus = \App\Helpers\Menu::listarMenu();
+    $moduloActual = \App\Helpers\Menu::obtenerModuloActual(request()->getPathInfo());
+    $rutaActual = trim((string) data_get($moduloActual, 'ruta_actual', '/'));
+    $rutaActual = $rutaActual === '' ? '/' : '/'.ltrim($rutaActual, '/');
+
     $sesionUsuario = \App\Helpers\Helper::obtenerSesionUsuario();
     $sesionActual = \App\Helpers\Helper::obtenerSesion();
     $hoy = \App\Helpers\DateHelper::today('d/m/Y H:i:s');
@@ -8,6 +12,19 @@
         : $hoy;
 
     $baseUrl = rtrim((string) url('/'), '/');
+
+    $normalizarRuta = static function (?string $ruta): string {
+        $rutaNormalizada = trim((string) $ruta);
+        if ($rutaNormalizada === '' || $rutaNormalizada === '#') {
+            return '#';
+        }
+
+        if (str_starts_with($rutaNormalizada, 'http://') || str_starts_with($rutaNormalizada, 'https://')) {
+            return $rutaNormalizada;
+        }
+
+        return '/'.ltrim($rutaNormalizada, '/');
+    };
 
     $resolverRuta = static function (?string $ruta, string $baseUrl): string {
         $rutaNormalizada = trim((string) $ruta);
@@ -22,6 +39,7 @@
 
         return $baseUrl.'/'.ltrim($rutaNormalizada, '/');
     };
+
     $resolverIcono = static function (array $item, string $fallback = 'chevron-right') {
         $nombre = (string) data_get($item, 'icono.nombre', '');
 
@@ -62,22 +80,44 @@
                         @php
                             $submenus = is_array($menu['submenus'] ?? null) ? $menu['submenus'] : [];
                             $menuNombre = (string) ($menu['nombre'] ?? 'Menú');
-                            $menuRuta = $resolverRuta((string) ($menu['ruta'] ?? ''), $baseUrl);
+                            $menuRutaOriginal = (string) ($menu['ruta'] ?? '');
+                            $menuRuta = $resolverRuta($menuRutaOriginal, $baseUrl);
+                            $menuRutaNormalizada = $normalizarRuta($menuRutaOriginal);
                             $menuIcono = $resolverIcono($menu, 'squares-2x2');
+                            $menuActivo = $menuRutaNormalizada !== '#' && $menuRutaNormalizada === $rutaActual;
+                            $submenuActivo = false;
+                            $moduloActivo = false;
+
+                            foreach ($submenus as $submenuTmp) {
+                                $submenuRutaTmp = $normalizarRuta((string) ($submenuTmp['ruta'] ?? ''));
+                                if ($submenuRutaTmp !== '#' && $submenuRutaTmp === $rutaActual) {
+                                    $submenuActivo = true;
+                                }
+
+                                $modulosTmp = is_array($submenuTmp['modulos'] ?? null) ? $submenuTmp['modulos'] : [];
+                                foreach ($modulosTmp as $moduloTmp) {
+                                    $moduloRutaTmp = $normalizarRuta((string) ($moduloTmp['ruta'] ?? ''));
+                                    if ($moduloRutaTmp !== '#' && $moduloRutaTmp === $rutaActual) {
+                                        $moduloActivo = true;
+                                    }
+                                }
+                            }
+
+                            $menuExpandido = $submenuActivo || $moduloActivo;
                         @endphp
 
                         @if (empty($submenus))
                             <li>
-                                <a href="{{ $menuRuta }}" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                <a href="{{ $menuRuta }}" class="flex items-center gap-2 px-4 py-3 shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200 {{ $menuActivo ? 'bg-neutral-300 font-semibold text-neutral-900' : '' }}">
                                     <x-ui.sidebar-icon :name="$menuIcono" class="h-5 w-5 shrink-0" />
                                     <span>{{ $menuNombre }}</span>
                                 </a>
                             </li>
                         @else
-                            <li x-data="{ abierto: false }">
+                            <li x-data="{ abierto: {{ $menuExpandido ? 'true' : 'false' }} }">
                                 <button
                                     type="button"
-                                    class="flex w-full items-center justify-between px-4 py-3 text-left shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
+                                    class="flex w-full items-center justify-between px-4 py-3 text-left shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200 {{ ($menuActivo || $menuExpandido) ? 'bg-neutral-300 font-semibold text-neutral-900' : '' }}"
                                     @click="abierto = !abierto"
                                 >
                                     <span class="flex items-center gap-2">
@@ -92,22 +132,33 @@
                                         @php
                                             $modulos = is_array($submenu['modulos'] ?? null) ? $submenu['modulos'] : [];
                                             $submenuNombre = (string) ($submenu['nombre'] ?? 'Submenú');
-                                            $submenuRuta = $resolverRuta((string) ($submenu['ruta'] ?? ''), $baseUrl);
+                                            $submenuRutaOriginal = (string) ($submenu['ruta'] ?? '');
+                                            $submenuRuta = $resolverRuta($submenuRutaOriginal, $baseUrl);
+                                            $submenuRutaNormalizada = $normalizarRuta($submenuRutaOriginal);
                                             $submenuIcono = $resolverIcono($submenu, 'list-bullet');
+                                            $submenuActivoItem = $submenuRutaNormalizada !== '#' && $submenuRutaNormalizada === $rutaActual;
+                                            $submenuTieneModuloActivo = false;
+
+                                            foreach ($modulos as $moduloTmp) {
+                                                $moduloRutaTmp = $normalizarRuta((string) ($moduloTmp['ruta'] ?? ''));
+                                                if ($moduloRutaTmp !== '#' && $moduloRutaTmp === $rutaActual) {
+                                                    $submenuTieneModuloActivo = true;
+                                                }
+                                            }
                                         @endphp
 
                                         @if (empty($modulos))
                                             <li>
-                                                <a href="{{ $submenuRuta }}" class="flex items-center gap-2 py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                                <a href="{{ $submenuRuta }}" class="flex items-center gap-2 py-2.5 pr-4 pl-8 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200 {{ $submenuActivoItem ? 'bg-neutral-300 font-semibold text-neutral-900' : '' }}">
                                                     <x-ui.sidebar-icon :name="$submenuIcono" class="h-4 w-4 shrink-0" />
                                                     <span>{{ $submenuNombre }}</span>
                                                 </a>
                                             </li>
                                         @else
-                                            <li x-data="{ abierto: false }">
+                                            <li x-data="{ abierto: {{ ($submenuActivoItem || $submenuTieneModuloActivo) ? 'true' : 'false' }} }">
                                                 <button
                                                     type="button"
-                                                    class="flex w-full items-center justify-between py-2.5 pr-4 pl-8 text-left text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200"
+                                                    class="flex w-full items-center justify-between py-2.5 pr-4 pl-8 text-left text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200 {{ ($submenuActivoItem || $submenuTieneModuloActivo) ? 'bg-neutral-300 font-semibold text-neutral-900' : '' }}"
                                                     @click="abierto = !abierto"
                                                 >
                                                     <span class="flex items-center gap-2">
@@ -121,11 +172,14 @@
                                                     @foreach ($modulos as $modulo)
                                                         @php
                                                             $moduloNombre = (string) ($modulo['nombre'] ?? 'Módulo');
-                                                            $moduloRuta = $resolverRuta((string) ($modulo['ruta'] ?? ''), $baseUrl);
+                                                            $moduloRutaOriginal = (string) ($modulo['ruta'] ?? '');
+                                                            $moduloRuta = $resolverRuta($moduloRutaOriginal, $baseUrl);
+                                                            $moduloRutaNormalizada = $normalizarRuta($moduloRutaOriginal);
                                                             $moduloIcono = $resolverIcono($modulo, 'chevron-right');
+                                                            $moduloActivoItem = $moduloRutaNormalizada !== '#' && $moduloRutaNormalizada === $rutaActual;
                                                         @endphp
                                                         <li>
-                                                            <a href="{{ $moduloRuta }}" class="flex items-center gap-2 py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200">
+                                                            <a href="{{ $moduloRuta }}" class="flex items-center gap-2 py-2 pr-4 pl-12 text-[14px] shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.12)] transition hover:bg-neutral-200 {{ $moduloActivoItem ? 'bg-neutral-300 font-semibold text-neutral-900' : '' }}">
                                                                 <x-ui.sidebar-icon :name="$moduloIcono" class="h-4 w-4 shrink-0" />
                                                                 <span>{{ $moduloNombre }}</span>
                                                             </a>

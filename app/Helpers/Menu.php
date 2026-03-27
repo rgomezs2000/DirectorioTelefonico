@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Throwable;
+
 class Menu
 {
     /**
@@ -32,6 +34,53 @@ class Menu
         $data = $respuesta['json']['data'] ?? [];
 
         return is_array($data) ? $data : [];
+    }
+
+    public static function obtenerModuloActual(?string $ruta = null): array
+    {
+        try {
+            $rutaActual = $ruta ?? (app()->bound('request') ? (string) request()->getPathInfo() : '/');
+            $rutaParametrizada = self::normalizarRutaParaApi($rutaActual);
+
+            $baseUrls = self::obtenerBaseUrls();
+            foreach ($baseUrls as $baseUrl) {
+                $endpoint = $baseUrl.'/api/admin/obtener_modulo';
+                if ($rutaParametrizada !== null) {
+                    $endpoint .= '/'.$rutaParametrizada;
+                }
+
+                $respuesta = Api::initAPI($endpoint, 'GET', null, null);
+
+                if (($respuesta['status'] ?? 500) === 404) {
+                    continue;
+                }
+
+                $data = $respuesta['json']['data'] ?? [];
+
+                return is_array($data) ? $data : [];
+            }
+
+            return [];
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
+    private static function normalizarRutaParaApi(string $ruta): ?string
+    {
+        $ruta = trim($ruta);
+
+        if ($ruta === '' || $ruta === '/') {
+            return null;
+        }
+
+        $rutaSinPrimerSlash = ltrim($ruta, '/');
+
+        if ($rutaSinPrimerSlash === '') {
+            return null;
+        }
+
+        return str_replace('/', '-', $rutaSinPrimerSlash);
     }
 
     /**

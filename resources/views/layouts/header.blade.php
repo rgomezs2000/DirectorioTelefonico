@@ -1,3 +1,10 @@
+@php
+    $moduloActual = \App\Helpers\Menu::obtenerModuloActual(request()->getPathInfo());
+    $nombreModuloActual = (string) data_get($moduloActual, 'nombre', 'Inicio');
+    $breadcrumbItems = data_get($moduloActual, 'breadcrumb', ['Inicio']);
+    $breadcrumbItems = is_array($breadcrumbItems) && ! empty($breadcrumbItems) ? $breadcrumbItems : ['Inicio'];
+@endphp
+
 <header class="h-[74px] bg-neutral-100 px-4 shadow-sm md:px-6">
     <div class="flex h-full items-center gap-3 md:gap-4">
         <button
@@ -13,19 +20,18 @@
 
         <div class="min-w-0 flex-1">
             <div class="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
-                <h2 class="text-[17px] font-semibold leading-tight tracking-wide text-neutral-900">Inicio</h2>
+                <h2 class="text-[17px] font-semibold leading-tight tracking-wide text-neutral-900">{{ $nombreModuloActual }}</h2>
 
                 <nav class="text-[12px] leading-tight tracking-wide text-neutral-600" aria-label="Breadcrumb">
-                    @yield('breadcrumb')
                     @hasSection('breadcrumb')
+                        @yield('breadcrumb')
                     @else
-                        <a href="#" class="text-neutral-500 transition hover:text-neutral-700">Inicio</a>
-                        <span class="mx-1 inline-block align-middle text-neutral-400">&gt;</span>
-                        <a href="#" class="text-neutral-500 transition hover:text-neutral-700">Modulo</a>
-                        <span class="mx-1 inline-block align-middle text-neutral-400">&gt;</span>
-                        <a href="#" class="text-neutral-500 transition hover:text-neutral-700">Submodulo</a>
-                        <span class="mx-1 inline-block align-middle text-neutral-400">&gt;</span>
-                        <span class="font-medium text-neutral-800">funcion</span>
+                        @foreach ($breadcrumbItems as $indice => $texto)
+                            <span class="{{ $loop->last ? 'font-medium text-neutral-800' : 'text-neutral-500' }}">{{ $texto }}</span>
+                            @if (! $loop->last)
+                                <span class="mx-1 inline-block align-middle text-neutral-400">&gt;</span>
+                            @endif
+                        @endforeach
                     @endif
                 </nav>
             </div>
