@@ -362,3 +362,139 @@ export function buildQueryString(params) {
 export function getQueryParams() {
     return Object.fromEntries(new URLSearchParams(window.location.search));
 }
+
+/* -------------------------------------------------------------
+   18. DATATABLES  —  helper Alpine + Axios para tablas dinámicas
+------------------------------------------------------------- */
+/**
+ * Crea un componente Alpine para tablas con búsqueda, ordenamiento,
+ * selección por checkbox, paginación y límite por página.
+ * @param {{endpoint?: string|null, rows?: Array, columns?: Array<string>}} config
+ * @returns {Object}
+ */
+export function datatables(config = {}) {
+    return {
+        endpoint: config.endpoint ?? null,
+        rows: Array.isArray(config.rows) ? config.rows : [],
+        columns: Array.isArray(config.columns) ? config.columns : [],
+        search: '',
+        sortBy: null,
+        sortDirection: 'asc',
+        page: 1,
+        perPage: 25,
+        selected: new Set(),
+
+        async init() {
+            await this.load();
+        },
+
+        async load() {
+            if (!this.endpoint) return;
+
+            const response = await axios.get(this.endpoint);
+            const payload = response?.data;
+
+            if (Array.isArray(payload)) {
+                this.rows = payload;
+                return;
+            }
+
+            if (Array.isArray(payload?.data)) {
+                this.rows = payload.data;
+                return;
+            }
+
+            this.rows = [];
+        },
+
+        get filteredRows() {
+            const term = String(this.search ?? '').trim().toLowerCase();
+            let data = [...this.rows];
+
+            if (term !== '') {
+                data = data.filter((row) => this.columns.some((column) =>
+                    String(row?.[column] ?? '').toLowerCase().includes(term)
+                ));
+            }
+
+            if (this.sortBy) {
+                const direction = this.sortDirection === 'desc' ? -1 : 1;
+                data.sort((a, b) => {
+                    const left = String(a?.[this.sortBy] ?? '').toLowerCase();
+                    const right = String(b?.[this.sortBy] ?? '').toLowerCase();
+
+                    if (left < right) return -1 * direction;
+                    if (left > right) return 1 * direction;
+                    return 0;
+                });
+            }
+
+            return data;
+        },
+
+        get totalPages() {
+            return Math.max(1, Math.ceil(this.filteredRows.length / this.perPage));
+        },
+
+        get paginatedRows() {
+            const start = (this.page - 1) * this.perPage;
+            return this.filteredRows.slice(start, start + this.perPage);
+        },
+
+        get pages() {
+            return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+        },
+
+        get rangeStart() {
+            if (this.filteredRows.length === 0) return 0;
+            return (this.page - 1) * this.perPage + 1;
+        },
+
+        get rangeEnd() {
+            return Math.min(this.page * this.perPage, this.filteredRows.length);
+        },
+
+        get allVisibleSelected() {
+            if (this.paginatedRows.length === 0) return false;
+            return this.paginatedRows.every((row) => this.selected.has(row.id));
+        },
+
+        toggleSort(column) {
+            if (this.sortBy === column) {
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortBy = column;
+                this.sortDirection = 'asc';
+            }
+            this.setPage(1);
+        },
+
+        setPage(page) {
+            const nextPage = Number(page);
+            if (Number.isNaN(nextPage)) return;
+            this.page = Math.min(this.totalPages, Math.max(1, nextPage));
+        },
+
+        isSelected(id) {
+            return this.selected.has(id);
+        },
+
+        toggleRow(id) {
+            if (this.selected.has(id)) {
+                this.selected.delete(id);
+                return;
+            }
+
+            this.selected.add(id);
+        },
+
+        toggleAll(checked) {
+            if (checked) {
+                this.paginatedRows.forEach((row) => this.selected.add(row.id));
+                return;
+            }
+
+            this.paginatedRows.forEach((row) => this.selected.delete(row.id));
+        },
+    };
+}
