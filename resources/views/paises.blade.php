@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'GESTIONAR PAISES')
+@section('title', 'Gestionar Países')
 
 @section('content')
     <section class="p-4 md:p-6 lg:p-8" x-data="datatables({
