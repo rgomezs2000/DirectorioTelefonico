@@ -1,5 +1,5 @@
 import './bootstrap';
-import { debounce, getCsrfToken, buildQueryString } from './functions.js';
+import { debounce, getCsrfToken, buildQueryString, datatables } from './functions.js';
 import { slug, truncate, formatCurrency }           from './strings.js';
 import { timeAgo, formatDate, countdown }           from './dates.js';
 import { dialog, question }                         from './dialog.js';
@@ -9,6 +9,7 @@ import { dialog, question }                         from './dialog.js';
 window.dialog = dialog;
 window.question = question;
 window.showAjaxSystemDialog = showAjaxSystemDialog;
+window.datatables = datatables;
 
 function registerDialogStore() {
     if (!window.Alpine || window.__dialogStoreRegistered) {

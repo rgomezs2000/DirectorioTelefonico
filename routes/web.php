@@ -3,6 +3,7 @@
 use App\Http\Controllers\Web\LoginController;
 use App\Http\Controllers\Web\LougoutController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Web\PaisController;
 use App\Http\Controllers\Api\SwaggerController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,3 +17,5 @@ Route::post('/auth_google', [LoginController::class, 'authGoogle'])->name('auth.
 
 Route::get('/api', [SwaggerController::class, 'ui'])->name('swagger.ui');
 Route::get('/api/openapi.json', [SwaggerController::class, 'spec'])->name('swagger.spec');
+
+Route::get('/maestros/paises', [PaisController::class, 'gestionarPais'])->name('maestros.paises');
