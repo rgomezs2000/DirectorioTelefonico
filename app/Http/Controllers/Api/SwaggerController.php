@@ -127,13 +127,15 @@ class SwaggerController extends Controller
         preg_match_all('/\{([^}]+)\}/', $uri, $matches);
 
         return collect($matches[1] ?? [])->map(function (string $parameter) {
+            $isIdParameter = str_starts_with(Str::lower($parameter), 'id_');
+
             return [
                 'name' => $parameter,
                 'in' => 'path',
                 'required' => true,
                 'schema' => [
-                    'type' => 'string',
-                    'example' => 'Bearer eyJ...oTokenGenerado',
+                    'type' => $isIdParameter ? 'integer' : 'string',
+                    'example' => $isIdParameter ? 1 : 'valor',
                 ],
                 'description' => 'Parámetro de ruta',
             ];
@@ -378,6 +380,112 @@ class SwaggerController extends Controller
                     '311' => $this->codigoResponse(311, 'Token expirado', true),
                     '407' => $this->codigoResponse(407, 'Usuario bloqueado', true),
                     '408' => $this->codigoResponse(408, 'Login no existe', true),
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+            'post api/login/registrar_sesion/{id_usuario}' => [
+                'requestBody' => [
+                    'required' => true,
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'required' => ['session'],
+                                'properties' => [
+                                    'session' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'token_sesion' => ['type' => 'string', 'example' => 'abc123sesion'],
+                                            'ip_origen' => ['type' => 'string', 'example' => '127.0.0.1'],
+                                            'user_agent' => ['type' => 'string', 'example' => 'Mozilla/5.0'],
+                                            'dispositivo' => ['type' => 'string', 'example' => 'Windows NT 10.0'],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'Sesión registrada',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'Sesion registrada'],
+                                        'data' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'id_sesion' => ['type' => 'integer', 'example' => 123],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '309' => $this->codigoResponse(309, 'Token incorrecto', true),
+                    '310' => $this->codigoResponse(310, 'Token usado', true),
+                    '311' => $this->codigoResponse(311, 'Token expirado', true),
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+            'post api/logout/ultimo_acceso/{id_usuario}' => [
+                'responses' => [
+                    '200' => [
+                        'description' => 'Último acceso actualizado',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'ultimo acceso fue el: 2026-03-27 10:00:00'],
+                                        'data' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'actualizado' => ['type' => 'boolean', 'example' => true],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '309' => $this->codigoResponse(309, 'Token incorrecto', true),
+                    '310' => $this->codigoResponse(310, 'Token usado', true),
+                    '311' => $this->codigoResponse(311, 'Token expirado', true),
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+            'post api/logout/{id_usuario}/{id_sesion}' => [
+                'responses' => [
+                    '200' => [
+                        'description' => 'Sesión cerrada',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'codigo' => ['type' => 'integer', 'example' => 200],
+                                        'mensaje' => ['type' => 'string', 'example' => 'Sesion Cerrada'],
+                                        'data' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'actualizado' => ['type' => 'boolean', 'example' => true],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '309' => $this->codigoResponse(309, 'Token incorrecto', true),
+                    '310' => $this->codigoResponse(310, 'Token usado', true),
+                    '311' => $this->codigoResponse(311, 'Token expirado', true),
                     '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
                 ],
             ],
