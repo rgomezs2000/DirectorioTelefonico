@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ApiTokenController;
 use App\Http\Controllers\Api\DbTestController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\LogoutController;
+use App\Http\Controllers\Api\PaisController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/db-test/validar-login-test', [DbTestController::class, 'validarLoginTest']);
@@ -19,3 +20,5 @@ Route::get('/admin/lista_menu', [AdminController::class, 'listarMenu']);
 
 Route::get('/admin/obtener_modulo', [AdminController::class, 'obtenerModulo']);
 Route::get('/admin/obtener_modulo/{ruta}', [AdminController::class, 'obtenerModulo']);
+
+Route::get('/maestros/paises/listra_paises/{campo?}/{palabra?}', [PaisController::class, 'listarPaises']);
