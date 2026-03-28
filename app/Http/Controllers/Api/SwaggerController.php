@@ -127,17 +127,19 @@ class SwaggerController extends Controller
         preg_match_all('/\{([^}]+)\}/', $uri, $matches);
 
         return collect($matches[1] ?? [])->map(function (string $parameter) {
-            $isIdParameter = str_starts_with(Str::lower($parameter), 'id_');
+            $optional = str_ends_with($parameter, '?');
+            $cleanParameter = $optional ? substr($parameter, 0, -1) : $parameter;
+            $isIdParameter = str_starts_with(Str::lower($cleanParameter), 'id_');
 
             return [
-                'name' => $parameter,
+                'name' => $cleanParameter,
                 'in' => 'path',
-                'required' => true,
+                'required' => ! $optional,
                 'schema' => [
                     'type' => $isIdParameter ? 'integer' : 'string',
                     'example' => $isIdParameter ? 1 : 'valor',
                 ],
-                'description' => 'Parámetro de ruta',
+                'description' => $optional ? 'Parámetro de ruta opcional' : 'Parámetro de ruta',
             ];
         })->values()->all();
     }
@@ -230,6 +232,13 @@ class SwaggerController extends Controller
                             ],
                         ],
                     ],
+                    '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
+                ],
+            ],
+            'get api/maestros/paises/listra_paises/{campo?}/{palabra?}' => [
+                'responses' => [
+                    '200' => $this->codigoResponse(200, 'Registros encontrados', true),
+                    '408' => $this->codigoResponse(408, 'No existen registros', true),
                     '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
                 ],
             ],

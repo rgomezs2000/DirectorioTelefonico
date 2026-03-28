@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * @property int         $id_pais
@@ -87,5 +89,35 @@ class Pais extends BaseModel
     public function scopeIso2(Builder $query, string $iso2): Builder
     {
         return $query->where('iso2', strtoupper($iso2));
+    }
+
+
+    public static function listarPaises(?string $campo = null, ?string $palabra = null): Collection
+    {
+        $modelo = new self();
+        $tabla = $modelo->getTable();
+
+        $consulta = self::query()->select($tabla.'.*');
+
+        $campo = trim((string) $campo);
+        $palabra = trim((string) $palabra);
+
+        if ($palabra !== '') {
+            $like = '%'.$palabra.'%';
+
+            if ($campo !== '' && Schema::hasColumn($tabla, $campo)) {
+                $consulta->whereRaw('LOWER(CAST('.$campo.' AS CHAR)) LIKE LOWER(?)', [$like]);
+            } else {
+                $columnas = Schema::getColumnListing($tabla);
+
+                $consulta->where(function (Builder $query) use ($columnas, $like): void {
+                    foreach ($columnas as $columna) {
+                        $query->orWhereRaw('LOWER(CAST('.$columna.' AS CHAR)) LIKE LOWER(?)', [$like]);
+                    }
+                });
+            }
+        }
+
+        return $consulta->orderBy('nombre')->get();
     }
 }
