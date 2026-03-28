@@ -51,7 +51,7 @@
                 let data = [...this.rows];
 
                 if (term !== '') {
-                    if (this.searchField) {
+                    if (this.searchField && this.searchField !== '__all__') {
                         data = data.filter((row) => String(row?.[this.searchField] ?? '').toLowerCase().includes(term));
                     } else {
                         data = data.filter((row) => this.columns.some((column) =>
