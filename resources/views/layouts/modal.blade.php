@@ -86,3 +86,30 @@
         </footer>
     </div>
 </div>
+
+<div
+    x-data="{ open: false }"
+    x-on:open-form-modal.window="open = true"
+    x-on:close-form-modal.window="open = false"
+    x-show="open"
+    x-transition.opacity
+    x-cloak
+    class="fixed inset-0 z-40 flex items-center justify-center bg-black/50 px-4"
+>
+    <div
+        @click.away="open = false"
+        class="w-full max-w-2xl overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-2xl"
+    >
+        <header class="border-b border-neutral-200 px-5 py-4">
+            @yield('modal_title')
+        </header>
+
+        <div class="px-5 py-5">
+            @yield('modal_body')
+        </div>
+
+        <footer class="flex justify-end gap-2 border-t border-neutral-200 px-5 py-4">
+            @yield('modal_footer')
+        </footer>
+    </div>
+</div>
