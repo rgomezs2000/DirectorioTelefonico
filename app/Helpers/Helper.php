@@ -102,6 +102,46 @@ class Helper
         return in_array($value, $array, true);
     }
 
+    /**
+     * Construye una configuración genérica para el helper datatables() de frontend.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array<string, mixed>
+     */
+    public static function construirConfiguracionDatatable(array $rows): array
+    {
+        $columnas = [];
+
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            foreach (array_keys($row) as $columna) {
+                if (! in_array($columna, $columnas, true)) {
+                    $columnas[] = (string) $columna;
+                }
+            }
+        }
+
+        $fieldOptions = [
+            ['value' => '__all__', 'label' => 'Todo'],
+        ];
+
+        foreach ($columnas as $columna) {
+            $fieldOptions[] = [
+                'value' => $columna,
+                'label' => Str::title(str_replace('_', ' ', $columna)),
+            ];
+        }
+
+        return [
+            'rows' => $rows,
+            'columns' => $columnas,
+            'fieldOptions' => $fieldOptions,
+        ];
+    }
+
 
     /**
      * Obtiene el objeto de usuario guardado en sesión.

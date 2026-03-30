@@ -3,23 +3,24 @@
 @section('title', 'Gestionar Países')
 
 @section('content')
+    @php
+        $datatableConfig = $datatableConfig ?? [
+            'rows' => [],
+            'columns' => ['codigo', 'nombre', 'gentilicio', 'estado'],
+            'fieldOptions' => [
+                ['value' => '__all__', 'label' => 'Todo'],
+                ['value' => 'codigo', 'label' => 'Código'],
+                ['value' => 'nombre', 'label' => 'País'],
+                ['value' => 'gentilicio', 'label' => 'Gentilicio'],
+                ['value' => 'estado', 'label' => 'Estado'],
+            ],
+        ];
+    @endphp
     <section class="p-4 md:p-6 lg:p-8" x-data="datatables({
         endpoint: null,
-        rows: [
-            { id: 1, codigo: 'PE', nombre: 'Perú', gentilicio: 'Peruano', estado: 'Activo', activo: true },
-            { id: 2, codigo: 'CL', nombre: 'Chile', gentilicio: 'Chileno', estado: 'Activo', activo: true },
-            { id: 3, codigo: 'AR', nombre: 'Argentina', gentilicio: 'Argentino', estado: 'Activo', activo: true },
-            { id: 4, codigo: 'CO', nombre: 'Colombia', gentilicio: 'Colombiano', estado: 'Activo', activo: true },
-            { id: 5, codigo: 'EC', nombre: 'Ecuador', gentilicio: 'Ecuatoriano', estado: 'Inactivo', activo: false }
-        ],
-        columns: ['codigo', 'nombre', 'gentilicio', 'estado'],
-        fieldOptions: [
-            { value: '__all__', label: 'Todo' },
-            { value: 'codigo', label: 'Código' },
-            { value: 'nombre', label: 'País' },
-            { value: 'gentilicio', label: 'Gentilicio' },
-            { value: 'estado', label: 'Estado' }
-        ],
+        rows: @js($datatableConfig['rows']),
+        columns: @js($datatableConfig['columns']),
+        fieldOptions: @js($datatableConfig['fieldOptions']),
         searchField: '__all__'
     })" x-init="init()">
         <div class="mx-auto w-full max-w-6xl space-y-5">
