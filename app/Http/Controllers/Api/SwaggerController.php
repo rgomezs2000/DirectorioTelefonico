@@ -235,7 +235,7 @@ class SwaggerController extends Controller
                     '500' => $this->codigoResponse(500, 'Error del servidor', false, true),
                 ],
             ],
-            'get api/maestros/paises/listra_paises/{campo?}/{palabra?}' => [
+            'get api/maestros/paises/lista_paises/{campo?}/{palabra?}' => [
                 'responses' => [
                     '200' => $this->codigoResponse(200, 'Registros encontrados', true),
                     '408' => $this->codigoResponse(408, 'No existen registros', true),

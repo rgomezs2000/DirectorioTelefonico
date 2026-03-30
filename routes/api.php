@@ -21,4 +21,4 @@ Route::get('/admin/lista_menu', [AdminController::class, 'listarMenu']);
 Route::get('/admin/obtener_modulo', [AdminController::class, 'obtenerModulo']);
 Route::get('/admin/obtener_modulo/{ruta}', [AdminController::class, 'obtenerModulo']);
 
-Route::get('/maestros/paises/listra_paises/{campo?}/{palabra?}', [PaisController::class, 'listarPaises']);
+Route::get('/maestros/paises/lista_paises/{campo?}/{palabra?}', [PaisController::class, 'listarPaises']);
