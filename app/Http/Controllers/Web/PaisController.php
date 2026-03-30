@@ -20,7 +20,7 @@ class PaisController extends Controller
         }
 
         $resultado = $this->obtenerPaisesDesdeApi($request);
-        $rows = $this->mapearFilasPaises(Arr::wrap(data_get($resultado, 'json.data', [])));
+        $rows = Arr::wrap(data_get($resultado, 'json.data', []));
 
         return view('paises', [
             'datatableConfig' => Helper::construirConfiguracionDatatable($rows),
@@ -30,7 +30,7 @@ class PaisController extends Controller
     public function listarPaises(Request $request, ?string $campo = null, ?string $palabra = null): JsonResponse
     {
         $resultado = $this->obtenerPaisesDesdeApi($request, $campo, $palabra);
-        $rows = $this->mapearFilasPaises(Arr::wrap(data_get($resultado, 'json.data', [])));
+        $rows = Arr::wrap(data_get($resultado, 'json.data', []));
 
         return response()->json([
             'codigo' => (int) data_get($resultado, 'json.codigo', data_get($resultado, 'status', 500)),
@@ -103,25 +103,5 @@ class PaisController extends Controller
         }
 
         return $respuesta;
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $paises
-     * @return array<int, array<string, mixed>>
-     */
-    private function mapearFilasPaises(array $paises): array
-    {
-        return array_map(static function (array $pais): array {
-            $activo = filter_var(($pais['activo'] ?? false), FILTER_VALIDATE_BOOLEAN);
-
-            return [
-                'id' => (int) ($pais['id_pais'] ?? 0),
-                'codigo' => (string) ($pais['iso2'] ?? ''),
-                'nombre' => (string) ($pais['nombre'] ?? ''),
-                'gentilicio' => (string) ($pais['gentilicio'] ?? $pais['idioma_oficial'] ?? ''),
-                'estado' => $activo ? 'Activo' : 'Inactivo',
-                'activo' => $activo,
-            ];
-        }, $paises);
     }
 }

@@ -6,13 +6,22 @@
     @php
         $datatableConfig = $datatableConfig ?? [
             'rows' => [],
-            'columns' => ['codigo', 'nombre', 'gentilicio', 'estado'],
+            'columns' => ['id_pais', 'nombre', 'nombre_oficial', 'iso2', 'iso3', 'codigo_numerico', 'codigo_telefono', 'continente', 'capital', 'moneda', 'idioma_oficial', 'activo', 'creado_en'],
             'fieldOptions' => [
                 ['value' => '__all__', 'label' => 'Todo'],
-                ['value' => 'codigo', 'label' => 'Código'],
+                ['value' => 'id_pais', 'label' => 'Id Pais'],
                 ['value' => 'nombre', 'label' => 'País'],
-                ['value' => 'gentilicio', 'label' => 'Gentilicio'],
-                ['value' => 'estado', 'label' => 'Estado'],
+                ['value' => 'nombre_oficial', 'label' => 'Nombre Oficial'],
+                ['value' => 'iso2', 'label' => 'ISO2'],
+                ['value' => 'iso3', 'label' => 'ISO3'],
+                ['value' => 'codigo_numerico', 'label' => 'Código Numérico'],
+                ['value' => 'codigo_telefono', 'label' => 'Código Teléfono'],
+                ['value' => 'continente', 'label' => 'Continente'],
+                ['value' => 'capital', 'label' => 'Capital'],
+                ['value' => 'moneda', 'label' => 'Moneda'],
+                ['value' => 'idioma_oficial', 'label' => 'Idioma Oficial'],
+                ['value' => 'activo', 'label' => 'Activo'],
+                ['value' => 'creado_en', 'label' => 'Creado En'],
             ],
         ];
     @endphp
@@ -100,7 +109,7 @@
                                 <th class="px-3 py-3 text-left font-semibold">
                                     <div class="flex items-center gap-2">
                                         Código
-                                        <button type="button" class="text-xs text-neutral-500 hover:text-neutral-800" @click="toggleSort('codigo')">↕</button>
+                                        <button type="button" class="text-xs text-neutral-500 hover:text-neutral-800" @click="toggleSort('iso2')">↕</button>
                                     </div>
                                 </th>
                                 <th class="px-3 py-3 text-left font-semibold">
@@ -111,14 +120,14 @@
                                 </th>
                                 <th class="px-3 py-3 text-left font-semibold">
                                     <div class="flex items-center gap-2">
-                                        Gentilicio
-                                        <button type="button" class="text-xs text-neutral-500 hover:text-neutral-800" @click="toggleSort('gentilicio')">↕</button>
+                                        Idioma oficial
+                                        <button type="button" class="text-xs text-neutral-500 hover:text-neutral-800" @click="toggleSort('idioma_oficial')">↕</button>
                                     </div>
                                 </th>
                                 <th class="px-3 py-3 text-left font-semibold">
                                     <div class="flex items-center gap-2">
                                         Estado
-                                        <button type="button" class="text-xs text-neutral-500 hover:text-neutral-800" @click="toggleSort('estado')">↕</button>
+                                        <button type="button" class="text-xs text-neutral-500 hover:text-neutral-800" @click="toggleSort('activo')">↕</button>
                                     </div>
                                 </th>
                                 <th class="px-3 py-3 text-center font-semibold">Ver</th>
@@ -129,14 +138,14 @@
                         </thead>
 
                         <tbody>
-                            <template x-for="row in paginatedRows" :key="row.id">
+                            <template x-for="row in paginatedRows" :key="row.id_pais">
                                 <tr class="border-t border-neutral-200 hover:bg-neutral-50">
                                     <td class="px-3 py-3">
-                                        <input type="checkbox" class="h-4 w-4 rounded border-neutral-300" :checked="isSelected(row.id)" @change="toggleRow(row.id)">
+                                        <input type="checkbox" class="h-4 w-4 rounded border-neutral-300" :checked="isSelected(row.id_pais)" @change="toggleRow(row.id_pais)">
                                     </td>
-                                    <td class="px-3 py-3" x-text="row.codigo"></td>
+                                    <td class="px-3 py-3" x-text="row.iso2"></td>
                                     <td class="px-3 py-3" x-text="row.nombre"></td>
-                                    <td class="px-3 py-3" x-text="row.gentilicio"></td>
+                                    <td class="px-3 py-3" x-text="row.idioma_oficial"></td>
                                     <td class="px-3 py-3" x-text="row.activo ? 'Activo' : 'Inactivo'"></td>
                                     <td class="px-3 py-3 text-center"><button type="button" class="inline-flex items-center justify-center rounded-sm bg-emerald-600 px-3 py-1 text-white" aria-label="Ver">
                                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -147,7 +156,7 @@
                                     <td class="px-3 py-3 text-center">
                                         <button
                                             type="button"
-                                            @click="row.activo = !row.activo; row.estado = row.activo ? 'Activo' : 'Inactivo'"
+                                            @click="row.activo = !row.activo"
                                             class="inline-flex items-center justify-center rounded-sm px-3 py-1"
                                             :class="row.activo ? 'bg-neutral-900 text-white' : 'border border-neutral-300 bg-white text-neutral-900'"
                                         >
