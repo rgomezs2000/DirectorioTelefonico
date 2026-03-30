@@ -19,3 +19,5 @@ Route::get('/api', [SwaggerController::class, 'ui'])->name('swagger.ui');
 Route::get('/api/openapi.json', [SwaggerController::class, 'spec'])->name('swagger.spec');
 
 Route::get('/maestros/paises', [PaisController::class, 'gestionarPais'])->name('maestros.paises');
+Route::get('/maestros/paises/lista_paises/{campo?}/{palabra?}', [PaisController::class, 'listarPaises'])
+    ->name('maestros.paises.lista_paises');
