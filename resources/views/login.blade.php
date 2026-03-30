@@ -55,7 +55,7 @@
              · error    → mensaje de error genérico de red
              · form     → campos del formulario
         ────────────────────────────────────────────────────── --}}
-        <div class="au-1 w-full max-w-[98vw] sm:max-w-[95vw] md:max-w-[92vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl bg-white shadow-lg
+        <div class="au-1 w-full max-w-[98vw] sm:max-w-[95vw] md:max-w-[92vw] lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl bg-white border border-neutral-200 shadow-xl rounded-md
                     flex flex-col overflow-hidden"
              x-data="{
                  loading : false,
@@ -90,7 +90,7 @@
                  await window.prepareGoogleAuthButton($data);
              ">
 
-            <div class="au-2 w-full py-4 text-center bg-white">
+            <div class="au-2 w-full py-4 text-center bg-white border-b border-neutral-100">
                 <h2 class="text-base sm:text-lg font-semibold tracking-[.25em] uppercase text-neutral-700">Iniciar Sesión</h2>
             </div>
 
@@ -203,10 +203,22 @@
                             <button type="submit"
                                     :disabled="loading"
                                     class="w-full flex items-center justify-center gap-2
-                                           rounded border border-neutral-800 bg-neutral-800
+                                           rounded-md border border-emerald-700 bg-emerald-600
                                            px-4 py-2 text-sm font-semibold text-white
-                                           hover:bg-neutral-700 transition disabled:opacity-60
+                                           hover:bg-emerald-700 transition disabled:opacity-60
                                            disabled:cursor-not-allowed">
+
+                                <svg x-show="!loading"
+                                     x-cloak
+                                     class="h-4 w-4"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.8"
+                                     aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25h-7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h7.5m0-13.5 3.75 3.75m-3.75-3.75v3.75h3.75m-3.75 5.25h-4.5" />
+                                    <circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none" />
+                                </svg>
 
                                 {{-- Spinner Alpine (visible solo cuando loading = true) --}}
                                 <svg x-show="loading"
@@ -225,13 +237,18 @@
 
                         {{-- Botón SALIR / Cancelar --}}
                         <div class="flex items-center justify-center px-5 py-5">
-                            <a href="{{ url('/') }}"
-                               class="w-full flex items-center justify-center
-                                      rounded border border-neutral-400 bg-white
-                                      px-4 py-2 text-sm font-semibold text-neutral-700
-                                      hover:bg-neutral-100 transition text-center">
+                            <button type="button"
+                                    @click="window.close(); setTimeout(() => { if (!window.closed) window.history.back(); }, 150);"
+                                    class="w-full inline-flex items-center justify-center gap-2
+                                           rounded-md border border-red-700 bg-red-600
+                                           px-4 py-2 text-sm font-semibold text-white
+                                           hover:bg-red-700 transition text-center">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h8.25A2.25 2.25 0 0 1 21 5.25v13.5A2.25 2.25 0 0 1 18.75 21H10.5a2.25 2.25 0 0 1-2.25-2.25V15" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m0 0 3-3m-3 3 3 3" />
+                                </svg>
                                 Salir
-                            </a>
+                            </button>
                         </div>
 
                     </div>{{-- /FILA 3 --}}
